@@ -1,4 +1,8 @@
 # Course PDF files (personal, not for repo)
 *.pdf
+
 # Personal planning notes
 plannew.md
+
+# Claude teaching context files
+CLAUDE.md
