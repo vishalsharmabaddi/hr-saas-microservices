@@ -1,0 +1,39 @@
+server:
+  port: 8222
+
+spring:
+  application:
+    name: api-gateway
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8080/realms/hr-saas
+  cloud:
+    gateway:
+      mvc:
+        routes:
+          - id: employee-service
+            uri: lb://employee-service
+            predicates:
+              - Path=/api/employees/**
+
+          - id: attendance-service
+            uri: lb://attendance-service
+            predicates:
+              - Path=/api/attendance/**
+
+          - id: leave-service
+            uri: lb://leave-service
+            predicates:
+              - Path=/api/leaves/**
+
+          - id: notification-service
+            uri: lb://notification-service
+            predicates:
+              - Path=/api/notify/**
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/

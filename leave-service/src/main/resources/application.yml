@@ -10,6 +10,11 @@ spring:
     port: 5672
     username: guest
     password: guest
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
 
 server:
   port: 8083
@@ -18,13 +23,19 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics
+        include: health,info,metrics,prometheus
   endpoint:
     health:
       show-details: always
   info:
     env:
       enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name}
+  tracing:
+    sampling:
+      probability: 1.0
 
 info:
   app:
@@ -36,3 +47,38 @@ eureka:
   client:
     service-url:
       defaultZone: http://localhost:8761/eureka/
+
+resilience4j:
+  retry:
+    instances:
+      employeeServiceRetry:
+        max-attempts: 3
+        wait-duration: 2s
+
+  circuitbreaker:
+    instances:
+      employeeServiceCB:
+        sliding-window-size: 5
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 10s
+        permitted-number-of-calls-in-half-open-state: 2
+
+  ratelimiter:
+    instances:
+      employeeServiceRL:
+        limit-for-period: 5
+        limit-refresh-period: 1s
+        timeout-duration: 0s
+
+  bulkhead:
+    instances:
+      employeeServiceBH:
+        max-concurrent-calls: 5
+        max-wait-duration: 1s
+
+logging:
+  level:
+    root: INFO
+    com.hrsaas.leave_service: DEBUG
+  pattern:
+    console: "%d{HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
