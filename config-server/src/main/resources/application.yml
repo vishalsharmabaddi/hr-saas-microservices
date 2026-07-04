@@ -1,0 +1,27 @@
+spring:
+  application:
+    name: config-server
+  profiles:
+    active: native
+  cloud:
+    config:
+      server:
+        native:
+          search-locations: classpath:/config-repo
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+
+server:
+  port: 8888
+
+encrypt:
+   key: ${ENCRYPT_KEY:my-super-secret-encryption-key-hrsaas-2024}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,busrefresh
