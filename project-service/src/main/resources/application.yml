@@ -26,6 +26,11 @@ spring:
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      retries: 0
+      properties:
+        max.block.ms: 2000
+        request.timeout.ms: 1000
+        delivery.timeout.ms: 3000
 
 server:
   port: 8085

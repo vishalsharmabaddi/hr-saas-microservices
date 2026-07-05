@@ -1,5 +1,6 @@
 package com.hrsaas.project_service.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.hrsaas.project_service.enums.Priority;
 import com.hrsaas.project_service.enums.TaskStatus;
 import jakarta.persistence.*;
@@ -23,6 +24,7 @@ public class Task {
     @Column(nullable = false)
     private Long companyId;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "task_list_id", nullable = false)
     private TaskList taskList;

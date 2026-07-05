@@ -1,5 +1,6 @@
 package com.hrsaas.project_service.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.hrsaas.project_service.enums.ProjectRole;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -22,6 +23,7 @@ public class ProjectMember {
     @Column(nullable = false)
     private Long companyId;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_id", nullable = false)
     private Project project;
