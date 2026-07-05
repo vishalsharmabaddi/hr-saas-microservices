@@ -185,6 +185,26 @@ services:
     networks:
       - hrsaas-network
 
+  project-service:
+    build: ./project-service
+    container_name: project-service
+    ports:
+      - "8085:8085"
+    environment:
+      - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8888
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - SPRING_RABBITMQ_HOST=rabbitmq
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/project_db
+      - MANAGEMENT_ZIPKIN_TRACING_ENDPOINT=http://zipkin:9411/api/v2/spans
+    depends_on:
+      - config-server
+      - eureka-server
+      - postgres
+      - kafka
+    networks:
+      - hrsaas-network
+
   api-gateway:
     build: ./api-gateway
     container_name: api-gateway
