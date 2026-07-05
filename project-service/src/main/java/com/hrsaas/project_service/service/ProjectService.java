@@ -51,6 +51,7 @@ public class ProjectService {
         project.setBillingType(request.getBillingType());
         project.setStartDate(request.getStartDate());
         project.setEndDate(request.getEndDate());
+        if (request.getStatus() != null) project.setStatus(request.getStatus());
         return toResponse(projectRepository.save(project));
     }
 

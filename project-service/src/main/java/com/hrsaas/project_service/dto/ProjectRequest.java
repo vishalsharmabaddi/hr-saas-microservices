@@ -1,6 +1,7 @@
 package com.hrsaas.project_service.dto;
 
 import com.hrsaas.project_service.enums.BillingType;
+import com.hrsaas.project_service.enums.ProjectStatus;
 import com.hrsaas.project_service.enums.ProjectType;
 import lombok.Data;
 import java.time.LocalDate;
@@ -11,6 +12,7 @@ public class ProjectRequest {
     private String description;
     private ProjectType type;
     private BillingType billingType;
+    private ProjectStatus status;
     private LocalDate startDate;
     private LocalDate endDate;
     private Long ownerEmployeeId;

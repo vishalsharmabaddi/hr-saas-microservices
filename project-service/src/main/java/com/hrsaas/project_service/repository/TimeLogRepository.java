@@ -9,4 +9,6 @@ public interface TimeLogRepository extends JpaRepository<TimeLog, Long> {
     List<TimeLog> findByTaskIdAndCompanyId(Long taskId, Long companyId);
     List<TimeLog> findByEmployeeIdAndCompanyIdAndLogDateBetween(
         Long employeeId, Long companyId, LocalDate from, LocalDate to);
+
+    List<TimeLog> findTop5ByCompanyIdOrderByCreatedAtDesc(Long companyId);
 }

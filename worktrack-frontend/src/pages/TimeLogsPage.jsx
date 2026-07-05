@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { Clock, Plus, Calendar, TrendingUp, Timer, X, ChevronLeft, ChevronRight, Filter } from 'lucide-react'
 import api from '../api/axios'
 
@@ -201,6 +201,18 @@ export default function TimeLogsPage() {
   const [customFrom, setCustomFrom] = useState('')
   const [customTo, setCustomTo] = useState('')
   const [showDatePicker, setShowDatePicker] = useState(false)
+  const datePickerRef = useRef(null)
+
+  useEffect(() => {
+    if (!showDatePicker) return
+    const handler = (e) => {
+      if (datePickerRef.current && !datePickerRef.current.contains(e.target)) {
+        setShowDatePicker(false)
+      }
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [showDatePicker])
 
   const isCustom = !!(customFrom && customTo)
   const week = getWeekForOffset(weekOffset)
@@ -312,7 +324,7 @@ export default function TimeLogsPage() {
             </button>
 
             {/* Clickable date label — opens inline date picker */}
-            <div style={{ position: 'relative' }}>
+            <div ref={datePickerRef} style={{ position: 'relative' }}>
               <button
                 onClick={() => setShowDatePicker(v => !v)}
                 style={{

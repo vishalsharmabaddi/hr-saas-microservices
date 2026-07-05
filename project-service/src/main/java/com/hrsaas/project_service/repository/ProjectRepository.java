@@ -6,4 +6,6 @@ import java.util.List;
 
 public interface ProjectRepository extends JpaRepository<Project, Long> {
     List<Project> findByCompanyId(Long companyId);
+
+    List<Project> findTop5ByCompanyIdOrderByCreatedAtDesc(Long companyId);
 }
