@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "employees")
@@ -17,7 +18,13 @@ public class Employee {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
+    private Long companyId;
+
+    @Column(nullable = false)
     private String firstName;
+
+    @Column(nullable = false)
     private String lastName;
 
     @Column(unique = true, nullable = false)
@@ -26,6 +33,25 @@ public class Employee {
     private String phone;
     private String department;
     private String designation;
-    private LocalDate joiningDate;
+
+    // FULL_TIME, PART_TIME, CONTRACT, INTERN
+    private String employmentType = "FULL_TIME";
+
     private Boolean isActive = true;
+    private LocalDate joiningDate;
+
+    @Column(updatable = false)
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
 }

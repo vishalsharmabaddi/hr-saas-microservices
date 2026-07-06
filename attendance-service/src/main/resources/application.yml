@@ -1,8 +1,6 @@
 spring:
   application:
     name: attendance-service
-  profiles:
-    active: dev
   config:
     import: optional:configserver:http://localhost:8888
   rabbitmq:
@@ -42,3 +40,6 @@ eureka:
   client:
     service-url:
       defaultZone: http://localhost:8761/eureka/
+
+app:
+  employee-service-url: http://localhost:8081

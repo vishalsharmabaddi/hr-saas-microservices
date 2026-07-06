@@ -28,6 +28,13 @@ export default function MembersPage() {
     queryFn: () => api.get('/projects').then(r => r.data),
   })
 
+  const { data: employees = [] } = useQuery({
+    queryKey: ['employees'],
+    queryFn: () => api.get('/employees').then(r => r.data),
+  })
+
+  const empMap = Object.fromEntries(employees.map(e => [e.id, e]))
+
   const activeProjectId = selectedProjectId ?? projects[0]?.id ?? null
 
   const { data: members = [], isLoading } = useQuery({
@@ -104,20 +111,25 @@ export default function MembersPage() {
           padding: '16px 20px', marginBottom: 16,
           display: 'flex', gap: 12, alignItems: 'flex-end', flexWrap: 'wrap',
         }}>
-          <div style={{ flex: '1 1 120px' }}>
+          <div style={{ flex: '1 1 180px' }}>
             <label style={{ fontSize: 11, fontWeight: 600, color: '#64748b', display: 'block', marginBottom: 6 }}>
-              EMPLOYEE ID
+              EMPLOYEE
             </label>
-            <input
-              type="number"
-              placeholder="e.g. 101"
+            <select
               value={form.employeeId}
               onChange={e => setForm(f => ({ ...f, employeeId: e.target.value }))}
               style={{
                 width: '100%', padding: '8px 12px', borderRadius: 8,
-                border: '1px solid #e2e8f0', fontSize: 13,
+                border: '1px solid #e2e8f0', fontSize: 13, background: '#fff',
               }}
-            />
+            >
+              <option value="">-- Select employee --</option>
+              {employees.filter(e => e.isActive).map(e => (
+                <option key={e.id} value={e.id}>
+                  {e.fullName} ({e.designation || e.department || 'No role'})
+                </option>
+              ))}
+            </select>
           </div>
           <div style={{ flex: '1 1 140px' }}>
             <label style={{ fontSize: 11, fontWeight: 600, color: '#64748b', display: 'block', marginBottom: 6 }}>
@@ -218,14 +230,24 @@ export default function MembersPage() {
               }}
             >
               <span style={{ fontSize: 12, color: '#94a3b8', fontFamily: 'monospace' }}>
-                #{m.employeeId}
+                EMP-{String(m.employeeId).padStart(3, '0')}
               </span>
-              <div>
-                <div style={{ fontSize: 14, fontWeight: 500, color: '#1e293b' }}>
-                  Employee {m.employeeId}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <div style={{
+                  width: 32, height: 32, borderRadius: '50%', flexShrink: 0,
+                  background: '#eef2ff', display: 'flex', alignItems: 'center',
+                  justifyContent: 'center', fontSize: 11, fontWeight: 700, color: '#4f46e5',
+                }}>
+                  {empMap[m.employeeId]?.firstName?.[0]}{empMap[m.employeeId]?.lastName?.[0]}
                 </div>
-                <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>
-                  Joined {new Date(m.joinedAt).toLocaleDateString()}
+                <div>
+                  <div style={{ fontSize: 14, fontWeight: 500, color: '#1e293b' }}>
+                    {empMap[m.employeeId]?.fullName ?? `Employee #${m.employeeId}`}
+                  </div>
+                  <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>
+                    {empMap[m.employeeId]?.designation ?? empMap[m.employeeId]?.department ?? ''}
+                    {' · '}Joined {new Date(m.joinedAt).toLocaleDateString()}
+                  </div>
                 </div>
               </div>
               <span style={{

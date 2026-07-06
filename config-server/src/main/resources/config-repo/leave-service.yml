@@ -1,11 +1,14 @@
 spring:
   datasource:
-    url: jdbc:postgresql://postgres:5432/leavedb
+    url: jdbc:postgresql://localhost:5432/leavedb
     driver-class-name: org.postgresql.Driver
     username: postgres
-    password: 1230
+    password: '{cipher}d1c4c2cbb7526b201b0a014e57a3290ba1ad0f48ae703ca60421c58817727b32'
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: update
     show-sql: true
+
+app:
+  welcome-message: "HR SaaS Leave Service - Version 1"

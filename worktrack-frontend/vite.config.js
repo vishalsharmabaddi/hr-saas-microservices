@@ -6,6 +6,27 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   server: {
     proxy: {
+      // employee-service (8081) — more specific, must come BEFORE /api
+      '/api/employees': {
+        target: 'http://localhost:8081',
+        changeOrigin: true,
+      },
+      // attendance-service (8082)
+      '/api/attendance': {
+        target: 'http://localhost:8082',
+        changeOrigin: true,
+      },
+      // leave-service (8083)
+      '/api/leaves': {
+        target: 'http://localhost:8083',
+        changeOrigin: true,
+      },
+      // notification-service (8084)
+      '/api/notifications': {
+        target: 'http://localhost:8084',
+        changeOrigin: true,
+      },
+      // project-service (8085) — everything else under /api
       '/api': {
         target: 'http://localhost:8085',
         changeOrigin: true,

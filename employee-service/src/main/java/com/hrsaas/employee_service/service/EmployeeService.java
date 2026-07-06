@@ -1,5 +1,7 @@
 package com.hrsaas.employee_service.service;
 
+import com.hrsaas.employee_service.dto.EmployeeRequest;
+import com.hrsaas.employee_service.dto.EmployeeResponse;
 import com.hrsaas.employee_service.model.Employee;
 import com.hrsaas.employee_service.repository.EmployeeRepository;
 import lombok.RequiredArgsConstructor;
@@ -12,38 +14,78 @@ public class EmployeeService {
 
     private final EmployeeRepository employeeRepository;
 
-    public Employee createEmployee(Employee employee) {
-        return employeeRepository.save(employee);
+    public EmployeeResponse createEmployee(Long companyId, EmployeeRequest request) {
+        Employee emp = new Employee();
+        emp.setCompanyId(companyId);
+        emp.setFirstName(request.getFirstName());
+        emp.setLastName(request.getLastName());
+        emp.setEmail(request.getEmail());
+        emp.setPhone(request.getPhone());
+        emp.setDepartment(request.getDepartment());
+        emp.setDesignation(request.getDesignation());
+        emp.setEmploymentType(request.getEmploymentType() != null ? request.getEmploymentType() : "FULL_TIME");
+        emp.setJoiningDate(request.getJoiningDate());
+        return toResponse(employeeRepository.save(emp));
     }
 
-    public List<Employee> getAllEmployees() {
-        return employeeRepository.findAll();
+    public List<EmployeeResponse> getAllEmployees(Long companyId) {
+        return employeeRepository.findByCompanyId(companyId)
+                .stream().map(this::toResponse).toList();
     }
 
-    public Employee getEmployeeById(Long id) {
-        return employeeRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Employee not found with id: " + id));
+    public EmployeeResponse getEmployeeById(Long companyId, Long id) {
+        Employee emp = employeeRepository.findById(id)
+                .filter(e -> e.getCompanyId().equals(companyId))
+                .orElseThrow(() -> new RuntimeException("Employee not found: " + id));
+        return toResponse(emp);
     }
 
-    public Employee updateEmployee(Long id, Employee updatedEmployee) {
-        Employee existing = getEmployeeById(id);
-        existing.setFirstName(updatedEmployee.getFirstName());
-        existing.setLastName(updatedEmployee.getLastName());
-        existing.setEmail(updatedEmployee.getEmail());
-        existing.setPhone(updatedEmployee.getPhone());
-        existing.setDepartment(updatedEmployee.getDepartment());
-        existing.setDesignation(updatedEmployee.getDesignation());
-        existing.setJoiningDate(updatedEmployee.getJoiningDate());
-        existing.setIsActive(updatedEmployee.getIsActive());
-        return employeeRepository.save(existing);
+    public EmployeeResponse updateEmployee(Long companyId, Long id, EmployeeRequest request) {
+        Employee emp = employeeRepository.findById(id)
+                .filter(e -> e.getCompanyId().equals(companyId))
+                .orElseThrow(() -> new RuntimeException("Employee not found: " + id));
+        emp.setFirstName(request.getFirstName());
+        emp.setLastName(request.getLastName());
+        emp.setEmail(request.getEmail());
+        emp.setPhone(request.getPhone());
+        emp.setDepartment(request.getDepartment());
+        emp.setDesignation(request.getDesignation());
+        if (request.getEmploymentType() != null) emp.setEmploymentType(request.getEmploymentType());
+        if (request.getJoiningDate() != null) emp.setJoiningDate(request.getJoiningDate());
+        return toResponse(employeeRepository.save(emp));
     }
 
-    public void deleteEmployee(Long id) {
-        getEmployeeById(id);
-        employeeRepository.deleteById(id);
+    public void deactivateEmployee(Long companyId, Long id) {
+        Employee emp = employeeRepository.findById(id)
+                .filter(e -> e.getCompanyId().equals(companyId))
+                .orElseThrow(() -> new RuntimeException("Employee not found: " + id));
+        emp.setIsActive(false);
+        employeeRepository.save(emp);
     }
 
-     public List<Employee> getEmployeesByDepartment(String department) {
-        return employeeRepository.findByDepartment(department);
+    public void activateEmployee(Long companyId, Long id) {
+        Employee emp = employeeRepository.findById(id)
+                .filter(e -> e.getCompanyId().equals(companyId))
+                .orElseThrow(() -> new RuntimeException("Employee not found: " + id));
+        emp.setIsActive(true);
+        employeeRepository.save(emp);
+    }
+
+    private EmployeeResponse toResponse(Employee e) {
+        EmployeeResponse res = new EmployeeResponse();
+        res.setId(e.getId());
+        res.setCompanyId(e.getCompanyId());
+        res.setFirstName(e.getFirstName());
+        res.setLastName(e.getLastName());
+        res.setFullName(e.getFirstName() + " " + e.getLastName());
+        res.setEmail(e.getEmail());
+        res.setPhone(e.getPhone());
+        res.setDepartment(e.getDepartment());
+        res.setDesignation(e.getDesignation());
+        res.setEmploymentType(e.getEmploymentType());
+        res.setIsActive(e.getIsActive());
+        res.setJoiningDate(e.getJoiningDate());
+        res.setCreatedAt(e.getCreatedAt());
+        return res;
     }
 }

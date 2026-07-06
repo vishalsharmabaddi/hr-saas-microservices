@@ -9,9 +9,11 @@ import java.util.Optional;
 @Repository
 public interface EmployeeRepository extends JpaRepository<Employee, Long> {
 
+    List<Employee> findByCompanyId(Long companyId);
+
+    List<Employee> findByCompanyIdAndIsActive(Long companyId, Boolean isActive);
+
     Optional<Employee> findByEmail(String email);
 
     List<Employee> findByDepartment(String department);
-
-    List<Employee> findByIsActive(Boolean isActive);
 }

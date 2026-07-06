@@ -1,10 +1,9 @@
 package com.hrsaas.employee_service.controller;
 
-import com.hrsaas.employee_service.model.Employee;
+import com.hrsaas.employee_service.dto.EmployeeRequest;
+import com.hrsaas.employee_service.dto.EmployeeResponse;
 import com.hrsaas.employee_service.service.EmployeeService;
 import lombok.RequiredArgsConstructor;
-
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,45 +16,50 @@ import java.util.List;
 @RequiredArgsConstructor
 public class EmployeeController {
 
-    @Value("${app.welcome-message}")
-    private String welcomeMessage;
     private final EmployeeService employeeService;
 
     @PostMapping
-    public ResponseEntity<Employee> createEmployee(@RequestBody Employee employee) {
+    public ResponseEntity<EmployeeResponse> createEmployee(
+            @RequestHeader("X-Company-Id") Long companyId,
+            @RequestBody EmployeeRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(employeeService.createEmployee(employee));
+                .body(employeeService.createEmployee(companyId, request));
     }
 
     @GetMapping
-    public ResponseEntity<List<Employee>> getAllEmployees() {
-        return ResponseEntity.ok(employeeService.getAllEmployees());
+    public ResponseEntity<List<EmployeeResponse>> getAllEmployees(
+            @RequestHeader("X-Company-Id") Long companyId) {
+        return ResponseEntity.ok(employeeService.getAllEmployees(companyId));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Employee> getEmployeeById(@PathVariable Long id) {
-        return ResponseEntity.ok(employeeService.getEmployeeById(id));
-    }
-
-    @GetMapping("/info")
-    public ResponseEntity<String> getInfo() {
-        return ResponseEntity.ok(welcomeMessage);
+    public ResponseEntity<EmployeeResponse> getEmployeeById(
+            @RequestHeader("X-Company-Id") Long companyId,
+            @PathVariable Long id) {
+        return ResponseEntity.ok(employeeService.getEmployeeById(companyId, id));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Employee> updateEmployee(@PathVariable Long id,
-            @RequestBody Employee employee) {
-        return ResponseEntity.ok(employeeService.updateEmployee(id, employee));
+    public ResponseEntity<EmployeeResponse> updateEmployee(
+            @RequestHeader("X-Company-Id") Long companyId,
+            @PathVariable Long id,
+            @RequestBody EmployeeRequest request) {
+        return ResponseEntity.ok(employeeService.updateEmployee(companyId, id, request));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteEmployee(@PathVariable Long id) {
-        employeeService.deleteEmployee(id);
+    public ResponseEntity<Void> deactivateEmployee(
+            @RequestHeader("X-Company-Id") Long companyId,
+            @PathVariable Long id) {
+        employeeService.deactivateEmployee(companyId, id);
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/department/{department}")
-    public ResponseEntity<List<Employee>> getByDepartment(@PathVariable String department) {
-        return ResponseEntity.ok(employeeService.getEmployeesByDepartment(department));
+    @PatchMapping("/{id}/activate")
+    public ResponseEntity<Void> activateEmployee(
+            @RequestHeader("X-Company-Id") Long companyId,
+            @PathVariable Long id) {
+        employeeService.activateEmployee(companyId, id);
+        return ResponseEntity.noContent().build();
     }
 }

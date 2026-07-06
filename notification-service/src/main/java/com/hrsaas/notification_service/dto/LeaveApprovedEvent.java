@@ -1,12 +1,8 @@
-package com.hrsaas.leave_service.dto;
+package com.hrsaas.notification_service.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
 public class LeaveApprovedEvent {
     private Long employeeId;
     private Long companyId;
