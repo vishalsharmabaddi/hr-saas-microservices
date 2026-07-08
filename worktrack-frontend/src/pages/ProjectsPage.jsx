@@ -69,7 +69,7 @@ export default function ProjectsPage() {
 
   const { data: projects = [], isLoading } = useQuery({
     queryKey: ['projects'],
-    queryFn: () => api.get('/projects').then(r => r.data),
+    queryFn: () => api.get('/projects').then(r => Array.isArray(r.data) ? r.data : []),
   })
 
   const filtered = projects.filter(p =>

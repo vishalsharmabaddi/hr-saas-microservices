@@ -33,14 +33,14 @@ export default function LeavePage() {
 
   const { data: employees = [] } = useQuery({
     queryKey: ['employees'],
-    queryFn: () => api.get('/employees').then(r => r.data),
+    queryFn: () => api.get('/employees').then(r => Array.isArray(r.data) ? r.data : []),
   })
   const empMap = Object.fromEntries(employees.map(e => [e.id, e]))
 
   const statusParam = activeTab === 'All' ? undefined : activeTab
   const { data: leaves = [], isLoading } = useQuery({
     queryKey: ['leaves', activeTab],
-    queryFn: () => api.get('/leaves', { params: statusParam ? { status: statusParam } : {} }).then(r => r.data),
+    queryFn: () => api.get('/leaves', { params: statusParam ? { status: statusParam } : {} }).then(r => Array.isArray(r.data) ? r.data : []),
   })
 
   const applyMutation = useMutation({

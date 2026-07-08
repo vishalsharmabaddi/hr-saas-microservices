@@ -21,13 +21,23 @@ export default function ProgressPage() {
 
   const { data: history = [] } = useQuery({
     queryKey: ['gamification-history', 1],
-    queryFn: () => api.get('/gamification/1/history').then(r => r.data),
+    queryFn: () => api.get('/gamification/1/history').then(r => Array.isArray(r.data) ? r.data : []),
   })
 
   const { data: leaderboard = [] } = useQuery({
     queryKey: ['gamification-leaderboard'],
-    queryFn: () => api.get('/gamification/leaderboard').then(r => r.data),
+    queryFn: () => api.get('/gamification/leaderboard').then(r => Array.isArray(r.data) ? r.data : []),
   })
+
+  const { data: employees = [] } = useQuery({
+    queryKey: ['employees-for-names'],
+    queryFn: () => api.get('/employees').then(r => Array.isArray(r.data) ? r.data : []),
+  })
+
+  const nameMap = Object.fromEntries(
+    employees.map(e => [e.id, e.fullName || `${e.firstName} ${e.lastName}`.trim()])
+  )
+  const getName = id => nameMap[id] || `Employee #${id}`
 
   const currentLevel = xp?.level || 'ROOKIE'
   const xpProgress = xp
@@ -234,7 +244,7 @@ export default function ProgressPage() {
                   }}>{i + 1}</div>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontSize: 12, fontWeight: 600, color: '#0f172a', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                      {entry.employeeName || `Employee #${entry.employeeId}`}
+                      {getName(entry.employeeId)}
                     </div>
                     <div style={{ fontSize: 10, color: levelColors[entry.level] || '#64748b', fontWeight: 600 }}>{entry.level}</div>
                   </div>

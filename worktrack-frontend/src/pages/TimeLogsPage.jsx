@@ -46,12 +46,12 @@ function LogTimeModal({ onClose }) {
 
   const { data: projects = [] } = useQuery({
     queryKey: ['projects'],
-    queryFn: () => api.get('/projects').then(r => r.data),
+    queryFn: () => api.get('/projects').then(r => Array.isArray(r.data) ? r.data : []),
   })
 
   const { data: taskLists = [] } = useQuery({
     queryKey: ['tasklists', projectId],
-    queryFn: () => api.get(`/projects/${projectId}/tasklists`).then(r => r.data),
+    queryFn: () => api.get(`/projects/${projectId}/tasklists`).then(r => Array.isArray(r.data) ? r.data : []),
     enabled: !!projectId,
   })
 
@@ -59,7 +59,7 @@ function LogTimeModal({ onClose }) {
 
   const { data: tasks = [] } = useQuery({
     queryKey: ['tasks', firstTaskListId],
-    queryFn: () => api.get(`/tasks/tasklist/${firstTaskListId}`).then(r => r.data),
+    queryFn: () => api.get(`/tasks/tasklist/${firstTaskListId}`).then(r => Array.isArray(r.data) ? r.data : []),
     enabled: !!firstTaskListId,
   })
 
@@ -222,13 +222,13 @@ export default function TimeLogsPage() {
   const { data: weekLogs = [], isLoading } = useQuery({
     queryKey: ['timelogs', 'range', EMPLOYEE_ID, queryFrom, queryTo],
     queryFn: () =>
-      api.get(`/timelogs/employee/${EMPLOYEE_ID}?from=${queryFrom}&to=${queryTo}`).then(r => r.data),
+      api.get(`/timelogs/employee/${EMPLOYEE_ID}?from=${queryFrom}&to=${queryTo}`).then(r => Array.isArray(r.data) ? r.data : []),
   })
 
   const { data: monthLogs = [] } = useQuery({
     queryKey: ['timelogs', 'month', EMPLOYEE_ID],
     queryFn: () =>
-      api.get(`/timelogs/employee/${EMPLOYEE_ID}?from=${MONTH.from}&to=${MONTH.to}`).then(r => r.data),
+      api.get(`/timelogs/employee/${EMPLOYEE_ID}?from=${MONTH.from}&to=${MONTH.to}`).then(r => Array.isArray(r.data) ? r.data : []),
   })
 
   const todayHours = weekLogs.filter(l => l.logDate === TODAY).reduce((s, l) => s + l.hoursLogged, 0)

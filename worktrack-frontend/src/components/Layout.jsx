@@ -37,7 +37,7 @@ function NotificationDropdown({ onClose }) {
 
   const { data: notifications = [] } = useQuery({
     queryKey: ['notifications'],
-    queryFn: () => api.get('/notifications').then(r => r.data),
+    queryFn: () => api.get('/notifications').then(r => Array.isArray(r.data) ? r.data : []),
     refetchInterval: 15000,
   })
 
@@ -135,7 +135,7 @@ export default function Layout() {
 
   const { data: notifications = [] } = useQuery({
     queryKey: ['notifications'],
-    queryFn: () => api.get('/notifications').then(r => r.data),
+    queryFn: () => api.get('/notifications').then(r => Array.isArray(r.data) ? r.data : []),
     refetchInterval: 15000,
   })
   const unread = notifications.filter(n => !n.isRead).length

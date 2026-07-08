@@ -15,9 +15,20 @@ export default function EngagementPage() {
 
   const { data: team = [], isLoading } = useQuery({
     queryKey: ['team-engagement'],
-    queryFn: () => api.get('/gamification/team').then(r => r.data),
+    queryFn: () => api.get('/gamification/team').then(r => Array.isArray(r.data) ? r.data : []),
     refetchInterval: 30000,
   })
+
+  const { data: employees = [] } = useQuery({
+    queryKey: ['employees-for-names'],
+    queryFn: () => api.get('/employees').then(r => Array.isArray(r.data) ? r.data : []),
+  })
+
+  const nameMap = Object.fromEntries(
+    employees.map(e => [e.id, e.fullName || `${e.firstName} ${e.lastName}`.trim()])
+  )
+  const getName = id => nameMap[id] || `Employee #${id}`
+  const getInitial = id => (nameMap[id] || 'E')[0].toUpperCase()
 
   const nudgeMutation = useMutation({
     mutationFn: ({ employeeId, employeeName }) =>
@@ -80,7 +91,7 @@ export default function EngagementPage() {
               <div>
                 <div style={{ fontSize: 11, fontWeight: 700, color: '#92400e', letterSpacing: '0.5px' }}>TOP XP EARNER</div>
                 <div style={{ fontSize: 15, fontWeight: 700, color: '#0f172a', marginTop: 2 }}>
-                  Employee #{topXP.employeeId}
+                  {getName(topXP.employeeId)}
                 </div>
                 <div style={{ fontSize: 13, color: '#d97706', fontWeight: 600, marginTop: 2 }}>{topXP.totalXp} XP · {topXP.level}</div>
               </div>
@@ -98,7 +109,7 @@ export default function EngagementPage() {
               <div>
                 <div style={{ fontSize: 11, fontWeight: 700, color: '#9a3412', letterSpacing: '0.5px' }}>LONGEST STREAK</div>
                 <div style={{ fontSize: 15, fontWeight: 700, color: '#0f172a', marginTop: 2 }}>
-                  Employee #{topStreak.employeeId}
+                  {getName(topStreak.employeeId)}
                 </div>
                 <div style={{ fontSize: 13, color: '#f97316', fontWeight: 600, marginTop: 2 }}>{topStreak.currentStreak} days in a row</div>
               </div>
@@ -153,10 +164,10 @@ export default function EngagementPage() {
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
                       fontSize: 12, fontWeight: 700, color: levelColors[member.level],
                     }}>
-                      {member.employeeId}
+                      {getInitial(member.employeeId)}
                     </div>
                     <div>
-                      <div style={{ fontSize: 13, fontWeight: 600, color: '#0f172a' }}>Employee #{member.employeeId}</div>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: '#0f172a' }}>{getName(member.employeeId)}</div>
                       <div style={{ fontSize: 10, color: levelColors[member.level], fontWeight: 600 }}>{member.level}</div>
                     </div>
                   </div>
@@ -203,7 +214,7 @@ export default function EngagementPage() {
                   {/* Nudge button */}
                   <div>
                     <button
-                      onClick={() => nudgeMutation.mutate({ employeeId: member.employeeId, employeeName: `Employee #${member.employeeId}` })}
+                      onClick={() => nudgeMutation.mutate({ employeeId: member.employeeId, employeeName: getName(member.employeeId) })}
                       disabled={nudged || nudgeMutation.isPending}
                       style={{
                         display: 'flex', alignItems: 'center', gap: 5,

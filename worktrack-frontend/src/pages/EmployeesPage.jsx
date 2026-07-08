@@ -23,7 +23,7 @@ export default function EmployeesPage() {
 
   const { data: employees = [], isLoading } = useQuery({
     queryKey: ['employees'],
-    queryFn: () => api.get('/employees').then(r => r.data),
+    queryFn: () => api.get('/employees').then(r => Array.isArray(r.data) ? r.data : []),
   })
 
   const createMutation = useMutation({

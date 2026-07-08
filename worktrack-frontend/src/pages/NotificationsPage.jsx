@@ -21,7 +21,7 @@ export default function NotificationsPage() {
 
   const { data: notifications = [], isLoading } = useQuery({
     queryKey: ['notifications'],
-    queryFn: () => api.get('/notifications').then(r => r.data),
+    queryFn: () => api.get('/notifications').then(r => Array.isArray(r.data) ? r.data : []),
     refetchInterval: 15000,
   })
 

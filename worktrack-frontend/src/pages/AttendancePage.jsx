@@ -34,14 +34,14 @@ export default function AttendancePage() {
   // Fetch today's attendance records
   const { data: records = [], isLoading } = useQuery({
     queryKey: ['attendance-today'],
-    queryFn: () => api.get('/attendance/today').then(r => r.data),
-    refetchInterval: 30000, // auto-refresh every 30s
+    queryFn: () => api.get('/attendance/today').then(r => Array.isArray(r.data) ? r.data : []),
+    refetchInterval: 30000,
   })
 
   // Fetch employees for dropdown + name lookup
   const { data: employees = [] } = useQuery({
     queryKey: ['employees'],
-    queryFn: () => api.get('/employees').then(r => r.data),
+    queryFn: () => api.get('/employees').then(r => Array.isArray(r.data) ? r.data : []),
   })
 
   const empMap = Object.fromEntries(employees.map(e => [e.id, e]))

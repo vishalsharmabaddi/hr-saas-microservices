@@ -35,12 +35,12 @@ export default function MembersPage() {
 
   const { data: projects = [] } = useQuery({
     queryKey: ['projects'],
-    queryFn: () => api.get('/projects').then(r => r.data),
+    queryFn: () => api.get('/projects').then(r => Array.isArray(r.data) ? r.data : []),
   })
 
   const { data: employees = [] } = useQuery({
     queryKey: ['employees'],
-    queryFn: () => api.get('/employees').then(r => r.data),
+    queryFn: () => api.get('/employees').then(r => Array.isArray(r.data) ? r.data : []),
   })
 
   const empMap = Object.fromEntries(employees.map(e => [e.id, e]))
@@ -48,7 +48,7 @@ export default function MembersPage() {
 
   const { data: members = [], isLoading } = useQuery({
     queryKey: ['members', activeProjectId],
-    queryFn: () => api.get(`/projects/${activeProjectId}/members`).then(r => r.data),
+    queryFn: () => api.get(`/projects/${activeProjectId}/members`).then(r => Array.isArray(r.data) ? r.data : []),
     enabled: !!activeProjectId,
   })
 
