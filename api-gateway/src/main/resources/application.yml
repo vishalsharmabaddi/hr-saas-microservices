@@ -33,6 +33,16 @@ spring:
             predicates:
               - Path=/api/notify/**
 
+          - id: project-service
+            uri: lb://project-service
+            predicates:
+              - Path=/api/projects/**, /api/tasks/**, /api/timelogs/**, /api/companies/**, /api/dashboard/**
+
+          - id: gamification-service
+            uri: lb://gamification-service
+            predicates:
+              - Path=/api/gamification/**
+
 eureka:
   client:
     service-url:

@@ -1,3 +1,13 @@
+# Node / Frontend
+node_modules/
+dist/
+.env
+.env.local
+
+# Java build output
+target/
+*.class
+
 # Course PDF files (personal, not for repo)
 *.pdf
 
@@ -5,6 +15,7 @@
 plannew.md
 docker-commands.md
 ARCHITECTURE.md
+worktrack-plan.md
 
 # Claude teaching context files
 CLAUDE.md

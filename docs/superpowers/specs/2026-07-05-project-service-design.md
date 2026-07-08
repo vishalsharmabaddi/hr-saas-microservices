@@ -344,6 +344,20 @@ project-service/
 
 ---
 
+## Containerization Strategy
+
+| Environment | Tool | Reason |
+|---|---|---|
+| Local development | Dockerfile | Already banaya hua, easy to run |
+| Production CI/CD | **Jib** (Maven plugin) | No Docker daemon needed, faster builds, sirf changed layers push |
+
+```
+# Production build command (GitHub Actions me)
+mvn jib:build -Djib.to.image=registry/worktrack/project-service
+```
+
+---
+
 ## Implementation Order (Chunks)
 
 1. **A1** — Entity classes + DB setup (Company, Project, TaskList, Task)
