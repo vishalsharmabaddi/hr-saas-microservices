@@ -9,7 +9,6 @@
 html, body, #root {
   height: 100%;
   width: 100%;
-  overflow: hidden;
 }
 
 body {
@@ -43,6 +42,12 @@ body {
   background: rgba(255,255,255,0.1);
 }
 
+/* XP Toast animation */
+@keyframes xpSlideUp {
+  from { transform: translateY(16px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
 /* Responsive grid helpers */
 @media (max-width: 1024px) {
   .stats-grid-4 { grid-template-columns: repeat(2, 1fr) !important; }
@@ -55,6 +60,7 @@ body {
   .bottom-grid-3 { grid-template-columns: 1fr !important; }
   .split-layout { grid-template-columns: 1fr !important; }
 }
+
 
 @media (max-width: 640px) {
   /* Sidebar becomes a slide-in drawer */

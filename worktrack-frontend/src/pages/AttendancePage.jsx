@@ -88,7 +88,7 @@ export default function AttendancePage() {
   const checkedOut = records.filter(r => r.checkOutTime !== null).length
 
   return (
-    <div style={{ maxWidth: 1000 }}>
+    <div style={{ width: '100%' }}>
 
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 20 }}>

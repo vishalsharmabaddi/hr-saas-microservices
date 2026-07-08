@@ -26,6 +26,11 @@ export default defineConfig({
         target: 'http://localhost:8084',
         changeOrigin: true,
       },
+      // gamification-service (8086)
+      '/api/gamification': {
+        target: 'http://localhost:8086',
+        changeOrigin: true,
+      },
       // project-service (8085) — everything else under /api
       '/api': {
         target: 'http://localhost:8085',

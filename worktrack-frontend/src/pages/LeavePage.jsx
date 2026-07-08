@@ -75,7 +75,7 @@ export default function LeavePage() {
   const rejected = leaves.filter(l => l.status === 'REJECTED').length
 
   return (
-    <div style={{ maxWidth: 1000 }}>
+    <div style={{ width: '100%' }}>
 
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 20 }}>

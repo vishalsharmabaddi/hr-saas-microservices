@@ -262,7 +262,7 @@ export default function TimeLogsPage() {
   ]
 
   return (
-    <div style={{ maxWidth: 1100 }}>
+    <div style={{ width: '100%' }}>
 
       {showModal && <LogTimeModal onClose={() => setShowModal(false)} />}
 

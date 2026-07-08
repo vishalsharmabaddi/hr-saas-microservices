@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { ArrowLeft, Plus, Calendar, Users, CheckSquare, Circle, CheckCircle2, Pencil, Trash2, X, Timer } from 'lucide-react'
@@ -31,6 +31,7 @@ export default function ProjectDetailPage() {
   const [showStatusMenu, setShowStatusMenu] = useState(false)
   const [loggingTaskId, setLoggingTaskId] = useState(null)
   const [logForm, setLogForm] = useState({ logDate: new Date().toISOString().slice(0, 10), hoursLogged: '', notes: '' })
+  const [xpToast, setXpToast] = useState({ show: false, xp: 0, streak: 0, level: '' })
 
   // Fetch project
   const { data: project, isLoading: projectLoading } = useQuery({
@@ -118,6 +119,15 @@ export default function ProjectDetailPage() {
       queryClient.invalidateQueries({ queryKey: ['dashboard'] })
       setLoggingTaskId(null)
       setLogForm({ logDate: new Date().toISOString().slice(0, 10), hoursLogged: '', notes: '' })
+      // Wait 600ms for Kafka → gamification to process, then fetch XP
+      setTimeout(async () => {
+        try {
+          const res = await api.get('/gamification/1/summary')
+          const { currentStreak, level } = res.data
+          setXpToast({ show: true, xp: 10, streak: currentStreak, level })
+          setTimeout(() => setXpToast(t => ({ ...t, show: false })), 3500)
+        } catch (_) {}
+      }, 600)
     },
   })
 
@@ -671,6 +681,32 @@ export default function ProjectDetailPage() {
               ))}
             </div>
           )}
+        </div>
+      )}
+
+      {/* XP Toast */}
+      {xpToast.show && (
+        <div style={{
+          position: 'fixed', bottom: 28, right: 28, zIndex: 9999,
+          background: '#0f172a', borderRadius: 14,
+          padding: '14px 20px', display: 'flex', alignItems: 'center', gap: 14,
+          boxShadow: '0 8px 32px rgba(0,0,0,0.28)', border: '1px solid rgba(255,255,255,0.08)',
+          animation: 'xpSlideUp 0.3s ease',
+        }}>
+          <div style={{
+            width: 44, height: 44, borderRadius: 10, flexShrink: 0,
+            background: 'linear-gradient(135deg, #4f46e5, #7c3aed)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: 13, fontWeight: 800, color: '#fff',
+          }}>+{xpToast.xp}</div>
+          <div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#fff', marginBottom: 2 }}>
+              XP Earned!
+            </div>
+            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)' }}>
+              Streak: {xpToast.streak} day{xpToast.streak !== 1 ? 's' : ''} · {xpToast.level}
+            </div>
+          </div>
         </div>
       )}
     </div>

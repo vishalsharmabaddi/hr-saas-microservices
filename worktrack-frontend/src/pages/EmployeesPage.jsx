@@ -88,7 +88,7 @@ export default function EmployeesPage() {
   const isError   = createMutation.isError   || updateMutation.isError
 
   return (
-    <div style={{ maxWidth: 1100 }}>
+    <div style={{ width: '100%' }}>
 
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 20 }}>

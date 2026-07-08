@@ -8,30 +8,47 @@ import com.hrsaas.project_service.model.TimeLog;
 import com.hrsaas.project_service.repository.TaskRepository;
 import com.hrsaas.project_service.repository.TimeLogRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class TimeLogService {
 
     private final TimeLogRepository timeLogRepository;
     private final TaskRepository taskRepository;
+    private final KafkaTemplate<String, String> kafkaTemplate;
 
     public TimeLogResponse logTime(Long companyId, TimeLogRequest request) {
         Task task = taskRepository.findById(request.getTaskId())
             .filter(t -> t.getCompanyId().equals(companyId))
             .orElseThrow(() -> new ResourceNotFoundException("Task not found: " + request.getTaskId()));
 
-        TimeLog log = new TimeLog();
-        log.setCompanyId(companyId);
-        log.setTask(task);
-        log.setEmployeeId(request.getEmployeeId());
-        log.setLogDate(request.getLogDate());
-        log.setHoursLogged(request.getHoursLogged());
-        log.setNotes(request.getNotes());
-        return toResponse(timeLogRepository.save(log));
+        TimeLog entry = new TimeLog();
+        entry.setCompanyId(companyId);
+        entry.setTask(task);
+        entry.setEmployeeId(request.getEmployeeId());
+        entry.setLogDate(request.getLogDate());
+        entry.setHoursLogged(request.getHoursLogged());
+        entry.setNotes(request.getNotes());
+        TimeLog saved = timeLogRepository.save(entry);
+
+        // Kafka event → gamification-service XP calculate karega
+        try {
+            String event = String.format(
+                "{\"employeeId\":%d,\"logDate\":\"%s\",\"hoursLogged\":%.1f}",
+                saved.getEmployeeId(), saved.getLogDate(), saved.getHoursLogged()
+            );
+            kafkaTemplate.send("timelog-submitted", event);
+        } catch (Exception e) {
+            log.warn("Kafka timelog event skipped: {}", e.getMessage());
+        }
+
+        return toResponse(saved);
     }
 
     public List<TimeLogResponse> getLogsByTask(Long companyId, Long taskId) {
