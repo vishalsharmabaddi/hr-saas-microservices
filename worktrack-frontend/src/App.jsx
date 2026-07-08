@@ -11,6 +11,7 @@ import LeavePage from './pages/LeavePage'
 import NotificationsPage from './pages/NotificationsPage'
 import ProgressPage from './pages/ProgressPage'
 import EngagementPage from './pages/EngagementPage'
+import AnalyticsPage from './pages/AnalyticsPage'
 import AccessDeniedPage from './pages/AccessDeniedPage'
 import LandingPage from './pages/LandingPage'
 import Layout from './components/Layout'
@@ -51,6 +52,7 @@ function App() {
             <Route element={<RoleRoute allowedRoles={['ADMIN', 'MANAGER']} />}>
               <Route path="/members"     element={<MembersPage />} />
               <Route path="/engagement"  element={<EngagementPage />} />
+              <Route path="/analytics"   element={<AnalyticsPage />} />
             </Route>
 
             {/* Admin only */}

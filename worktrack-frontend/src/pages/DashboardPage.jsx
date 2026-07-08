@@ -57,13 +57,13 @@ export default function DashboardPage() {
 
   const { data: leaves = [], isLoading: leaveLoading } = useQuery({
     queryKey: ['leaves', 'PENDING'],
-    queryFn: () => api.get('/leaves', { params: { status: 'PENDING' } }).then(r => r.data),
+    queryFn: () => api.get('/leaves', { params: { status: 'PENDING' } }).then(r => Array.isArray(r.data) ? r.data : []),
   })
 
   const today = new Date().toISOString().split('T')[0]
   const { data: attendance = [], isLoading: attLoading } = useQuery({
     queryKey: ['attendance', today],
-    queryFn: () => api.get('/attendance', { params: { date: today } }).then(r => r.data),
+    queryFn: () => api.get('/attendance/today').then(r => Array.isArray(r.data) ? r.data : []),
   })
 
   const activeEmployees  = employees.filter(e => e.isActive).length

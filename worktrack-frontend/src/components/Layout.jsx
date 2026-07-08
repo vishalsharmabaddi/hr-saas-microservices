@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { Outlet, NavLink, useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { LayoutDashboard, FolderKanban, Clock, Users, UserSquare2, CalendarCheck, CalendarOff, Bell, Settings, Menu, X, Check, CheckCheck, TrendingUp, LogOut, ChevronUp, Sparkles } from 'lucide-react'
+import { LayoutDashboard, FolderKanban, Clock, Users, UserSquare2, CalendarCheck, CalendarOff, Bell, Settings, Menu, X, Check, CheckCheck, TrendingUp, LogOut, ChevronUp, Sparkles, BarChart3 } from 'lucide-react'
 import api from '../api/axios'
 import { ROLE_NAV, ROLE_STYLE } from '../auth/roles'
 
@@ -14,6 +14,7 @@ const navItems = [
   { to: '/employees',  icon: UserSquare2,     label: 'Employees' },
   { to: '/members',    icon: Users,           label: 'Members' },
   { to: '/engagement', icon: Sparkles,        label: 'Engagement' },
+  { to: '/analytics',  icon: BarChart3,       label: 'Analytics' },
 ]
 
 function timeAgo(dt) {

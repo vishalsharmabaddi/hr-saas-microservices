@@ -12,6 +12,10 @@ public interface AttendanceRepository extends JpaRepository<AttendanceRecord, Lo
 
     List<AttendanceRecord> findByCompanyIdAndEmployeeIdOrderByAttendanceDateDesc(Long companyId, Long employeeId);
 
+    // Date range ke beech ki saari records (trend chart ke liye)
+    List<AttendanceRecord> findByCompanyIdAndAttendanceDateBetweenOrderByAttendanceDateAsc(
+            Long companyId, LocalDate from, LocalDate to);
+
     Optional<AttendanceRecord> findByCompanyIdAndEmployeeIdAndAttendanceDate(Long companyId, Long employeeId, LocalDate date);
 
     boolean existsByCompanyIdAndEmployeeIdAndAttendanceDate(Long companyId, Long employeeId, LocalDate date);

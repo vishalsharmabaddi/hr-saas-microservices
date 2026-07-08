@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -44,6 +45,16 @@ public class AttendanceController {
     public ResponseEntity<List<AttendanceResponse>> getToday(
             @RequestHeader("X-Company-Id") Long companyId) {
         return ResponseEntity.ok(attendanceService.getTodayRecords(companyId));
+    }
+
+    // Date range — trend chart ke liye. GET /api/attendance?from=2026-06-08&to=2026-07-08
+    @GetMapping
+    public ResponseEntity<List<AttendanceResponse>> getRange(
+            @RequestHeader("X-Company-Id") Long companyId,
+            @RequestParam String from,
+            @RequestParam String to) {
+        return ResponseEntity.ok(attendanceService.getRange(
+                companyId, LocalDate.parse(from), LocalDate.parse(to)));
     }
 
     @GetMapping("/employee/{employeeId}")

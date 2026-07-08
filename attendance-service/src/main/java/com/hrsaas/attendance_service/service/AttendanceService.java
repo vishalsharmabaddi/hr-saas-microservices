@@ -80,6 +80,12 @@ public class AttendanceService {
         return toResponse(attendanceRepository.save(record), null);
     }
 
+    public List<AttendanceResponse> getRange(Long companyId, LocalDate from, LocalDate to) {
+        return attendanceRepository
+                .findByCompanyIdAndAttendanceDateBetweenOrderByAttendanceDateAsc(companyId, from, to)
+                .stream().map(r -> toResponse(r, null)).toList();
+    }
+
     public List<AttendanceResponse> getEmployeeHistory(Long companyId, Long employeeId) {
         return attendanceRepository
                 .findByCompanyIdAndEmployeeIdOrderByAttendanceDateDesc(companyId, employeeId)

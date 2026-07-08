@@ -35,8 +35,8 @@ export function removeAppMember(email) {
 
 // Kaunse nav items kaunse role ko dikhenge
 export const ROLE_NAV = {
-  ADMIN:    ['/dashboard', '/projects', '/timelogs', '/attendance', '/leaves', '/employees', '/members', '/engagement'],
-  MANAGER:  ['/dashboard', '/projects', '/timelogs', '/attendance', '/leaves', '/members', '/engagement'],
+  ADMIN:    ['/dashboard', '/projects', '/timelogs', '/attendance', '/leaves', '/employees', '/members', '/engagement', '/analytics'],
+  MANAGER:  ['/dashboard', '/projects', '/timelogs', '/attendance', '/leaves', '/members', '/engagement', '/analytics'],
   EMPLOYEE: ['/dashboard', '/projects', '/timelogs', '/attendance', '/leaves'],
 }
 
