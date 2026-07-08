@@ -81,3 +81,47 @@ body {
   .page-main { padding: 16px !important; }
   .stats-grid-4 { grid-template-columns: 1fr 1fr !important; }
 }
+
+/* ─── Landing Page Responsive ───────────────────────────────────────────── */
+
+/* Base (desktop) */
+.lp-features-grid  { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+.lp-hero-mock-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.lp-hero-mock-row  { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; }
+.lp-comparison-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.lp-comparison-inner  { min-width: 540px; }
+.lp-pricing-grid   { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+.lp-footer-grid    { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px; margin-bottom: 48px; }
+
+/* Mobile menu — visible only when rendered (JSX-gated) */
+.lp-mobile-menu { display: flex; flex-direction: column; gap: 6px; padding: 12px 20px 20px; }
+.lp-mobile-link {
+  display: block; color: rgba(255,255,255,0.7); text-decoration: none;
+  font-size: 14px; font-weight: 500; padding: 10px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.lp-mobile-link:hover { color: #fff; }
+
+/* Hamburger: hidden on desktop */
+.lp-hamburger { display: none !important; }
+
+/* Tablet (640px – 1024px) */
+@media (max-width: 1024px) {
+  .lp-features-grid  { grid-template-columns: repeat(2, 1fr) !important; }
+  .lp-pricing-grid   { grid-template-columns: repeat(2, 1fr) !important; }
+  .lp-footer-grid    { grid-template-columns: 1fr 1fr !important; gap: 32px !important; }
+  .lp-hero-mock-grid { grid-template-columns: repeat(2, 1fr) !important; }
+}
+
+/* Mobile (< 640px) */
+@media (max-width: 640px) {
+  .lp-nav-links      { display: none !important; }
+  .lp-hamburger      { display: flex !important; align-items: center; }
+  .lp-features-grid  { grid-template-columns: 1fr !important; }
+  .lp-hero-mock-grid { grid-template-columns: repeat(2, 1fr) !important; }
+  .lp-hero-mock-row  { display: none !important; }
+  .lp-pricing-grid   { grid-template-columns: 1fr !important; }
+  .lp-footer-grid    { grid-template-columns: 1fr 1fr !important; gap: 28px !important; }
+  .lp-section-pad    { padding-left: 20px !important; padding-right: 20px !important; }
+  .lp-nav-inner      { padding-left: 20px !important; padding-right: 20px !important; }
+}

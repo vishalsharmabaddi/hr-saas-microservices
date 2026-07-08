@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { TypeAnimation } from 'react-type-animation'
 import {
   CheckCircle, X, BarChart2, Clock, CalendarOff, Users,
-  FileText, Zap, Shield, ArrowRight, Check, ChevronDown,
+  FileText, Zap, Shield, ArrowRight, Check, ChevronDown, Menu,
 } from 'lucide-react'
 
 // ─── Data ────────────────────────────────────────────────────────────────────
@@ -103,6 +103,7 @@ function Cell({ val, isWt }) {
 export default function LandingPage() {
   const navigate = useNavigate()
   const [openFaq, setOpenFaq] = useState(null)
+  const [menuOpen, setMenuOpen] = useState(false)
 
   const faqs = [
     { q: 'Is WorkTrack really free?', a: 'Yes. Up to 12 employees, all core features are completely free — no credit card needed.' },
@@ -117,11 +118,11 @@ export default function LandingPage() {
       {/* ── Navbar ── */}
       <nav style={{
         position: 'sticky', top: 0, zIndex: 50,
-        background: 'rgba(15,23,42,0.95)', backdropFilter: 'blur(16px)',
+        background: 'rgba(15,23,42,0.97)', backdropFilter: 'blur(16px)',
         borderBottom: '1px solid rgba(255,255,255,0.07)',
-        padding: '0 40px', height: 60,
       }}>
-        <div style={{ maxWidth: 1100, margin: '0 auto', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        {/* Main nav row */}
+        <div className="lp-nav-inner" style={{ maxWidth: 1100, margin: '0 auto', height: 60, padding: '0 40px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
 
           {/* Logo */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -139,39 +140,62 @@ export default function LandingPage() {
             }}>BETA</span>
           </div>
 
-          {/* Nav links + CTA */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          {/* Desktop nav links */}
+          <div className="lp-nav-links" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
             {[['Features', '#features'], ['Pricing', '#pricing'], ['FAQ', '#faq']].map(([label, href]) => (
               <a key={label} href={href} style={{
                 color: 'rgba(255,255,255,0.5)', fontSize: 13, textDecoration: 'none',
                 fontWeight: 500, padding: '6px 12px', borderRadius: 6,
                 transition: 'color 0.15s, background 0.15s',
               }}
-              onMouseEnter={e => { e.target.style.color = '#fff'; e.target.style.background = 'rgba(255,255,255,0.07)' }}
-              onMouseLeave={e => { e.target.style.color = 'rgba(255,255,255,0.5)'; e.target.style.background = 'transparent' }}
+              onMouseEnter={e => { e.currentTarget.style.color = '#fff'; e.currentTarget.style.background = 'rgba(255,255,255,0.07)' }}
+              onMouseLeave={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.5)'; e.currentTarget.style.background = 'transparent' }}
               >{label}</a>
             ))}
             <div style={{ width: 1, height: 18, background: 'rgba(255,255,255,0.1)', margin: '0 8px' }} />
             <button onClick={() => navigate('/login')} style={{
               background: 'none', color: 'rgba(255,255,255,0.6)', border: 'none',
               fontSize: 13, fontWeight: 500, cursor: 'pointer', padding: '6px 12px',
-            }}>
-              Sign in
-            </button>
+            }}>Sign in</button>
             <button onClick={() => navigate('/login')} style={{
               background: '#4f46e5', color: '#fff', border: 'none',
               borderRadius: 8, padding: '7px 18px', fontSize: 13,
               fontWeight: 600, cursor: 'pointer',
               boxShadow: '0 0 0 1px rgba(255,255,255,0.1)',
-            }}>
-              Get started free
-            </button>
+            }}>Get started free</button>
           </div>
+
+          {/* Hamburger — visible only on mobile via CSS */}
+          <button className="lp-hamburger" onClick={() => setMenuOpen(o => !o)} style={{
+            background: 'none', border: 'none', cursor: 'pointer',
+            color: '#fff', padding: 6, borderRadius: 6,
+          }}>
+            {menuOpen ? <X size={22} /> : <Menu size={22} />}
+          </button>
         </div>
+
+        {/* Mobile dropdown menu */}
+        {menuOpen && (
+          <div className="lp-mobile-menu">
+            {[['Features', '#features'], ['Pricing', '#pricing'], ['FAQ', '#faq']].map(([label, href]) => (
+              <a key={label} href={href} className="lp-mobile-link" onClick={() => setMenuOpen(false)}>{label}</a>
+            ))}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 12 }}>
+              <button onClick={() => { navigate('/login'); setMenuOpen(false) }} style={{
+                background: 'rgba(255,255,255,0.07)', color: '#fff', border: '1px solid rgba(255,255,255,0.1)',
+                borderRadius: 8, padding: '10px', fontSize: 14, fontWeight: 500, cursor: 'pointer',
+              }}>Sign in</button>
+              <button onClick={() => { navigate('/login'); setMenuOpen(false) }} style={{
+                background: '#4f46e5', color: '#fff', border: 'none',
+                borderRadius: 8, padding: '10px', fontSize: 14, fontWeight: 600, cursor: 'pointer',
+              }}>Get started free</button>
+            </div>
+          </div>
+        )}
       </nav>
 
       {/* ── Hero ── */}
-      <section style={{
+      <section className="lp-section-pad" style={{
         background: '#fff',
         padding: '100px 40px 120px',
         textAlign: 'center',
@@ -248,7 +272,7 @@ export default function LandingPage() {
           </div>
 
           {/* Mock content */}
-          <div style={{ padding: '24px', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 12 }}>
+          <div className="lp-hero-mock-grid" style={{ padding: '24px' }}>
             {[
               { label: 'Total Projects', val: '12', color: '#818cf8' },
               { label: 'Open Tasks',     val: '38', color: '#f59e0b' },
@@ -263,7 +287,7 @@ export default function LandingPage() {
           </div>
 
           {/* Mock table rows */}
-          <div style={{ padding: '0 24px 24px' }}>
+          <div className="lp-hero-mock-row" style={{ padding: '0 24px 24px' }}>
             <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: 10, border: '1px solid rgba(255,255,255,0.06)', overflow: 'hidden' }}>
               <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr', padding: '10px 16px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
                 {['Project', 'Status', 'Tasks', 'Due'].map(h => (
@@ -288,7 +312,7 @@ export default function LandingPage() {
       </section>
 
       {/* ── Features ── */}
-      <section id="features" style={{ padding: '80px 40px', background: '#fff' }}>
+      <section id="features" className="lp-section-pad" style={{ padding: '80px 40px', background: '#fff' }}>
         <div style={{ maxWidth: 1100, margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: 56 }}>
             <p style={{ fontSize: 12, fontWeight: 700, color: '#4f46e5', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: 12 }}>Features</p>
@@ -297,7 +321,7 @@ export default function LandingPage() {
             </h2>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24 }}>
+          <div className="lp-features-grid">
             {features.map(({ icon: Icon, title, desc }) => (
               <div key={title} style={{ padding: '28px 24px', borderRadius: 14, border: '1px solid #e2e8f0', background: '#fff' }}>
                 <div style={{ width: 40, height: 40, borderRadius: 10, background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 18 }}>
@@ -312,7 +336,7 @@ export default function LandingPage() {
       </section>
 
       {/* ── Comparison ── */}
-      <section style={{ padding: '80px 40px', background: '#f8fafc' }}>
+      <section className="lp-section-pad" style={{ padding: '80px 40px', background: '#f8fafc' }}>
         <div style={{ maxWidth: 860, margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: 48 }}>
             <p style={{ fontSize: 12, fontWeight: 700, color: '#4f46e5', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: 12 }}>Comparison</p>
@@ -321,7 +345,8 @@ export default function LandingPage() {
             </h2>
           </div>
 
-          <div style={{ background: '#fff', borderRadius: 16, border: '1px solid #e2e8f0', overflow: 'hidden' }}>
+          <div className="lp-comparison-scroll">
+          <div className="lp-comparison-inner" style={{ background: '#fff', borderRadius: 16, border: '1px solid #e2e8f0', overflow: 'hidden' }}>
             {/* Header */}
             <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr', background: '#0f172a', padding: '14px 24px' }}>
               <span style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.4)' }}>Feature</span>
@@ -344,11 +369,12 @@ export default function LandingPage() {
               </div>
             ))}
           </div>
+          </div>
         </div>
       </section>
 
       {/* ── Pricing ── */}
-      <section id="pricing" style={{ padding: '80px 40px', background: '#fff' }}>
+      <section id="pricing" className="lp-section-pad" style={{ padding: '80px 40px', background: '#fff' }}>
         <div style={{ maxWidth: 1100, margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: 52 }}>
             <p style={{ fontSize: 12, fontWeight: 700, color: '#4f46e5', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: 12 }}>Pricing</p>
@@ -356,7 +382,7 @@ export default function LandingPage() {
             <p style={{ fontSize: 15, color: '#475569', marginTop: 12 }}>Start free. Scale as you grow. No hidden fees.</p>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 20 }}>
+          <div className="lp-pricing-grid">
             {plans.map(({ name, price, period, limit, features: feats, cta, highlight }) => {
               const isFree = name === 'Free'
               return (
@@ -496,7 +522,7 @@ export default function LandingPage() {
         <div style={{ maxWidth: 1100, margin: '0 auto' }}>
 
           {/* Top row: brand + links */}
-          <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr', gap: 40, marginBottom: 48 }}>
+          <div className="lp-footer-grid">
 
             {/* Brand */}
             <div>
