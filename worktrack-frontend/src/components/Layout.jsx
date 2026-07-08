@@ -15,6 +15,7 @@ const navItems = [
   { to: '/members',    icon: Users,           label: 'Members' },
   { to: '/engagement', icon: Sparkles,        label: 'Engagement' },
   { to: '/analytics',  icon: BarChart3,       label: 'Analytics' },
+  { to: '/settings',   icon: Settings,        label: 'Settings' },
 ]
 
 function timeAgo(dt) {

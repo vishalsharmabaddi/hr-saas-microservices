@@ -12,6 +12,7 @@ import NotificationsPage from './pages/NotificationsPage'
 import ProgressPage from './pages/ProgressPage'
 import EngagementPage from './pages/EngagementPage'
 import AnalyticsPage from './pages/AnalyticsPage'
+import SettingsPage from './pages/SettingsPage'
 import AccessDeniedPage from './pages/AccessDeniedPage'
 import LandingPage from './pages/LandingPage'
 import Layout from './components/Layout'
@@ -58,6 +59,7 @@ function App() {
             {/* Admin only */}
             <Route element={<RoleRoute allowedRoles={['ADMIN']} />}>
               <Route path="/employees" element={<EmployeesPage />} />
+              <Route path="/settings"  element={<SettingsPage />} />
             </Route>
 
           </Route>
