@@ -80,6 +80,9 @@ body {
   /* Page padding */
   .page-main { padding: 16px !important; }
   .stats-grid-4 { grid-template-columns: 1fr 1fr !important; }
+  /* Header: hide search + plan pill on phone (overlap na ho) */
+  .header-search { display: none !important; }
+  .header-plan { display: none !important; }
 }
 
 /* ─── Landing Page Responsive ───────────────────────────────────────────── */

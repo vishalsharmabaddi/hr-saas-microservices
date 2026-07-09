@@ -158,7 +158,7 @@ export default function DashboardPage() {
 
       {/* Project Stats */}
       <p style={{ fontSize: 11, fontWeight: 700, color: '#9ca3af', letterSpacing: '0.8px', textTransform: 'uppercase', marginBottom: 10 }}>Projects</p>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 20 }}>
+      <div className="stats-grid-4" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 20 }}>
         {projectStats.map(s => <StatCard key={s.label} {...s} loading={dashLoading} />)}
       </div>
 
@@ -166,14 +166,14 @@ export default function DashboardPage() {
       {user.role !== 'EMPLOYEE' && (
         <>
           <p style={{ fontSize: 11, fontWeight: 700, color: '#9ca3af', letterSpacing: '0.8px', textTransform: 'uppercase', marginBottom: 10 }}>HR Overview</p>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 24 }}>
+          <div className="stats-grid-4" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 24 }}>
             {hrStats.map(s => <StatCard key={s.label} {...s} loading={empLoading || leaveLoading || attLoading} />)}
           </div>
         </>
       )}
 
       {/* Bottom row */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 220px', gap: 12 }}>
+      <div className="bottom-grid-3" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 220px', gap: 12 }}>
 
         {/* Recent Projects */}
         <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, padding: '18px 20px' }}>
