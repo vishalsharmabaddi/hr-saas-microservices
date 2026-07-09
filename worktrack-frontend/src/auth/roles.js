@@ -1,6 +1,11 @@
 // Hardcoded super-admin (always admin, cannot be removed)
 const SUPER_ADMINS = ['vishalsharmabaddi@gmail.com']
 
+// Platform Owner = app ka creator (tum). Company Admin se ALAG — ye SAARI companies dekhta hai.
+export function isPlatformOwner(email) {
+  return SUPER_ADMINS.includes(email?.toLowerCase())
+}
+
 export function getRoleForEmail(email) {
   const normalized = email?.toLowerCase()
   if (SUPER_ADMINS.includes(normalized)) return 'ADMIN'

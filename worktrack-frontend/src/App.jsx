@@ -16,7 +16,9 @@ import EngagementPage from './pages/EngagementPage'
 import AnalyticsPage from './pages/AnalyticsPage'
 import SettingsPage from './pages/SettingsPage'
 import OnboardingPage from './pages/OnboardingPage'
+import PlatformAdminPage from './pages/PlatformAdminPage'
 import AccessDeniedPage from './pages/AccessDeniedPage'
+import { isPlatformOwner } from './auth/roles'
 import LandingPage from './pages/LandingPage'
 import Layout from './components/Layout'
 
@@ -51,6 +53,12 @@ function OnboardingGate() {
   return <Outlet />
 }
 
+// Sirf Platform Owner (app creator) andar aa sakta hai — baaki sab dashboard pe wapas
+function PlatformGate() {
+  const user = JSON.parse(localStorage.getItem('wt_user') || '{}')
+  return isPlatformOwner(user.email) ? <Outlet /> : <Navigate to="/dashboard" replace />
+}
+
 function App() {
   return (
     <BrowserRouter>
@@ -60,6 +68,11 @@ function App() {
         <Route element={<PrivateRoute />}>
           {/* Onboarding — full page, no sidebar */}
           <Route path="/onboarding" element={<OnboardingPage />} />
+
+          {/* Platform Console — sirf owner, apna alag full-page layout */}
+          <Route element={<PlatformGate />}>
+            <Route path="/platform" element={<PlatformAdminPage />} />
+          </Route>
 
           {/* Gate: naya admin → onboarding, warna app */}
           <Route element={<OnboardingGate />}>

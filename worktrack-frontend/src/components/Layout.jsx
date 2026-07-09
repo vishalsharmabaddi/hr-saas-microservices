@@ -1,9 +1,9 @@
 import { useState, useRef, useEffect } from 'react'
 import { Outlet, NavLink, useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { LayoutDashboard, FolderKanban, Clock, Users, UserSquare2, CalendarCheck, CalendarOff, Bell, Settings, Menu, X, Check, CheckCheck, TrendingUp, LogOut, ChevronUp, Sparkles, BarChart3, Compass, HelpCircle } from 'lucide-react'
+import { LayoutDashboard, FolderKanban, Clock, Users, UserSquare2, CalendarCheck, CalendarOff, Bell, Settings, Menu, X, Check, CheckCheck, TrendingUp, LogOut, ChevronUp, Sparkles, BarChart3, Compass, HelpCircle, ShieldCheck } from 'lucide-react'
 import api from '../api/axios'
-import { ROLE_NAV, ROLE_STYLE } from '../auth/roles'
+import { ROLE_NAV, ROLE_STYLE, isPlatformOwner } from '../auth/roles'
 import { startTour, maybeStartTourForNewUser } from '../tour/appTour'
 import GlobalSearch from './GlobalSearch'
 
@@ -206,15 +206,18 @@ export default function Layout() {
               </div>
               {/* Menu items */}
               {[
+                ...(isPlatformOwner(user.email) ? [{ icon: ShieldCheck, label: 'Platform Console', action: () => { navigate('/platform'); setUserMenuOpen(false) }, accent: true }] : []),
                 ...(user.role === 'ADMIN' ? [{ icon: Settings, label: 'Settings', action: () => { navigate('/settings'); setUserMenuOpen(false) } }] : []),
                 { icon: TrendingUp, label: 'My Progress', action: () => { navigate('/progress'); setUserMenuOpen(false) } },
                 { icon: Compass,    label: 'Take a tour', action: () => { setUserMenuOpen(false); startTour() } },
                 { icon: LogOut,     label: 'Log out',     action: handleLogout, danger: true },
-              ].map(({ icon: Icon, label, action, danger }) => (
+              ].map(({ icon: Icon, label, action, danger, accent }) => (
                 <button key={label} onClick={action} style={{
                   display: 'flex', alignItems: 'center', gap: 10,
                   width: '100%', padding: '10px 14px', background: 'none', border: 'none',
-                  cursor: 'pointer', fontSize: 13, color: danger ? '#f87171' : 'rgba(255,255,255,0.8)',
+                  cursor: 'pointer', fontSize: 13,
+                  fontWeight: accent ? 600 : 400,
+                  color: danger ? '#f87171' : accent ? '#a5b4fc' : 'rgba(255,255,255,0.8)',
                   textAlign: 'left',
                 }}
                   onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.06)'}
@@ -258,9 +261,9 @@ export default function Layout() {
             <span style={{ fontSize: 13, fontWeight: 500, color: '#0f172a' }}>WorkTrack Inc.</span>
           </div>
 
-          {/* Prominent centered search */}
+          {/* Prominent centered search — outer div spacer rahe, inner phone pe hide */}
           <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
-            <div style={{ width: '100%', maxWidth: 460 }}>
+            <div className="header-search" style={{ width: '100%', maxWidth: 460 }}>
               <GlobalSearch />
             </div>
           </div>
@@ -287,7 +290,7 @@ export default function Layout() {
               {bellOpen && <NotificationDropdown onClose={() => setBellOpen(false)} />}
             </div>
 
-            <span id="tour-plan" style={{ fontSize: 11, fontWeight: 500, color: '#4f46e5', background: '#eef2ff', padding: '3px 10px', borderRadius: 6 }}>Free Plan</span>
+            <span id="tour-plan" className="header-plan" style={{ fontSize: 11, fontWeight: 500, color: '#4f46e5', background: '#eef2ff', padding: '3px 10px', borderRadius: 6 }}>Free Plan</span>
           </div>
         </header>
 
