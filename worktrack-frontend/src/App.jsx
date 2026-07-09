@@ -1,4 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom'
+import { useQuery } from '@tanstack/react-query'
+import api from './api/axios'
 import LoginPage from './pages/LoginPage'
 import DashboardPage from './pages/DashboardPage'
 import ProjectsPage from './pages/ProjectsPage'
@@ -13,6 +15,7 @@ import ProgressPage from './pages/ProgressPage'
 import EngagementPage from './pages/EngagementPage'
 import AnalyticsPage from './pages/AnalyticsPage'
 import SettingsPage from './pages/SettingsPage'
+import OnboardingPage from './pages/OnboardingPage'
 import AccessDeniedPage from './pages/AccessDeniedPage'
 import LandingPage from './pages/LandingPage'
 import Layout from './components/Layout'
@@ -29,6 +32,25 @@ function RoleRoute({ allowedRoles }) {
   return allowedRoles.includes(user.role) ? <Outlet /> : <Navigate to="/access-denied" replace />
 }
 
+// Naya admin jisne abhi tak company set nahi ki → onboarding pe bhejo
+function OnboardingGate() {
+  const user = JSON.parse(localStorage.getItem('wt_user') || '{}')
+  const onboarded = localStorage.getItem('wt_onboarded') === 'true'
+  const needsCheck = user.role === 'ADMIN' && !onboarded
+
+  const { data: companies = [], isLoading } = useQuery({
+    queryKey: ['companies'],
+    queryFn: () => api.get('/companies').then(r => Array.isArray(r.data) ? r.data : []),
+    enabled: needsCheck,                 // sirf tab fetch jab check zaroori ho
+  })
+
+  if (needsCheck) {
+    if (isLoading) return null           // company data aane tak wait (flash na ho)
+    if (companies.length === 0) return <Navigate to="/onboarding" replace />
+  }
+  return <Outlet />
+}
+
 function App() {
   return (
     <BrowserRouter>
@@ -36,6 +58,11 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
 
         <Route element={<PrivateRoute />}>
+          {/* Onboarding — full page, no sidebar */}
+          <Route path="/onboarding" element={<OnboardingPage />} />
+
+          {/* Gate: naya admin → onboarding, warna app */}
+          <Route element={<OnboardingGate />}>
           <Route element={<Layout />}>
 
             {/* All roles */}
@@ -62,6 +89,7 @@ function App() {
               <Route path="/settings"  element={<SettingsPage />} />
             </Route>
 
+          </Route>
           </Route>
         </Route>
 

@@ -13,6 +13,7 @@ test('settings page — company create or edit', async ({ page }) => {
 
   await page.goto('http://localhost:5173')
   await page.evaluate(user => localStorage.setItem('wt_user', JSON.stringify(user)), ADMIN_USER)
+  await page.evaluate(() => localStorage.setItem('wt_tourDone', 'true'))  // auto-tour off during test
   await page.goto('http://localhost:5173/settings')
   await page.waitForLoadState('networkidle')
   await page.waitForTimeout(1500)

@@ -1,9 +1,11 @@
 import { useState, useRef, useEffect } from 'react'
 import { Outlet, NavLink, useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { LayoutDashboard, FolderKanban, Clock, Users, UserSquare2, CalendarCheck, CalendarOff, Bell, Settings, Menu, X, Check, CheckCheck, TrendingUp, LogOut, ChevronUp, Sparkles, BarChart3 } from 'lucide-react'
+import { LayoutDashboard, FolderKanban, Clock, Users, UserSquare2, CalendarCheck, CalendarOff, Bell, Settings, Menu, X, Check, CheckCheck, TrendingUp, LogOut, ChevronUp, Sparkles, BarChart3, Compass, HelpCircle } from 'lucide-react'
 import api from '../api/axios'
 import { ROLE_NAV, ROLE_STYLE } from '../auth/roles'
+import { startTour, maybeStartTourForNewUser } from '../tour/appTour'
+import GlobalSearch from './GlobalSearch'
 
 const navItems = [
   { to: '/dashboard',  icon: LayoutDashboard, label: 'Dashboard' },
@@ -15,7 +17,6 @@ const navItems = [
   { to: '/members',    icon: Users,           label: 'Members' },
   { to: '/engagement', icon: Sparkles,        label: 'Engagement' },
   { to: '/analytics',  icon: BarChart3,       label: 'Analytics' },
-  { to: '/settings',   icon: Settings,        label: 'Settings' },
 ]
 
 function timeAgo(dt) {
@@ -151,6 +152,11 @@ export default function Layout() {
     return () => document.removeEventListener('mousedown', handleClick)
   }, [])
 
+  // New user? Pehli baar login pe tour auto-start (flag na ho tab)
+  useEffect(() => {
+    maybeStartTourForNewUser()
+  }, [])
+
   return (
     <div style={{ display: 'flex', height: '100vh', width: '100vw', overflow: 'hidden', background: '#f8fafc', position: 'fixed', top: 0, left: 0 }}>
 
@@ -160,7 +166,7 @@ export default function Layout() {
 
       <aside className={`sidebar${sidebarOpen ? ' sidebar-open' : ''}`} style={{ width: 220, minWidth: 220, background: '#0f172a', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         <div style={{ padding: '16px', borderBottom: '1px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div>
+          <div id="tour-brand">
             <div style={{ color: '#fff', fontWeight: 600, fontSize: 15, letterSpacing: '-0.3px' }}>WorkTrack</div>
             <div style={{ color: 'rgba(255,255,255,0.35)', fontSize: 11, marginTop: 2 }}>Project Management</div>
           </div>
@@ -169,9 +175,9 @@ export default function Layout() {
           </button>
         </div>
 
-        <nav style={{ flex: 1, padding: '12px 8px', overflow: 'hidden' }}>
+        <nav id="tour-nav" style={{ flex: 1, padding: '12px 8px', overflow: 'hidden' }}>
           {visibleNav.map(({ to, icon: Icon, label }) => (
-            <NavLink key={to} to={to} style={{ textDecoration: 'none' }} onClick={() => setSidebarOpen(false)}>
+            <NavLink key={to} id={`tour-${to.slice(1)}`} to={to} style={{ textDecoration: 'none' }} onClick={() => setSidebarOpen(false)}>
               {({ isActive }) => (
                 <div className={`nav-link-item${isActive ? ' nav-active' : ''}`}>
                   <Icon size={15} strokeWidth={isActive ? 2 : 1.6} />
@@ -200,7 +206,9 @@ export default function Layout() {
               </div>
               {/* Menu items */}
               {[
+                ...(user.role === 'ADMIN' ? [{ icon: Settings, label: 'Settings', action: () => { navigate('/settings'); setUserMenuOpen(false) } }] : []),
                 { icon: TrendingUp, label: 'My Progress', action: () => { navigate('/progress'); setUserMenuOpen(false) } },
+                { icon: Compass,    label: 'Take a tour', action: () => { setUserMenuOpen(false); startTour() } },
                 { icon: LogOut,     label: 'Log out',     action: handleLogout, danger: true },
               ].map(({ icon: Icon, label, action, danger }) => (
                 <button key={label} onClick={action} style={{
@@ -220,7 +228,7 @@ export default function Layout() {
           )}
 
           {/* Clickable user row */}
-          <button onClick={() => setUserMenuOpen(o => !o)} style={{
+          <button id="tour-user" onClick={() => setUserMenuOpen(o => !o)} style={{
             width: '100%', display: 'flex', alignItems: 'center', gap: 10,
             padding: '12px 14px', background: 'none', border: 'none', cursor: 'pointer',
             transition: 'background 0.15s',
@@ -242,17 +250,24 @@ export default function Layout() {
       </aside>
 
       <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-        <header style={{ height: 48, background: '#fff', borderBottom: '1px solid #e2e8f0', padding: '0 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+        <header style={{ height: 52, background: '#fff', borderBottom: '1px solid #e2e8f0', padding: '0 16px', display: 'flex', alignItems: 'center', gap: 16, flexShrink: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
             <button className="hamburger-btn" onClick={() => setSidebarOpen(true)} style={{ display: 'none', background: 'none', border: 'none', cursor: 'pointer', padding: 4, color: '#0f172a' }}>
               <Menu size={20} />
             </button>
             <span style={{ fontSize: 13, fontWeight: 500, color: '#0f172a' }}>WorkTrack Inc.</span>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          {/* Prominent centered search */}
+          <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
+            <div style={{ width: '100%', maxWidth: 460 }}>
+              <GlobalSearch />
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
             {/* Bell Icon */}
-            <div ref={bellRef} style={{ position: 'relative' }}>
+            <div id="tour-bell" ref={bellRef} style={{ position: 'relative' }}>
               <button onClick={() => setBellOpen(o => !o)} style={{
                 position: 'relative', background: 'none', border: '1px solid #e2e8f0',
                 borderRadius: 8, padding: '6px 8px', cursor: 'pointer',
@@ -272,7 +287,7 @@ export default function Layout() {
               {bellOpen && <NotificationDropdown onClose={() => setBellOpen(false)} />}
             </div>
 
-            <span style={{ fontSize: 11, fontWeight: 500, color: '#4f46e5', background: '#eef2ff', padding: '3px 10px', borderRadius: 6 }}>Free Plan</span>
+            <span id="tour-plan" style={{ fontSize: 11, fontWeight: 500, color: '#4f46e5', background: '#eef2ff', padding: '3px 10px', borderRadius: 6 }}>Free Plan</span>
           </div>
         </header>
 
@@ -280,6 +295,22 @@ export default function Layout() {
           <Outlet />
         </main>
       </div>
+
+      {/* Floating help button — hamesha bottom-right, kabhi bhi tour dobara chalu */}
+      <button
+        onClick={startTour}
+        title="Take a tour"
+        style={{
+          position: 'fixed', bottom: 20, right: 20, zIndex: 30,
+          display: 'flex', alignItems: 'center', gap: 8,
+          background: '#4f46e5', color: '#fff', border: 'none',
+          borderRadius: 999, padding: '10px 16px', cursor: 'pointer',
+          fontSize: 13, fontWeight: 500,
+          boxShadow: '0 4px 16px rgba(79,70,229,0.4)',
+        }}
+      >
+        <HelpCircle size={16} /> Take a tour
+      </button>
     </div>
   )
 }
