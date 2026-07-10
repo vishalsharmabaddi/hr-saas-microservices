@@ -133,6 +133,7 @@ export default function Layout() {
 
   function handleLogout() {
     localStorage.removeItem('wt_user')
+    localStorage.removeItem('wt_token')   // wristband bhi hatao
     navigate('/login')
   }
 

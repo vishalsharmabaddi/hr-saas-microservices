@@ -54,3 +54,8 @@ logging:
     com.hrsaas.notification_service: DEBUG
   pattern:
     console: "%d{HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+app:
+  # M4b: auth-service jis secret se token sign karti hai, wahi secret yahan verify ke liye
+  jwt:
+    secret: worktrack-dev-secret-key-please-change-in-production-0123456789

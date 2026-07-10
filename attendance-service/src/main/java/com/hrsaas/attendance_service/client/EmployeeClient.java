@@ -4,6 +4,8 @@ import lombok.Data;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 @Component
 public class EmployeeClient {
@@ -18,14 +20,27 @@ public class EmployeeClient {
 
     public EmployeeInfo getEmployee(Long companyId, Long employeeId) {
         try {
-            return restClient.get()
+            RestClient.RequestHeadersSpec<?> spec = restClient.get()
                     .uri("/api/employees/{id}", employeeId)
-                    .header("X-Company-Id", companyId.toString())
-                    .retrieve()
-                    .body(EmployeeInfo.class);
+                    .header("X-Company-Id", companyId.toString());
+
+            // End-user ka Bearer token aage forward karo, warna employee-service 401 dega
+            String auth = currentAuthHeader();
+            if (auth != null) {
+                spec = spec.header("Authorization", auth);
+            }
+
+            return spec.retrieve().body(EmployeeInfo.class);
         } catch (Exception e) {
             return null;
         }
+    }
+
+    // Abhi jo request handle ho rahi hai usi ka Authorization header uthao
+    private String currentAuthHeader() {
+        ServletRequestAttributes attrs =
+                (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        return attrs != null ? attrs.getRequest().getHeader("Authorization") : null;
     }
 
     @Data

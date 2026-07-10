@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { GoogleLogin } from '@react-oauth/google'
 import { getRoleForEmail } from '../auth/roles'
+import api from '../api/axios'
 
 function LoginPage() {
   const navigate = useNavigate()
@@ -14,15 +15,25 @@ function LoginPage() {
     navigate('/dashboard')
   }
 
-  function handleGoogleSuccess(credentialResponse) {
-    const payload = JSON.parse(atob(credentialResponse.credential.split('.')[1]))
-    saveAndGo({
-      name: payload.name,
-      email: payload.email,
-      picture: payload.picture,
-      token: credentialResponse.credential,
-      role: getRoleForEmail(payload.email),
-    })
+  async function handleGoogleSuccess(credentialResponse) {
+    const token = credentialResponse.credential
+    try {
+      // Backend token verify karega + memberships (M1 table) se role/company dega
+      const { data } = await api.post('/auth/google', { token })
+      const primary = data.memberships?.[0] || null   // abhi pehli company; multi-company picker baad me
+      localStorage.setItem('wt_token', data.token)     // humara backend JWT (wristband)
+      saveAndGo({
+        name: data.name,
+        email: data.email,
+        picture: data.picture,
+        token,
+        role: primary?.role || 'EMPLOYEE',            // DB se — localStorage guess se nahi
+        companyId: primary?.companyId ?? null,
+        memberships: data.memberships || [],
+      })
+    } catch (err) {
+      setError('Login verification failed. Please try again.')
+    }
   }
 
   function handleEmailLogin() {

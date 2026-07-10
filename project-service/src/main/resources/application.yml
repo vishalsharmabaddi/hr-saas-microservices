@@ -53,3 +53,13 @@ management:
 
 app:
   welcome-message: Welcome to Project Service!
+  # M3: humara apna JWT isi secret se sign hoga. HS256 ke liye kam se kam 32 bytes.
+  # (Dev key — production me environment variable se aana chahiye, code me nahi.)
+  jwt:
+    secret: worktrack-dev-secret-key-please-change-in-production-0123456789
+    expiration-ms: 86400000   # 24 ghante
+
+# M2: Google login token verify karte waqt "audience" isi client-id se match hoga.
+# (Ye public value hai — frontend .env wale VITE_GOOGLE_CLIENT_ID jaisi.)
+google:
+  client-id: 1026168338724-p891oi1soa6pgjl9hfec6q6b046mv55k.apps.googleusercontent.com
