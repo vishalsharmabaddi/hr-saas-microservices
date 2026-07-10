@@ -10,9 +10,9 @@ function LoginPage() {
   const [password, setPassword] = useState('')
   const [error, setError]       = useState('')
 
-  function saveAndGo(user) {
+  function saveAndGo(user, path = '/dashboard') {
     localStorage.setItem('wt_user', JSON.stringify(user))
-    navigate('/dashboard')
+    navigate(path)
   }
 
   async function handleGoogleSuccess(credentialResponse) {
@@ -21,16 +21,17 @@ function LoginPage() {
       // Backend token verify karega + memberships (M1 table) se role/company dega
       const { data } = await api.post('/auth/google', { token })
       const primary = data.memberships?.[0] || null   // abhi pehli company; multi-company picker baad me
+      const isNewUser = !data.memberships || data.memberships.length === 0
       localStorage.setItem('wt_token', data.token)     // humara backend JWT (wristband)
       saveAndGo({
         name: data.name,
         email: data.email,
         picture: data.picture,
         token,
-        role: primary?.role || 'EMPLOYEE',            // DB se — localStorage guess se nahi
+        role: primary?.role || null,                  // company banne tak koi role nahi
         companyId: primary?.companyId ?? null,
         memberships: data.memberships || [],
-      })
+      }, isNewUser ? '/onboarding' : '/dashboard')      // naya user → apni company banaye (M5)
     } catch (err) {
       setError('Login verification failed. Please try again.')
     }

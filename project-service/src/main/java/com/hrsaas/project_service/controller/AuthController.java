@@ -2,6 +2,7 @@ package com.hrsaas.project_service.controller;
 
 import com.hrsaas.project_service.dto.AuthResponse;
 import com.hrsaas.project_service.dto.GoogleAuthRequest;
+import com.hrsaas.project_service.dto.RegisterCompanyRequest;
 import com.hrsaas.project_service.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -18,5 +19,12 @@ public class AuthController {
     @PostMapping("/google")
     public ResponseEntity<AuthResponse> google(@RequestBody GoogleAuthRequest request) {
         return ResponseEntity.ok(authService.authenticate(request.getToken()));
+    }
+
+    // M5 Founder path: naya user apni company banata hai → ADMIN ban jaata hai + naya token
+    @PostMapping("/register-company")
+    public ResponseEntity<AuthResponse> registerCompany(@RequestBody RegisterCompanyRequest request) {
+        return ResponseEntity.ok(
+                authService.registerCompany(request.getToken(), request.getCompanyName(), request.getDomain()));
     }
 }

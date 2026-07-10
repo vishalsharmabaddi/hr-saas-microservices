@@ -30,8 +30,32 @@ export default function OnboardingPage() {
   }, [company])
 
   const saveCompany = useMutation({
-    mutationFn: (data) =>
-      company ? api.put(`/companies/${company.id}`, { ...company, ...data }) : api.post('/companies', data),
+    mutationFn: (data) => {
+      const user = JSON.parse(localStorage.getItem('wt_user') || '{}')
+      // M5 Founder path: abhi koi company nahi → register-company (company + ADMIN + naya token)
+      if (!user.companyId) {
+        return api.post('/auth/register-company', {
+          token: user.token,                 // Google token = identity proof
+          companyName: data.name,
+          domain: data.domain || null,
+        }).then(res => {
+          const d = res.data
+          const primary = d.memberships?.[0] || null
+          localStorage.setItem('wt_token', d.token)             // naya token (ab companyId + ADMIN)
+          localStorage.setItem('wt_user', JSON.stringify({
+            ...user,
+            role: primary?.role || 'ADMIN',
+            companyId: primary?.companyId ?? null,
+            memberships: d.memberships || [],
+          }))
+          return res
+        })
+      }
+      // Existing admin sirf company details edit kar raha hai
+      return company
+        ? api.put(`/companies/${company.id}`, { ...company, ...data })
+        : api.post('/companies', data)
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['companies'] })
       setStep(2)                        // company save hone ke baad hi aage

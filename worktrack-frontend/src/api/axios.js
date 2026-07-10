@@ -22,4 +22,22 @@ api.interceptors.request.use(config => {
   return config
 })
 
+// Token expire/invalid (backend 401) → session clear karke login pe bhej do.
+// Warna page silently toot jaata hai. Login call ko chhoro (wo khud 401 de sakti hai).
+api.interceptors.response.use(
+  response => response,
+  error => {
+    const status = error.response?.status
+    const isAuthCall = (error.config?.url || '').includes('/auth/')
+    if (status === 401 && !isAuthCall) {
+      localStorage.removeItem('wt_token')
+      localStorage.removeItem('wt_user')
+      if (window.location.pathname !== '/login') {
+        window.location.href = '/login'
+      }
+    }
+    return Promise.reject(error)
+  }
+)
+
 export default api
