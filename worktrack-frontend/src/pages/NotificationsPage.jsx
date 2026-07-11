@@ -43,8 +43,8 @@ export default function NotificationsPage() {
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
         <div>
-          <h1 style={{ fontSize: 20, fontWeight: 600, color: '#0f172a', letterSpacing: '-0.3px' }}>Notifications</h1>
-          <p style={{ fontSize: 13, color: '#64748b', marginTop: 4 }}>
+          <h1 className="page-title">Notifications</h1>
+          <p style={{ fontSize: 14, color: '#64748b', marginTop: 4 }}>
             {unread > 0 ? `${unread} unread` : 'All caught up'}
           </p>
         </div>
@@ -54,8 +54,8 @@ export default function NotificationsPage() {
             disabled={markAllMutation.isPending}
             style={{
               display: 'flex', alignItems: 'center', gap: 6,
-              background: '#fff', color: '#4f46e5', border: '1px solid #e2e8f0',
-              borderRadius: 8, padding: '8px 14px', fontSize: 13,
+              background: '#fff', color: '#16A34A', border: '1px solid #e2e8f0',
+              borderRadius: 8, padding: '8px 14px', fontSize: 14,
               fontWeight: 500, cursor: 'pointer',
             }}
           >
@@ -68,14 +68,14 @@ export default function NotificationsPage() {
       {/* List */}
       <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, overflow: 'hidden' }}>
         {isLoading ? (
-          <div style={{ padding: '48px', textAlign: 'center', color: '#94a3b8', fontSize: 13 }}>Loading...</div>
+          <div style={{ padding: '48px', textAlign: 'center', color: '#94a3b8', fontSize: 14 }}>Loading...</div>
         ) : notifications.length === 0 ? (
           <div style={{ padding: '80px 24px', textAlign: 'center' }}>
             <div style={{ background: '#f1f5f9', borderRadius: 12, padding: 20, display: 'inline-block', marginBottom: 14 }}>
               <Bell size={28} color="#94a3b8" strokeWidth={1.5} />
             </div>
-            <p style={{ fontSize: 14, fontWeight: 500, color: '#334155', margin: 0 }}>No notifications yet</p>
-            <p style={{ fontSize: 13, color: '#94a3b8', marginTop: 6 }}>
+            <p style={{ fontSize: 15, fontWeight: 500, color: '#334155', margin: 0 }}>No notifications yet</p>
+            <p style={{ fontSize: 14, color: '#94a3b8', marginTop: 6 }}>
               Approve a leave request to see Kafka event here
             </p>
           </div>
@@ -93,25 +93,25 @@ export default function NotificationsPage() {
                 {/* Dot indicator */}
                 <div style={{
                   width: 8, height: 8, borderRadius: '50%', marginTop: 6, flexShrink: 0,
-                  background: n.isRead ? '#e2e8f0' : '#4f46e5',
+                  background: n.isRead ? '#e2e8f0' : '#16A34A',
                 }} />
 
                 {/* Content */}
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
                     <span style={{
-                      fontSize: 11, fontWeight: 600, padding: '2px 8px', borderRadius: 5,
+                      fontSize: 12, fontWeight: 600, padding: '2px 8px', borderRadius: 5,
                       ...ts,
                     }}>
                       {ts.label}
                     </span>
-                    <span style={{ fontSize: 11, color: '#94a3b8' }}>{timeAgo(n.createdAt)}</span>
+                    <span style={{ fontSize: 12, color: '#94a3b8' }}>{timeAgo(n.createdAt)}</span>
                   </div>
-                  <p style={{ fontSize: 13, color: '#1e293b', margin: 0, fontWeight: n.isRead ? 400 : 500 }}>
+                  <p style={{ fontSize: 14, color: '#1e293b', margin: 0, fontWeight: n.isRead ? 400 : 500 }}>
                     {n.message}
                   </p>
                   {n.employeeName && (
-                    <p style={{ fontSize: 12, color: '#94a3b8', margin: '3px 0 0' }}>
+                    <p style={{ fontSize: 13, color: '#94a3b8', margin: '3px 0 0' }}>
                       Employee: {n.employeeName}
                     </p>
                   )}

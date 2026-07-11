@@ -1,11 +1,12 @@
 import { useState, useRef, useEffect } from 'react'
 import { Outlet, NavLink, useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { LayoutDashboard, FolderKanban, Clock, Users, UserSquare2, CalendarCheck, CalendarOff, Bell, Settings, Menu, X, Check, CheckCheck, TrendingUp, LogOut, ChevronUp, ChevronDown, Sparkles, BarChart3, Compass, HelpCircle, ShieldCheck } from 'lucide-react'
+import { LayoutDashboard, FolderKanban, Clock, Users, UserSquare2, CalendarCheck, CalendarOff, Bell, Settings, Menu, X, Check, CheckCheck, TrendingUp, LogOut, ChevronUp, ChevronDown, ChevronLeft, Sparkles, BarChart3, Compass, HelpCircle, ShieldCheck } from 'lucide-react'
 import api from '../api/axios'
 import { ROLE_NAV, ROLE_STYLE, isPlatformOwner } from '../auth/roles'
 import { startTour, maybeStartTourForNewUser } from '../tour/appTour'
 import GlobalSearch from './GlobalSearch'
+import taurusMark from '../assets/Taurus-Logo.png'
 
 const navItems = [
   { to: '/dashboard',  icon: LayoutDashboard, label: 'Dashboard' },
@@ -65,11 +66,11 @@ function NotificationDropdown({ onClose }) {
     }}>
       {/* Header */}
       <div style={{ padding: '14px 16px', borderBottom: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div style={{ fontSize: 14, fontWeight: 600, color: '#0f172a' }}>
-          Notifications {unread > 0 && <span style={{ fontSize: 11, background: '#4f46e5', color: '#fff', borderRadius: 10, padding: '1px 7px', marginLeft: 6 }}>{unread}</span>}
+        <div style={{ fontSize: 15, fontWeight: 600, color: '#0f172a' }}>
+          Notifications {unread > 0 && <span style={{ fontSize: 12, background: 'var(--tg-green-600)', color: '#fff', borderRadius: 10, padding: '1px 7px', marginLeft: 6 }}>{unread}</span>}
         </div>
         {unread > 0 && (
-          <button onClick={() => markAllMutation.mutate()} style={{ background: 'none', border: 'none', fontSize: 12, color: '#4f46e5', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+          <button onClick={() => markAllMutation.mutate()} style={{ background: 'none', border: 'none', fontSize: 13, color: 'var(--tg-green-600)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
             <CheckCheck size={13} /> Mark all read
           </button>
         )}
@@ -78,7 +79,7 @@ function NotificationDropdown({ onClose }) {
       {/* List */}
       <div style={{ maxHeight: 320, overflowY: 'auto' }}>
         {recent.length === 0 ? (
-          <div style={{ padding: '32px 16px', textAlign: 'center', color: '#94a3b8', fontSize: 13 }}>
+          <div style={{ padding: '32px 16px', textAlign: 'center', color: '#94a3b8', fontSize: 14 }}>
             No notifications yet
           </div>
         ) : (
@@ -91,14 +92,14 @@ function NotificationDropdown({ onClose }) {
                 borderBottom: i < recent.length - 1 ? '1px solid #f8fafc' : 'none',
                 background: n.isRead ? '#fff' : '#fafbff',
               }}>
-                <div style={{ width: 7, height: 7, borderRadius: '50%', marginTop: 5, flexShrink: 0, background: n.isRead ? '#e2e8f0' : '#4f46e5' }} />
+                <div style={{ width: 7, height: 7, borderRadius: '50%', marginTop: 5, flexShrink: 0, background: n.isRead ? '#e2e8f0' : 'var(--tg-green-600)' }} />
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 2 }}>
-                    <span style={{ fontSize: 11, fontWeight: 600, color: ts.color }}>{ts.label}</span>
-                    <span style={{ fontSize: 11, color: '#94a3b8' }}>{timeAgo(n.createdAt)}</span>
+                    <span style={{ fontSize: 12, fontWeight: 600, color: ts.color }}>{ts.label}</span>
+                    <span style={{ fontSize: 12, color: '#94a3b8' }}>{timeAgo(n.createdAt)}</span>
                   </div>
-                  <p style={{ fontSize: 12, color: '#1e293b', margin: 0, fontWeight: n.isRead ? 400 : 500, lineHeight: 1.4 }}>{n.message}</p>
-                  {n.employeeName && <p style={{ fontSize: 11, color: '#94a3b8', margin: '2px 0 0' }}>{n.employeeName}</p>}
+                  <p style={{ fontSize: 13, color: '#1e293b', margin: 0, fontWeight: n.isRead ? 400 : 500, lineHeight: 1.4 }}>{n.message}</p>
+                  {n.employeeName && <p style={{ fontSize: 12, color: '#94a3b8', margin: '2px 0 0' }}>{n.employeeName}</p>}
                 </div>
               </div>
             )
@@ -109,7 +110,7 @@ function NotificationDropdown({ onClose }) {
       {/* Footer */}
       {notifications.length > 5 && (
         <div style={{ padding: '10px 16px', borderTop: '1px solid #f1f5f9', textAlign: 'center' }}>
-          <button onClick={() => { navigate('/notifications'); onClose() }} style={{ background: 'none', border: 'none', fontSize: 12, color: '#4f46e5', cursor: 'pointer', fontWeight: 500 }}>
+          <button onClick={() => { navigate('/notifications'); onClose() }} style={{ background: 'none', border: 'none', fontSize: 13, color: 'var(--tg-green-600)', cursor: 'pointer', fontWeight: 500 }}>
             View all {notifications.length} notifications
           </button>
         </div>
@@ -120,7 +121,12 @@ function NotificationDropdown({ onClose }) {
 
 export default function Layout() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [collapsed, setCollapsed] = useState(() => localStorage.getItem('tg_sidebar_collapsed') === '1')
   const [bellOpen, setBellOpen] = useState(false)
+
+  function toggleCollapse() {
+    setCollapsed(c => { localStorage.setItem('tg_sidebar_collapsed', c ? '0' : '1'); return !c })
+  }
   const [userMenuOpen, setUserMenuOpen] = useState(false)
   const [companyMenuOpen, setCompanyMenuOpen] = useState(false)
   const bellRef = useRef(null)
@@ -141,7 +147,7 @@ export default function Layout() {
 
   // Multi-company: current company + switch handler
   const memberships = user.memberships || []
-  const currentCompanyName = memberships.find(m => m.companyId === user.companyId)?.companyName || 'WorkTrack'
+  const currentCompanyName = memberships.find(m => m.companyId === user.companyId)?.companyName || 'Taurus Go'
 
   async function switchCompany(companyId) {
     if (companyId === user.companyId) { setCompanyMenuOpen(false); return }
@@ -181,18 +187,30 @@ export default function Layout() {
   }, [])
 
   return (
-    <div style={{ display: 'flex', height: '100vh', width: '100vw', overflow: 'hidden', background: '#f8fafc', position: 'fixed', top: 0, left: 0 }}>
+    <div style={{ display: 'flex', height: '100vh', width: '100vw', overflow: 'hidden', background: 'var(--tg-bg)', position: 'fixed', top: 0, left: 0 }}>
 
       {sidebarOpen && (
         <div onClick={() => setSidebarOpen(false)} className="sidebar-overlay" style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', zIndex: 40 }} />
       )}
 
-      <aside className={`sidebar${sidebarOpen ? ' sidebar-open' : ''}`} style={{ width: 220, minWidth: 220, background: '#0f172a', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-        <div style={{ padding: '16px', borderBottom: '1px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div id="tour-brand">
-            <div style={{ color: '#fff', fontWeight: 600, fontSize: 15, letterSpacing: '-0.3px' }}>WorkTrack</div>
-            <div style={{ color: 'rgba(255,255,255,0.35)', fontSize: 11, marginTop: 2 }}>Project Management</div>
+      <aside className={`sidebar${sidebarOpen ? ' sidebar-open' : ''}${collapsed ? ' is-collapsed' : ''}`} style={{ width: collapsed ? 76 : 224, minWidth: collapsed ? 76 : 224, background: 'linear-gradient(180deg, #0B3D1E 0%, #082B14 100%)', display: 'flex', flexDirection: 'column', overflow: 'hidden', transition: 'width 0.22s ease, min-width 0.22s ease' }}>
+        <div style={{ padding: collapsed ? '16px 0' : '16px', borderBottom: '1px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: collapsed ? 'center' : 'space-between', gap: 8 }}>
+          <div id="tour-brand" style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
+            <div style={{ width: 36, height: 36, borderRadius: 9, overflow: 'hidden', flexShrink: 0, display: 'flex', border: '1px solid rgba(255,255,255,0.1)' }}>
+              <img src={taurusMark} alt="Taurus Go" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            </div>
+            <div className="brand-text" style={{ minWidth: 0 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+                <div className="tg-display" style={{
+                  fontWeight: 700, fontSize: 19, letterSpacing: '-0.3px', lineHeight: 1, color: '#F5FBF6', whiteSpace: 'nowrap',
+                }}>Taurus <span style={{ color: 'var(--tg-gold-400)' }}>Go</span></div>
+                <span style={{ fontSize: 8.5, fontWeight: 700, letterSpacing: '0.5px', color: 'var(--tg-gold-400)', background: 'rgba(250,204,21,0.14)', border: '1px solid rgba(250,204,21,0.3)', borderRadius: 4, padding: '1px 5px', lineHeight: 1.4, flexShrink: 0 }}>BETA</span>
+              </div>
+            </div>
           </div>
+          <button className="collapse-btn" onClick={toggleCollapse} title={collapsed ? 'Expand' : 'Collapse'} style={{ display: 'none', background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.5)', padding: 4 }}>
+            <ChevronLeft size={18} style={{ transform: collapsed ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
+          </button>
           <button className="sidebar-close-btn" onClick={() => setSidebarOpen(false)} style={{ display: 'none', background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.4)', padding: 4 }}>
             <X size={18} />
           </button>
@@ -202,9 +220,9 @@ export default function Layout() {
           {visibleNav.map(({ to, icon: Icon, label }) => (
             <NavLink key={to} id={`tour-${to.slice(1)}`} to={to} style={{ textDecoration: 'none' }} onClick={() => setSidebarOpen(false)}>
               {({ isActive }) => (
-                <div className={`nav-link-item${isActive ? ' nav-active' : ''}`}>
-                  <Icon size={15} strokeWidth={isActive ? 2 : 1.6} />
-                  {label}
+                <div className={`nav-link-item${isActive ? ' nav-active' : ''}`} title={collapsed ? label : undefined}>
+                  <Icon size={17} strokeWidth={isActive ? 2.2 : 1.7} style={{ flexShrink: 0 }} />
+                  <span className="nav-label">{label}</span>
                 </div>
               )}
             </NavLink>
@@ -224,8 +242,8 @@ export default function Layout() {
             }}>
               {/* Name header */}
               <div style={{ padding: '12px 14px', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
-                <div style={{ color: '#fff', fontSize: 13, fontWeight: 600 }}>{user.name || 'User'}</div>
-                <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: 11, marginTop: 2 }}>{user.email || ''}</div>
+                <div style={{ color: '#fff', fontSize: 14, fontWeight: 600 }}>{user.name || 'User'}</div>
+                <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: 12, marginTop: 2 }}>{user.email || ''}</div>
               </div>
               {/* Menu items */}
               {[
@@ -238,9 +256,9 @@ export default function Layout() {
                 <button key={label} onClick={action} style={{
                   display: 'flex', alignItems: 'center', gap: 10,
                   width: '100%', padding: '10px 14px', background: 'none', border: 'none',
-                  cursor: 'pointer', fontSize: 13,
+                  cursor: 'pointer', fontSize: 14,
                   fontWeight: accent ? 600 : 400,
-                  color: danger ? '#f87171' : accent ? '#a5b4fc' : 'rgba(255,255,255,0.8)',
+                  color: danger ? '#f87171' : accent ? '#86EFAC' : 'rgba(255,255,255,0.8)',
                   textAlign: 'left',
                 }}
                   onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.06)'}
@@ -263,14 +281,14 @@ export default function Layout() {
             onMouseLeave={e => e.currentTarget.style.background = 'none'}
           >
             <div style={{
-              width: 28, height: 28, borderRadius: '50%', background: '#4f46e5', flexShrink: 0,
-              display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 12, fontWeight: 600,
+              width: 32, height: 32, borderRadius: '50%', background: 'var(--tg-grad)', flexShrink: 0,
+              display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#06210F', fontSize: 14, fontWeight: 700,
             }}>{user.name?.[0]?.toUpperCase() || 'U'}</div>
-            <div style={{ flex: 1, minWidth: 0, textAlign: 'left' }}>
-              <div style={{ color: '#fff', fontSize: 12, fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.name || 'User'}</div>
-              <div style={{ fontSize: 10, fontWeight: 600, marginTop: 2, padding: '1px 6px', borderRadius: 4, display: 'inline-block', background: roleStyle.bg, color: roleStyle.color }}>{roleStyle.label}</div>
+            <div className="user-text" style={{ flex: 1, minWidth: 0, textAlign: 'left' }}>
+              <div style={{ color: '#fff', fontSize: 14, fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.name || 'User'}</div>
+              <div style={{ fontSize: 11.5, fontWeight: 600, marginTop: 2, padding: '1px 6px', borderRadius: 4, display: 'inline-block', background: roleStyle.bg, color: roleStyle.color }}>{roleStyle.label}</div>
             </div>
-            <ChevronUp size={13} color="rgba(255,255,255,0.3)" style={{ transform: userMenuOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }} />
+            <ChevronUp className="user-text" size={13} color="rgba(255,255,255,0.3)" style={{ transform: userMenuOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }} />
           </button>
         </div>
       </aside>
@@ -285,7 +303,7 @@ export default function Layout() {
               <button onClick={() => memberships.length > 1 && setCompanyMenuOpen(o => !o)}
                 style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'none', border: 'none',
                          cursor: memberships.length > 1 ? 'pointer' : 'default', padding: 0,
-                         fontSize: 13, fontWeight: 500, color: '#0f172a', maxWidth: 200 }}>
+                         fontSize: 14, fontWeight: 500, color: '#0f172a', maxWidth: 200 }}>
                 <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{currentCompanyName}</span>
                 {memberships.length > 1 && <ChevronDown size={14} color="#94a3b8" style={{ flexShrink: 0 }} />}
               </button>
@@ -293,16 +311,16 @@ export default function Layout() {
                 <div style={{ position: 'absolute', top: 'calc(100% + 8px)', left: 0, background: '#fff',
                               border: '1px solid #e2e8f0', borderRadius: 10, boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
                               minWidth: 220, zIndex: 50, overflow: 'hidden' }}>
-                  <div style={{ padding: '8px 12px', fontSize: 11, fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Switch workspace</div>
+                  <div style={{ padding: '8px 12px', fontSize: 12, fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Switch workspace</div>
                   {memberships.map(m => {
                     const active = m.companyId === user.companyId
                     return (
                       <button key={m.companyId} onClick={() => switchCompany(m.companyId)}
                         style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, width: '100%',
                                  background: active ? '#f8fafc' : '#fff', border: 'none', cursor: 'pointer',
-                                 padding: '9px 12px', fontSize: 13, color: '#0f172a', textAlign: 'left' }}>
+                                 padding: '9px 12px', fontSize: 14, color: '#0f172a', textAlign: 'left' }}>
                         <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{m.companyName || `Company #${m.companyId}`}</span>
-                        {active && <Check size={14} color="#4f46e5" style={{ flexShrink: 0 }} />}
+                        {active && <Check size={14} color="var(--tg-green-600)" style={{ flexShrink: 0 }} />}
                       </button>
                     )
                   })}
@@ -324,13 +342,13 @@ export default function Layout() {
               <button onClick={() => setBellOpen(o => !o)} style={{
                 position: 'relative', background: 'none', border: '1px solid #e2e8f0',
                 borderRadius: 8, padding: '6px 8px', cursor: 'pointer',
-                color: bellOpen ? '#4f46e5' : '#64748b', display: 'flex', alignItems: 'center',
+                color: bellOpen ? 'var(--tg-green-600)' : '#64748b', display: 'flex', alignItems: 'center',
               }}>
                 <Bell size={16} />
                 {unread > 0 && (
                   <span style={{
                     position: 'absolute', top: -4, right: -4,
-                    background: '#ef4444', color: '#fff', fontSize: 9, fontWeight: 700,
+                    background: '#ef4444', color: '#fff', fontSize: 10, fontWeight: 700,
                     borderRadius: 10, minWidth: 16, height: 16,
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     padding: '0 3px',
@@ -340,7 +358,7 @@ export default function Layout() {
               {bellOpen && <NotificationDropdown onClose={() => setBellOpen(false)} />}
             </div>
 
-            <span id="tour-plan" className="header-plan" style={{ fontSize: 11, fontWeight: 500, color: '#4f46e5', background: '#eef2ff', padding: '3px 10px', borderRadius: 6 }}>Free Plan</span>
+            <span id="tour-plan" className="header-plan" style={{ fontSize: 13, fontWeight: 600, color: '#15803D', background: '#EAF7EE', border: '1px solid #C9EAD4', padding: '3px 10px', borderRadius: 6 }}>Free Plan</span>
           </div>
         </header>
 
@@ -356,10 +374,10 @@ export default function Layout() {
         style={{
           position: 'fixed', bottom: 20, right: 20, zIndex: 30,
           display: 'flex', alignItems: 'center', gap: 8,
-          background: '#4f46e5', color: '#fff', border: 'none',
-          borderRadius: 999, padding: '10px 16px', cursor: 'pointer',
-          fontSize: 13, fontWeight: 500,
-          boxShadow: '0 4px 16px rgba(79,70,229,0.4)',
+          background: 'var(--tg-grad)', color: '#06210F', border: 'none',
+          borderRadius: 999, padding: '11px 18px', cursor: 'pointer',
+          fontSize: 15, fontWeight: 600,
+          boxShadow: 'var(--tg-glow)',
         }}
       >
         <HelpCircle size={16} /> Take a tour

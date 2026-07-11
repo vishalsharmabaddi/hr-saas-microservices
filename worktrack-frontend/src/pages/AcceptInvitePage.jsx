@@ -41,21 +41,21 @@ export default function AcceptInvitePage() {
     <div style={{ minHeight: '100vh', background: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
       <div style={{ background: '#fff', borderRadius: 16, border: '1px solid #e2e8f0', padding: '40px 36px', width: '100%', maxWidth: 420, boxShadow: '0 4px 24px rgba(0,0,0,0.07)', textAlign: 'center' }}>
 
-        <div style={{ width: 56, height: 56, borderRadius: 14, background: '#eef2ff', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 18px' }}>
-          <MailCheck size={26} color="#4f46e5" />
+        <div style={{ width: 56, height: 56, borderRadius: 14, background: '#EAF7EE', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 18px' }}>
+          <MailCheck size={26} color="#16A34A" />
         </div>
 
         {!inviteToken ? (
           <>
             <h1 style={{ fontSize: 20, fontWeight: 700, color: '#0f172a', margin: 0 }}>Invalid invite link</h1>
-            <p style={{ fontSize: 13, color: '#64748b', marginTop: 10, lineHeight: 1.6 }}>
+            <p style={{ fontSize: 14, color: '#64748b', marginTop: 10, lineHeight: 1.6 }}>
               This link is missing its code. Ask your admin to send the invite again.
             </p>
           </>
         ) : (
           <>
             <h1 style={{ fontSize: 20, fontWeight: 700, color: '#0f172a', margin: 0 }}>You've been invited</h1>
-            <p style={{ fontSize: 13, color: '#64748b', marginTop: 10, lineHeight: 1.6 }}>
+            <p style={{ fontSize: 14, color: '#64748b', marginTop: 10, lineHeight: 1.6 }}>
               Sign in with Google to join the workspace. Use the <b>same email</b> your invite was sent to.
             </p>
 
@@ -68,8 +68,8 @@ export default function AcceptInvitePage() {
               />
             </div>
 
-            {busy && <p style={{ fontSize: 12, color: '#94a3b8', marginTop: 14 }}>Accepting invite…</p>}
-            {error && <p style={{ fontSize: 12, color: '#ef4444', marginTop: 14 }}>{error}</p>}
+            {busy && <p style={{ fontSize: 13, color: '#94a3b8', marginTop: 14 }}>Accepting invite…</p>}
+            {error && <p style={{ fontSize: 13, color: '#ef4444', marginTop: 14 }}>{error}</p>}
           </>
         )}
       </div>

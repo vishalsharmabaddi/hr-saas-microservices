@@ -9,13 +9,13 @@ const APP_ROLES     = ['ADMIN', 'MANAGER', 'EMPLOYEE']
 
 const projRoleLabel = { PROJECT_MANAGER: 'Project Manager', TEAM_MEMBER: 'Team Member', CLIENT: 'Client' }
 const projRoleStyle = {
-  PROJECT_MANAGER: { background: '#eef2ff', color: '#4f46e5' },
+  PROJECT_MANAGER: { background: '#EAF7EE', color: '#16A34A' },
   TEAM_MEMBER:     { background: '#f0fdf4', color: '#16a34a' },
   CLIENT:          { background: '#fff7ed', color: '#c2410c' },
 }
 
 const appRoleStyle = {
-  ADMIN:    { background: '#eef2ff', color: '#4f46e5', label: 'Admin' },
+  ADMIN:    { background: '#EAF7EE', color: '#16A34A', label: 'Admin' },
   MANAGER:  { background: '#f0fdf4', color: '#16a34a', label: 'Manager' },
   EMPLOYEE: { background: '#f8fafc', color: '#64748b', label: 'Employee' },
 }
@@ -129,16 +129,16 @@ export default function MembersPage() {
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 20 }}>
         <div>
-          <h1 style={{ fontSize: 20, fontWeight: 600, color: '#0f172a', letterSpacing: '-0.3px' }}>Members</h1>
-          <p style={{ fontSize: 13, color: '#64748b', marginTop: 4 }}>
+          <h1 className="page-title">Members</h1>
+          <p style={{ fontSize: 14, color: '#64748b', marginTop: 4 }}>
             {activeTab === 'project' ? 'Project team management' : 'App access and role assignment'}
           </p>
         </div>
         {activeTab === 'project' && activeProjectId && (
           <button onClick={() => setShowAddProject(v => !v)} style={{
             display: 'flex', alignItems: 'center', gap: 6,
-            background: '#4f46e5', color: '#fff', border: 'none',
-            borderRadius: 8, padding: '8px 14px', fontSize: 13, fontWeight: 500, cursor: 'pointer',
+            background: '#16A34A', color: '#fff', border: 'none',
+            borderRadius: 8, padding: '8px 14px', fontSize: 14, fontWeight: 500, cursor: 'pointer',
           }}>
             <Plus size={14} /> Add Member
           </button>
@@ -148,7 +148,7 @@ export default function MembersPage() {
       {/* Tabs — App Access only for ADMIN */}
       <div style={{ display: 'flex', gap: 4, marginBottom: 20, background: '#f1f5f9', borderRadius: 10, padding: 4, width: 'fit-content' }}>
         <button onClick={() => setActiveTab('project')} style={{
-          padding: '6px 16px', borderRadius: 7, border: 'none', fontSize: 13, cursor: 'pointer',
+          padding: '6px 16px', borderRadius: 7, border: 'none', fontSize: 14, cursor: 'pointer',
           fontWeight: activeTab === 'project' ? 600 : 400,
           background: activeTab === 'project' ? '#fff' : 'transparent',
           color: activeTab === 'project' ? '#0f172a' : '#64748b',
@@ -158,7 +158,7 @@ export default function MembersPage() {
         </button>
         {isAdmin && (
           <button onClick={() => setActiveTab('access')} style={{
-            padding: '6px 16px', borderRadius: 7, border: 'none', fontSize: 13, cursor: 'pointer',
+            padding: '6px 16px', borderRadius: 7, border: 'none', fontSize: 14, cursor: 'pointer',
             fontWeight: activeTab === 'access' ? 600 : 400,
             background: activeTab === 'access' ? '#fff' : 'transparent',
             color: activeTab === 'access' ? '#0f172a' : '#64748b',
@@ -175,9 +175,9 @@ export default function MembersPage() {
         <>
           {projects.length > 0 && (
             <div style={{ marginBottom: 16 }}>
-              <label style={{ fontSize: 12, fontWeight: 500, color: '#64748b', display: 'block', marginBottom: 6 }}>Select Project</label>
+              <label style={{ fontSize: 13, fontWeight: 500, color: '#64748b', display: 'block', marginBottom: 6 }}>Select Project</label>
               <select value={activeProjectId ?? ''} onChange={e => setSelectedProjectId(Number(e.target.value))}
-                style={{ padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 13, color: '#0f172a', background: '#fff', cursor: 'pointer' }}>
+                style={{ padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 14, color: '#0f172a', background: '#fff', cursor: 'pointer' }}>
                 {projects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
               </select>
             </div>
@@ -186,9 +186,9 @@ export default function MembersPage() {
           {showAddProject && (
             <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 12, padding: '16px 20px', marginBottom: 16, display: 'flex', gap: 12, alignItems: 'flex-end', flexWrap: 'wrap' }}>
               <div style={{ flex: '1 1 180px' }}>
-                <label style={{ fontSize: 11, fontWeight: 600, color: '#64748b', display: 'block', marginBottom: 6 }}>EMPLOYEE</label>
+                <label style={{ fontSize: 12, fontWeight: 600, color: '#64748b', display: 'block', marginBottom: 6 }}>EMPLOYEE</label>
                 <select value={projectForm.employeeId} onChange={e => setProjectForm(f => ({ ...f, employeeId: e.target.value }))}
-                  style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 13, background: '#fff' }}>
+                  style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 14, background: '#fff' }}>
                   <option value="">-- Select employee --</option>
                   {employees.filter(e => e.isActive).map(e => (
                     <option key={e.id} value={e.id}>{e.fullName} ({e.designation || e.department || 'No role'})</option>
@@ -196,58 +196,58 @@ export default function MembersPage() {
                 </select>
               </div>
               <div style={{ flex: '1 1 140px' }}>
-                <label style={{ fontSize: 11, fontWeight: 600, color: '#64748b', display: 'block', marginBottom: 6 }}>ROLE</label>
+                <label style={{ fontSize: 12, fontWeight: 600, color: '#64748b', display: 'block', marginBottom: 6 }}>ROLE</label>
                 <select value={projectForm.role} onChange={e => setProjectForm(f => ({ ...f, role: e.target.value }))}
-                  style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 13, background: '#fff' }}>
+                  style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 14, background: '#fff' }}>
                   {PROJECT_ROLES.map(r => <option key={r} value={r}>{projRoleLabel[r]}</option>)}
                 </select>
               </div>
               <button disabled={!projectForm.employeeId || addMutation.isPending}
                 onClick={() => addMutation.mutate({ employeeId: String(projectForm.employeeId), role: projectForm.role })}
-                style={{ background: '#4f46e5', color: '#fff', border: 'none', borderRadius: 8, padding: '8px 16px', fontSize: 13, fontWeight: 500, cursor: projectForm.employeeId ? 'pointer' : 'not-allowed' }}>
+                style={{ background: '#16A34A', color: '#fff', border: 'none', borderRadius: 8, padding: '8px 16px', fontSize: 14, fontWeight: 500, cursor: projectForm.employeeId ? 'pointer' : 'not-allowed' }}>
                 {addMutation.isPending ? 'Adding...' : 'Add'}
               </button>
               <button onClick={() => { setShowAddProject(false); addMutation.reset() }}
-                style={{ background: '#fff', color: '#64748b', border: '1px solid #e2e8f0', borderRadius: 8, padding: '8px 12px', fontSize: 13, cursor: 'pointer' }}>
+                style={{ background: '#fff', color: '#64748b', border: '1px solid #e2e8f0', borderRadius: 8, padding: '8px 12px', fontSize: 14, cursor: 'pointer' }}>
                 Cancel
               </button>
-              {addMutation.isError && <p style={{ fontSize: 12, color: '#ef4444', width: '100%' }}>Failed to add. Employee may already be in this project.</p>}
+              {addMutation.isError && <p style={{ fontSize: 13, color: '#ef4444', width: '100%' }}>Failed to add. Employee may already be in this project.</p>}
             </div>
           )}
 
           <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, overflow: 'hidden' }}>
             <div style={{ display: 'grid', gridTemplateColumns: '80px 1fr 160px 48px', padding: '12px 20px', borderBottom: '1px solid #f1f5f9', background: '#f8fafc' }}>
               {['ID', 'Employee', 'Role', ''].map(col => (
-                <span key={col} style={{ fontSize: 11, fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{col}</span>
+                <span key={col} style={{ fontSize: 12, fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{col}</span>
               ))}
             </div>
 
             {!activeProjectId ? (
-              <div style={{ padding: '60px 24px', textAlign: 'center', color: '#94a3b8', fontSize: 13 }}>No projects found. Create a project first.</div>
+              <div style={{ padding: '60px 24px', textAlign: 'center', color: '#94a3b8', fontSize: 14 }}>No projects found. Create a project first.</div>
             ) : isLoading ? (
-              <div style={{ padding: '40px 24px', textAlign: 'center', color: '#94a3b8', fontSize: 13 }}>Loading...</div>
+              <div style={{ padding: '40px 24px', textAlign: 'center', color: '#94a3b8', fontSize: 14 }}>Loading...</div>
             ) : members.length === 0 ? (
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '60px 24px', textAlign: 'center' }}>
                 <div style={{ background: '#f1f5f9', borderRadius: 12, padding: 16, marginBottom: 16 }}><Users size={24} color="#94a3b8" strokeWidth={1.5} /></div>
-                <p style={{ fontSize: 14, fontWeight: 500, color: '#334155' }}>No members in this project</p>
-                <p style={{ fontSize: 13, color: '#94a3b8', marginTop: 6, marginBottom: 20 }}>Add team members to collaborate</p>
-                <button onClick={() => setShowAddProject(true)} style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#4f46e5', color: '#fff', border: 'none', borderRadius: 8, padding: '8px 16px', fontSize: 13, fontWeight: 500, cursor: 'pointer' }}>
+                <p style={{ fontSize: 15, fontWeight: 500, color: '#334155' }}>No members in this project</p>
+                <p style={{ fontSize: 14, color: '#94a3b8', marginTop: 6, marginBottom: 20 }}>Add team members to collaborate</p>
+                <button onClick={() => setShowAddProject(true)} style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#16A34A', color: '#fff', border: 'none', borderRadius: 8, padding: '8px 16px', fontSize: 14, fontWeight: 500, cursor: 'pointer' }}>
                   <Plus size={14} /> Add First Member
                 </button>
               </div>
             ) : members.map((m, i) => (
               <div key={m.id} style={{ display: 'grid', gridTemplateColumns: '80px 1fr 160px 48px', padding: '14px 20px', alignItems: 'center', borderBottom: i < members.length - 1 ? '1px solid #f1f5f9' : 'none' }}>
-                <span style={{ fontSize: 12, color: '#94a3b8', fontFamily: 'monospace' }}>EMP-{String(m.employeeId).padStart(3, '0')}</span>
+                <span style={{ fontSize: 13, color: '#94a3b8', fontFamily: 'monospace' }}>EMP-{String(m.employeeId).padStart(3, '0')}</span>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <div style={{ width: 32, height: 32, borderRadius: '50%', flexShrink: 0, background: '#eef2ff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700, color: '#4f46e5' }}>
+                  <div style={{ width: 32, height: 32, borderRadius: '50%', flexShrink: 0, background: '#EAF7EE', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, color: '#16A34A' }}>
                     {empMap[m.employeeId]?.firstName?.[0]}{empMap[m.employeeId]?.lastName?.[0]}
                   </div>
                   <div>
-                    <div style={{ fontSize: 14, fontWeight: 500, color: '#1e293b' }}>{empMap[m.employeeId]?.fullName ?? `Employee #${m.employeeId}`}</div>
-                    <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>{empMap[m.employeeId]?.designation ?? empMap[m.employeeId]?.department ?? ''}{' · '}Joined {new Date(m.joinedAt).toLocaleDateString()}</div>
+                    <div style={{ fontSize: 15, fontWeight: 500, color: '#1e293b' }}>{empMap[m.employeeId]?.fullName ?? `Employee #${m.employeeId}`}</div>
+                    <div style={{ fontSize: 13, color: '#94a3b8', marginTop: 2 }}>{empMap[m.employeeId]?.designation ?? empMap[m.employeeId]?.department ?? ''}{' · '}Joined {new Date(m.joinedAt).toLocaleDateString()}</div>
                   </div>
                 </div>
-                <span style={{ display: 'inline-block', padding: '3px 10px', borderRadius: 6, fontSize: 11, fontWeight: 600, ...(projRoleStyle[m.role] || { background: '#f1f5f9', color: '#64748b' }) }}>
+                <span style={{ display: 'inline-block', padding: '3px 10px', borderRadius: 6, fontSize: 12, fontWeight: 600, ...(projRoleStyle[m.role] || { background: '#f1f5f9', color: '#64748b' }) }}>
                   {projRoleLabel[m.role] || m.role}
                 </span>
                 {canManageMembers && (
@@ -266,49 +266,49 @@ export default function MembersPage() {
         <>
           {/* Add member form */}
           <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 12, padding: '16px 20px', marginBottom: 20 }}>
-            <div style={{ fontSize: 13, fontWeight: 600, color: '#0f172a', marginBottom: 12 }}>Invite Member</div>
+            <div style={{ fontSize: 14, fontWeight: 600, color: '#0f172a', marginBottom: 12 }}>Invite Member</div>
             <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'flex-end' }}>
               <div style={{ flex: '2 1 200px' }}>
-                <label style={{ fontSize: 11, fontWeight: 600, color: '#64748b', display: 'block', marginBottom: 5 }}>EMAIL</label>
+                <label style={{ fontSize: 12, fontWeight: 600, color: '#64748b', display: 'block', marginBottom: 5 }}>EMAIL</label>
                 <input type="email" placeholder="rahul@company.com"
                   value={appForm.email} onChange={e => { setAppForm(f => ({ ...f, email: e.target.value })); setAppError('') }}
-                  style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 13, boxSizing: 'border-box' }}
+                  style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 14, boxSizing: 'border-box' }}
                 />
               </div>
               <div style={{ flex: '1 1 140px' }}>
-                <label style={{ fontSize: 11, fontWeight: 600, color: '#64748b', display: 'block', marginBottom: 5 }}>NAME (optional)</label>
+                <label style={{ fontSize: 12, fontWeight: 600, color: '#64748b', display: 'block', marginBottom: 5 }}>NAME (optional)</label>
                 <input placeholder="Rahul Sharma"
                   value={appForm.name} onChange={e => setAppForm(f => ({ ...f, name: e.target.value }))}
-                  style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 13, boxSizing: 'border-box' }}
+                  style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 14, boxSizing: 'border-box' }}
                 />
               </div>
               <div style={{ flex: '1 1 120px' }}>
-                <label style={{ fontSize: 11, fontWeight: 600, color: '#64748b', display: 'block', marginBottom: 5 }}>ROLE</label>
+                <label style={{ fontSize: 12, fontWeight: 600, color: '#64748b', display: 'block', marginBottom: 5 }}>ROLE</label>
                 <select value={appForm.role} onChange={e => setAppForm(f => ({ ...f, role: e.target.value }))}
-                  style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 13, background: '#fff' }}>
+                  style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 14, background: '#fff' }}>
                   {APP_ROLES.map(r => <option key={r} value={r}>{appRoleStyle[r].label}</option>)}
                 </select>
               </div>
-              <button onClick={handleAddAppMember} disabled={inviteMutation.isPending} style={{ background: '#4f46e5', color: '#fff', border: 'none', borderRadius: 8, padding: '8px 16px', fontSize: 13, fontWeight: 500, cursor: 'pointer', whiteSpace: 'nowrap' }}>
+              <button onClick={handleAddAppMember} disabled={inviteMutation.isPending} style={{ background: '#16A34A', color: '#fff', border: 'none', borderRadius: 8, padding: '8px 16px', fontSize: 14, fontWeight: 500, cursor: 'pointer', whiteSpace: 'nowrap' }}>
                 {inviteMutation.isPending ? 'Creating…' : 'Create invite'}
               </button>
             </div>
-            {appError && <p style={{ fontSize: 12, color: '#ef4444', marginTop: 8 }}>{appError}</p>}
-            <p style={{ fontSize: 11, color: '#94a3b8', marginTop: 10 }}>
+            {appError && <p style={{ fontSize: 13, color: '#ef4444', marginTop: 8 }}>{appError}</p>}
+            <p style={{ fontSize: 12, color: '#94a3b8', marginTop: 10 }}>
               An invite link is created. Share it with them — they join after signing in with this exact email.
             </p>
 
             {/* Copy-link box — invite banne ke baad */}
             {inviteLink && (
-              <div style={{ marginTop: 12, background: '#eef2ff', border: '1px solid #c7d2fe', borderRadius: 8, padding: '10px 12px' }}>
-                <div style={{ fontSize: 11, fontWeight: 600, color: '#4338ca', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 5 }}>
+              <div style={{ marginTop: 12, background: '#EAF7EE', border: '1px solid #BBF7D0', borderRadius: 8, padding: '10px 12px' }}>
+                <div style={{ fontSize: 12, fontWeight: 600, color: '#15803D', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 5 }}>
                   <Link2 size={13} /> Invite link ready — share it with them
                 </div>
                 <div style={{ display: 'flex', gap: 8 }}>
                   <input readOnly value={inviteLink} onFocus={e => e.target.select()}
-                    style={{ flex: 1, padding: '7px 10px', borderRadius: 6, border: '1px solid #c7d2fe', fontSize: 12, background: '#fff', color: '#334155' }} />
+                    style={{ flex: 1, padding: '7px 10px', borderRadius: 6, border: '1px solid #BBF7D0', fontSize: 13, background: '#fff', color: '#334155' }} />
                   <button onClick={() => copyLink(inviteLink)}
-                    style={{ display: 'flex', alignItems: 'center', gap: 4, background: '#4f46e5', color: '#fff', border: 'none', borderRadius: 6, padding: '0 12px', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
+                    style={{ display: 'flex', alignItems: 'center', gap: 4, background: '#16A34A', color: '#fff', border: 'none', borderRadius: 6, padding: '0 12px', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
                     {copied ? <><Check size={13} /> Copied</> : <><Copy size={13} /> Copy</>}
                   </button>
                 </div>
@@ -319,18 +319,18 @@ export default function MembersPage() {
           {/* Pending invites — abhi tak accept nahi hue */}
           {pendingInvites.length > 0 && (
             <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, overflow: 'hidden', marginBottom: 20 }}>
-              <div style={{ padding: '12px 20px', borderBottom: '1px solid #f1f5f9', background: '#fffbeb', fontSize: 12, fontWeight: 600, color: '#92400e' }}>
+              <div style={{ padding: '12px 20px', borderBottom: '1px solid #f1f5f9', background: '#fffbeb', fontSize: 13, fontWeight: 600, color: '#92400e' }}>
                 Pending Invites ({pendingInvites.length}) — waiting to be accepted
               </div>
               {pendingInvites.map((inv, i) => (
                 <div key={inv.id} style={{ display: 'grid', gridTemplateColumns: '1fr 110px 80px 44px', padding: '12px 20px', alignItems: 'center', gap: 8, borderBottom: i < pendingInvites.length - 1 ? '1px solid #f8fafc' : 'none' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <Mail size={13} color="#94a3b8" />
-                    <span style={{ fontSize: 13, color: '#0f172a' }}>{inv.email}</span>
+                    <span style={{ fontSize: 14, color: '#0f172a' }}>{inv.email}</span>
                   </div>
-                  <span style={{ fontSize: 11, fontWeight: 600, color: '#64748b' }}>{appRoleStyle[inv.role]?.label || inv.role}</span>
+                  <span style={{ fontSize: 12, fontWeight: 600, color: '#64748b' }}>{appRoleStyle[inv.role]?.label || inv.role}</span>
                   <button onClick={() => copyLink(`${window.location.origin}/accept-invite?token=${inv.token}`)}
-                    style={{ display: 'flex', alignItems: 'center', gap: 4, background: '#eef2ff', color: '#4f46e5', border: 'none', borderRadius: 6, padding: '5px 8px', fontSize: 12, fontWeight: 600, cursor: 'pointer', justifySelf: 'start' }}>
+                    style={{ display: 'flex', alignItems: 'center', gap: 4, background: '#EAF7EE', color: '#16A34A', border: 'none', borderRadius: 6, padding: '5px 8px', fontSize: 13, fontWeight: 600, cursor: 'pointer', justifySelf: 'start' }}>
                     <Link2 size={13} /> Copy
                   </button>
                   <button onClick={() => revokePendingMutation.mutate(inv.id)}
@@ -346,12 +346,12 @@ export default function MembersPage() {
           <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, overflow: 'hidden' }}>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 160px 140px 48px', padding: '12px 20px', borderBottom: '1px solid #f1f5f9', background: '#f8fafc' }}>
               {['Email', 'Name', 'Role', ''].map(col => (
-                <span key={col} style={{ fontSize: 11, fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{col}</span>
+                <span key={col} style={{ fontSize: 12, fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{col}</span>
               ))}
             </div>
 
             {teamMembers.length === 0 ? (
-              <div style={{ padding: '40px 24px', textAlign: 'center', color: '#94a3b8', fontSize: 13 }}>
+              <div style={{ padding: '40px 24px', textAlign: 'center', color: '#94a3b8', fontSize: 14 }}>
                 No members yet. Add someone above to give them access.
               </div>
             ) : teamMembers.map((m, i) => {
@@ -361,19 +361,19 @@ export default function MembersPage() {
                 <div key={m.id} style={{ display: 'grid', gridTemplateColumns: '1fr 160px 140px 48px', padding: '14px 20px', alignItems: 'center', borderBottom: i < teamMembers.length - 1 ? '1px solid #f8fafc' : 'none' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <Mail size={13} color="#94a3b8" />
-                    <span style={{ fontSize: 13, color: '#0f172a' }}>{m.email}{isSelf && ' (You)'}</span>
+                    <span style={{ fontSize: 14, color: '#0f172a' }}>{m.email}{isSelf && ' (You)'}</span>
                   </div>
-                  <span style={{ fontSize: 13, color: '#64748b' }}>{m.name || '—'}</span>
+                  <span style={{ fontSize: 14, color: '#64748b' }}>{m.name || '—'}</span>
                   {isSelf ? (
-                    <span style={{ fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 6, background: rs.background, color: rs.color, display: 'inline-block', width: 'fit-content' }}>{rs.label}</span>
+                    <span style={{ fontSize: 12, fontWeight: 600, padding: '3px 10px', borderRadius: 6, background: rs.background, color: rs.color, display: 'inline-block', width: 'fit-content' }}>{rs.label}</span>
                   ) : (
                     <select value={m.role} onChange={e => roleMutation.mutate({ id: m.id, role: e.target.value })}
-                      style={{ padding: '4px 8px', borderRadius: 6, border: '1px solid #e2e8f0', fontSize: 12, background: '#fff', color: rs.color, fontWeight: 600, cursor: 'pointer', width: 'fit-content' }}>
+                      style={{ padding: '4px 8px', borderRadius: 6, border: '1px solid #e2e8f0', fontSize: 13, background: '#fff', color: rs.color, fontWeight: 600, cursor: 'pointer', width: 'fit-content' }}>
                       {APP_ROLES.map(r => <option key={r} value={r}>{appRoleStyle[r].label}</option>)}
                     </select>
                   )}
                   {isSelf ? (
-                    <span style={{ fontSize: 11, color: '#cbd5e1', textAlign: 'center' }}>—</span>
+                    <span style={{ fontSize: 12, color: '#cbd5e1', textAlign: 'center' }}>—</span>
                   ) : (
                     <button onClick={() => removeTeamMutation.mutate(m.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#cbd5e1', padding: 4 }} title="Remove access">
                       <Trash2 size={14} />

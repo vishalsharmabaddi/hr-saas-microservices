@@ -5,7 +5,7 @@ import { FolderKanban, CheckSquare, Clock, CheckCircle, Plus, ArrowUpRight, Acti
 import api from '../api/axios'
 
 const statusConfig = {
-  PLANNING:    { label: 'Planning',    color: '#4f46e5', bg: '#eef2ff' },
+  PLANNING:    { label: 'Planning',    color: 'var(--tg-green-600)', bg: '#EAF7EE' },
   IN_PROGRESS: { label: 'In Progress', color: '#d97706', bg: '#fffbeb' },
   ON_HOLD:     { label: 'On Hold',     color: '#dc2626', bg: '#fef2f2' },
   COMPLETED:   { label: 'Completed',   color: '#16a34a', bg: '#f0fdf4' },
@@ -23,7 +23,7 @@ function StatCard({ label, value, icon: Icon, accent, loading }) {
         borderRadius: 12, padding: '18px 20px',
         border: '1px solid #e2e8f0',
         boxShadow: hovered
-          ? '0 8px 24px rgba(79,70,229,0.10)'
+          ? '0 8px 24px rgba(22,163,74,0.14)'
           : '0 1px 4px rgba(0,0,0,0.04)',
         transform: hovered ? 'translateY(-2px)' : 'translateY(0)',
         transition: 'all 0.18s ease',
@@ -31,10 +31,10 @@ function StatCard({ label, value, icon: Icon, accent, loading }) {
       }}
     >
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-        <span style={{ fontSize: 12, fontWeight: 600, color: '#374151', letterSpacing: '0.2px' }}>{label}</span>
-        <Icon size={16} color={hovered ? accent : '#94a3b8'} strokeWidth={1.8} style={{ transition: 'color 0.18s' }} />
+        <span style={{ fontSize: 14, fontWeight: 600, color: '#374151', letterSpacing: '0.2px' }}>{label}</span>
+        <Icon size={17} color={hovered ? accent : '#94a3b8'} strokeWidth={1.8} style={{ transition: 'color 0.18s' }} />
       </div>
-      <div style={{ fontSize: 30, fontWeight: 800, color: '#0f172a', letterSpacing: '-1.5px', lineHeight: 1 }}>
+      <div className="tg-display" style={{ fontSize: 34, fontWeight: 700, color: 'var(--tg-text)', letterSpacing: '-1.5px', lineHeight: 1 }}>
         {loading ? <span style={{ fontSize: 20, color: '#cbd5e1' }}>—</span> : value}
       </div>
     </div>
@@ -72,7 +72,7 @@ export default function DashboardPage() {
   const todayAttendance  = attendance.length
 
   const projectStats = [
-    { label: 'Total Projects', value: data?.totalProjects   ?? 0, icon: FolderKanban, accent: '#4f46e5' },
+    { label: 'Total Projects', value: data?.totalProjects   ?? 0, icon: FolderKanban, accent: '#16A34A' },
     { label: 'Open Tasks',     value: data?.openTasks       ?? 0, icon: CheckSquare,  accent: '#d97706' },
     { label: 'In Progress',    value: data?.inProgressTasks ?? 0, icon: Clock,        accent: '#0284c7' },
     { label: 'Completed',      value: data?.completedTasks  ?? 0, icon: CheckCircle,  accent: '#16a34a' },
@@ -93,7 +93,7 @@ export default function DashboardPage() {
     queryFn: () => api.get('/gamification/summary').then(r => r.data),
   })
 
-  const levelColors = { ROOKIE: '#64748b', REGULAR: '#2563eb', PRO: '#7c3aed', LEGEND: '#d97706' }
+  const levelColors = { ROOKIE: '#64748b', REGULAR: '#16A34A', PRO: '#0891B2', LEGEND: '#B45309' }
   const xpMax = { ROOKIE: 100, REGULAR: 500, PRO: 1500, LEGEND: 1500 }
   const xpMin = { ROOKIE: 0, REGULAR: 100, PRO: 500, LEGEND: 1500 }
   const currentLevel = xp?.level || 'ROOKIE'
@@ -107,10 +107,10 @@ export default function DashboardPage() {
       {/* Title */}
       <div style={{ marginBottom: 24, display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
         <div>
-          <h1 style={{ fontSize: 20, fontWeight: 700, color: '#0f172a', letterSpacing: '-0.4px' }}>
+          <h1 className="page-title">
             Good {getGreeting()}, {user.name?.split(' ')[0] || 'there'}
           </h1>
-          <p style={{ fontSize: 13, color: '#374151', marginTop: 4 }}>Here's what's happening in your workspace today.</p>
+          <p style={{ fontSize: 15, color: 'var(--tg-muted)', marginTop: 4 }}>Here's what's happening in your workspace today.</p>
         </div>
 
         {/* Compact XP strip — top right */}
@@ -132,8 +132,8 @@ export default function DashboardPage() {
               </svg>
             </div>
             <div>
-              <div style={{ fontSize: 13, fontWeight: 700, color: '#fff', lineHeight: 1 }}>{xp.totalXp} XP</div>
-              <div style={{ fontSize: 9, color: levelColors[currentLevel], fontWeight: 700, marginTop: 2, letterSpacing: '0.5px' }}>{currentLevel}</div>
+              <div style={{ fontSize: 14, fontWeight: 700, color: '#fff', lineHeight: 1 }}>{xp.totalXp} XP</div>
+              <div style={{ fontSize: 10, color: levelColors[currentLevel], fontWeight: 700, marginTop: 2, letterSpacing: '0.5px' }}>{currentLevel}</div>
             </div>
             <div style={{ width: 1, height: 24, background: 'rgba(255,255,255,0.08)' }} />
             {/* Progress ring mini */}
@@ -148,16 +148,16 @@ export default function DashboardPage() {
             <div style={{ width: 1, height: 24, background: 'rgba(255,255,255,0.08)' }} />
             {/* Streak */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-              <span style={{ fontSize: 14 }}>{xp.currentStreak >= 3 ? '🔥' : '💧'}</span>
-              <span style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>{xp.currentStreak}</span>
-              <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)' }}>streak</span>
+              <span style={{ fontSize: 15 }}>{xp.currentStreak >= 3 ? '🔥' : '💧'}</span>
+              <span style={{ fontSize: 14, fontWeight: 700, color: '#fff' }}>{xp.currentStreak}</span>
+              <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)' }}>streak</span>
             </div>
           </div>
         )}
       </div>
 
       {/* Project Stats */}
-      <p style={{ fontSize: 11, fontWeight: 700, color: '#9ca3af', letterSpacing: '0.8px', textTransform: 'uppercase', marginBottom: 10 }}>Projects</p>
+      <p style={{ fontSize: 12, fontWeight: 700, color: '#9ca3af', letterSpacing: '0.8px', textTransform: 'uppercase', marginBottom: 10 }}>Projects</p>
       <div className="stats-grid-4" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 20 }}>
         {projectStats.map(s => <StatCard key={s.label} {...s} loading={dashLoading} />)}
       </div>
@@ -165,7 +165,7 @@ export default function DashboardPage() {
       {/* HR Stats — Admin + Manager only */}
       {user.role !== 'EMPLOYEE' && (
         <>
-          <p style={{ fontSize: 11, fontWeight: 700, color: '#9ca3af', letterSpacing: '0.8px', textTransform: 'uppercase', marginBottom: 10 }}>HR Overview</p>
+          <p style={{ fontSize: 12, fontWeight: 700, color: '#9ca3af', letterSpacing: '0.8px', textTransform: 'uppercase', marginBottom: 10 }}>HR Overview</p>
           <div className="stats-grid-4" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 24 }}>
             {hrStats.map(s => <StatCard key={s.label} {...s} loading={empLoading || leaveLoading || attLoading} />)}
           </div>
@@ -178,17 +178,17 @@ export default function DashboardPage() {
         {/* Recent Projects */}
         <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, padding: '18px 20px' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-            <span style={{ fontSize: 13, fontWeight: 600, color: '#0f172a' }}>Recent Projects</span>
-            <button onClick={() => navigate('/projects')} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: '#4f46e5', border: 'none', background: 'none', cursor: 'pointer', fontWeight: 500 }}>
+            <span style={{ fontSize: 14, fontWeight: 600, color: '#0f172a' }}>Recent Projects</span>
+            <button onClick={() => navigate('/projects')} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 13, color: 'var(--tg-green-600)', border: 'none', background: 'none', cursor: 'pointer', fontWeight: 500 }}>
               View all <ArrowUpRight size={12} />
             </button>
           </div>
           {dashLoading ? (
-            <div style={{ color: '#9ca3af', fontSize: 13, padding: '20px 0', textAlign: 'center' }}>Loading…</div>
+            <div style={{ color: '#9ca3af', fontSize: 14, padding: '20px 0', textAlign: 'center' }}>Loading…</div>
           ) : recentProjects.length === 0 ? (
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '28px 0', color: '#9ca3af' }}>
               <FolderKanban size={24} strokeWidth={1.2} style={{ marginBottom: 8 }} />
-              <p style={{ fontSize: 13 }}>No projects yet</p>
+              <p style={{ fontSize: 14 }}>No projects yet</p>
             </div>
           ) : recentProjects.map((p, i) => {
             const sc = statusConfig[p.status] || statusConfig.PLANNING
@@ -196,10 +196,10 @@ export default function DashboardPage() {
               <div key={p.id} onClick={() => navigate(`/projects/${p.id}`)}
                 style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 0', cursor: 'pointer', borderBottom: i < recentProjects.length - 1 ? '1px solid #f1f5f9' : 'none' }}>
                 <div style={{ minWidth: 0, flex: 1, marginRight: 10 }}>
-                  <div style={{ fontSize: 13, fontWeight: 500, color: '#0f172a', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.name}</div>
-                  <div style={{ fontSize: 11, color: '#9ca3af', marginTop: 2 }}>{new Date(p.createdAt).toLocaleDateString()}</div>
+                  <div style={{ fontSize: 14, fontWeight: 500, color: '#0f172a', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.name}</div>
+                  <div style={{ fontSize: 12, color: '#9ca3af', marginTop: 2 }}>{new Date(p.createdAt).toLocaleDateString()}</div>
                 </div>
-                <span style={{ fontSize: 11, fontWeight: 500, padding: '3px 8px', borderRadius: 6, background: sc.bg, color: sc.color, flexShrink: 0 }}>{sc.label}</span>
+                <span style={{ fontSize: 12, fontWeight: 500, padding: '3px 8px', borderRadius: 6, background: sc.bg, color: sc.color, flexShrink: 0 }}>{sc.label}</span>
               </div>
             )
           })}
@@ -209,32 +209,32 @@ export default function DashboardPage() {
         <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, padding: '18px 20px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
             <Activity size={14} color="#374151" />
-            <span style={{ fontSize: 13, fontWeight: 600, color: '#0f172a' }}>Recent Time Logs</span>
+            <span style={{ fontSize: 14, fontWeight: 600, color: '#0f172a' }}>Recent Time Logs</span>
           </div>
           {dashLoading ? (
-            <div style={{ color: '#9ca3af', fontSize: 13, padding: '20px 0', textAlign: 'center' }}>Loading…</div>
+            <div style={{ color: '#9ca3af', fontSize: 14, padding: '20px 0', textAlign: 'center' }}>Loading…</div>
           ) : recentLogs.length === 0 ? (
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '28px 0', color: '#9ca3af' }}>
               <Activity size={24} strokeWidth={1.2} style={{ marginBottom: 8 }} />
-              <p style={{ fontSize: 13 }}>No time logs yet</p>
+              <p style={{ fontSize: 14 }}>No time logs yet</p>
             </div>
           ) : recentLogs.map((log, i) => (
             <div key={log.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 0', borderBottom: i < recentLogs.length - 1 ? '1px solid #f1f5f9' : 'none' }}>
               <div style={{ flex: 1, minWidth: 0, marginRight: 10 }}>
-                <div style={{ fontSize: 13, color: '#1e293b', display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <span style={{ fontFamily: 'monospace', fontSize: 10, background: '#f1f5f9', padding: '1px 6px', borderRadius: 4, color: '#374151', flexShrink: 0 }}>T-{log.taskId}</span>
+                <div style={{ fontSize: 14, color: '#1e293b', display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <span style={{ fontFamily: 'monospace', fontSize: 11, background: '#f1f5f9', padding: '1px 6px', borderRadius: 4, color: '#374151', flexShrink: 0 }}>T-{log.taskId}</span>
                   <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: '#374151' }}>{log.notes || 'No notes'}</span>
                 </div>
-                <div style={{ fontSize: 11, color: '#9ca3af', marginTop: 2 }}>{log.logDate}</div>
+                <div style={{ fontSize: 12, color: '#9ca3af', marginTop: 2 }}>{log.logDate}</div>
               </div>
-              <span style={{ fontSize: 12, fontWeight: 700, color: '#0284c7', flexShrink: 0 }}>{log.hoursLogged}h</span>
+              <span style={{ fontSize: 13, fontWeight: 700, color: '#0284c7', flexShrink: 0 }}>{log.hoursLogged}h</span>
             </div>
           ))}
         </div>
 
         {/* Quick Actions */}
         <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, padding: '18px 20px' }}>
-          <p style={{ fontSize: 13, fontWeight: 600, color: '#0f172a', marginBottom: 14 }}>Quick Actions</p>
+          <p style={{ fontSize: 14, fontWeight: 600, color: '#0f172a', marginBottom: 14 }}>Quick Actions</p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {[
               { label: 'New Project',    path: '/projects'  },
@@ -244,11 +244,11 @@ export default function DashboardPage() {
             ].map(({ label, path }) => (
               <button key={label} onClick={() => navigate(path)} style={{
                 display: 'flex', alignItems: 'center', gap: 8, padding: '10px 12px', borderRadius: 8,
-                border: '1px solid #e2e8f0', background: '#fff', fontSize: 13, color: '#1e293b',
+                border: '1px solid #e2e8f0', background: '#fff', fontSize: 14, color: '#1e293b',
                 cursor: 'pointer', textAlign: 'left', width: '100%', fontWeight: 500,
                 transition: 'background 0.15s',
               }}>
-                <Plus size={13} color="#6366f1" />
+                <Plus size={14} color="var(--tg-green-600)" />
                 {label}
               </button>
             ))}

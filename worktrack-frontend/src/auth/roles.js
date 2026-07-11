@@ -51,7 +51,7 @@ export const ROLE_NAV = {
 
 // Role badge color
 export const ROLE_STYLE = {
-  ADMIN:    { label: 'Admin',    bg: '#eef2ff', color: '#4f46e5' },
+  ADMIN:    { label: 'Admin',    bg: '#EAF7EE', color: '#16A34A' },
   MANAGER:  { label: 'Manager',  bg: '#f0fdf4', color: '#16a34a' },
   EMPLOYEE: { label: 'Member', bg: '#f8fafc', color: '#64748b' },
 }

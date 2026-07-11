@@ -99,13 +99,13 @@ export default function GlobalSearch() {
         padding: '8px 12px', cursor: 'pointer', color: '#94a3b8',
         boxShadow: '0 1px 2px rgba(15,23,42,0.04)',
       }}
-        onMouseEnter={e => e.currentTarget.style.borderColor = '#c7d2fe'}
+        onMouseEnter={e => e.currentTarget.style.borderColor = '#BBF7D0'}
         onMouseLeave={e => e.currentTarget.style.borderColor = '#e2e8f0'}
       >
         <Search size={15} color="#64748b" />
-        <span style={{ fontSize: 13, flex: 1, textAlign: 'left' }}>Search projects, people…</span>
+        <span style={{ fontSize: 14, flex: 1, textAlign: 'left' }}>Search projects, people…</span>
         <kbd style={{
-          fontSize: 10, fontWeight: 600, color: '#64748b', background: '#f8fafc',
+          fontSize: 11, fontWeight: 600, color: '#64748b', background: '#f8fafc',
           border: '1px solid #e2e8f0', borderRadius: 4, padding: '2px 6px',
         }}>{isMac ? '⌘' : 'Ctrl'} K</kbd>
       </button>
@@ -162,7 +162,7 @@ export default function GlobalSearch() {
               )}
             </div>
 
-            <div style={{ padding: '9px 16px', borderTop: '1px solid #f1f5f9', display: 'flex', gap: 14, fontSize: 11, color: '#94a3b8' }}>
+            <div style={{ padding: '9px 16px', borderTop: '1px solid #f1f5f9', display: 'flex', gap: 14, fontSize: 12, color: '#94a3b8' }}>
               <span><kbd style={kbdStyle}>↑</kbd> <kbd style={kbdStyle}>↓</kbd> to navigate</span>
               <span><kbd style={kbdStyle}>↵</kbd> to open</span>
               <span><kbd style={kbdStyle}>esc</kbd> to close</span>
@@ -177,7 +177,7 @@ export default function GlobalSearch() {
 function Group({ title, children }) {
   return (
     <div style={{ marginBottom: 6 }}>
-      <div style={{ fontSize: 11, fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.4px', padding: '6px 10px 4px' }}>{title}</div>
+      <div style={{ fontSize: 12, fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.4px', padding: '6px 10px 4px' }}>{title}</div>
       {children}
     </div>
   )
@@ -190,26 +190,26 @@ function ResultRow({ icon: Icon, title, subtitle, active, onClick, onHover }) {
       onMouseMove={onHover}
       style={{
         display: 'flex', alignItems: 'center', gap: 10, width: '100%',
-        background: active ? '#eef2ff' : 'none', border: 'none', cursor: 'pointer', textAlign: 'left',
+        background: active ? '#EAF7EE' : 'none', border: 'none', cursor: 'pointer', textAlign: 'left',
         padding: '8px 10px', borderRadius: 8,
       }}
     >
-      <div style={{ width: 30, height: 30, borderRadius: 8, background: active ? '#e0e7ff' : '#eef2ff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-        <Icon size={15} color="#4f46e5" />
+      <div style={{ width: 30, height: 30, borderRadius: 8, background: active ? '#DCF5E3' : '#EAF7EE', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+        <Icon size={15} color="#16A34A" />
       </div>
       <div style={{ minWidth: 0 }}>
-        <div style={{ fontSize: 13, fontWeight: 500, color: '#0f172a', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{title}</div>
-        {subtitle && <div style={{ fontSize: 11, color: '#94a3b8', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{subtitle}</div>}
+        <div style={{ fontSize: 14, fontWeight: 500, color: '#0f172a', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{title}</div>
+        {subtitle && <div style={{ fontSize: 12, color: '#94a3b8', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{subtitle}</div>}
       </div>
     </button>
   )
 }
 
 function Empty({ text }) {
-  return <div style={{ textAlign: 'center', color: '#94a3b8', fontSize: 13, padding: '32px 16px' }}>{text}</div>
+  return <div style={{ textAlign: 'center', color: '#94a3b8', fontSize: 14, padding: '32px 16px' }}>{text}</div>
 }
 
 const kbdStyle = {
-  fontSize: 10, fontWeight: 600, color: '#64748b', background: '#f8fafc',
+  fontSize: 11, fontWeight: 600, color: '#64748b', background: '#f8fafc',
   border: '1px solid #e2e8f0', borderRadius: 3, padding: '0 4px',
 }

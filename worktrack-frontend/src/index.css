@@ -11,35 +11,126 @@ html, body, #root {
   width: 100%;
 }
 
+/* ─── Taurus Go design tokens ──────────────────────────────────────────── */
+:root {
+  --tg-forest:   #0B3D1E;   /* sidebar / dark surfaces */
+  --tg-green-800:#14532D;
+  --tg-green-700:#15803D;   /* links, primary-on-light */
+  --tg-green-600:#16A34A;   /* solid primary action */
+  --tg-green-500:#22C55E;   /* gradient start */
+  --tg-lime-400: #4ADE80;   /* accent / glow */
+  --tg-gold-400: #FACC15;   /* gradient end ("Go") */
+  --tg-amber-500:#F59E0B;
+  --tg-bg:       #F7F8F5;   /* warm off-white app bg */
+  --tg-card:     #FFFFFF;
+  --tg-border:   #E6E9E3;
+  --tg-text:     #14251A;   /* near-black green */
+  --tg-muted:    #5B6B60;
+  --tg-grad:     linear-gradient(135deg, #16A34A 0%, #4ADE80 48%, #FACC15 100%);
+  --tg-glow:     0 6px 20px rgba(34,197,94,0.35);
+}
+
 body {
-  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-size: 15px;                 /* base bump — "everything too small" fix */
+  color: var(--tg-text);
   -webkit-font-smoothing: antialiased;
 }
+
+/* Display face — headings & brand */
+.tg-display { font-family: 'Sora', 'Inter', system-ui, sans-serif; }
+
+/* Consistent page heading — use on every page's main <h1> */
+.page-title {
+  font-family: 'Sora', 'Inter', system-ui, sans-serif;
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--tg-text);
+  letter-spacing: -0.5px;
+  line-height: 1.15;
+  margin: 0;
+}
+
+/* Primary CTA — green→gold gradient with the "raise" glow */
+.btn-primary {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 600;
+  color: #06210F; border: none; border-radius: 10px; padding: 10px 18px;
+  background: var(--tg-grad); background-size: 140% 140%; background-position: 0% 50%;
+  box-shadow: var(--tg-glow); cursor: pointer;
+  transition: transform 0.16s ease, box-shadow 0.16s ease, background-position 0.3s ease;
+}
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 28px rgba(34,197,94,0.45);
+  background-position: 100% 50%;
+}
+.btn-primary:active { transform: translateY(0); }
+.btn-primary:disabled { opacity: 0.55; cursor: not-allowed; box-shadow: none; transform: none; }
+
+/* Secondary / ghost */
+.btn-ghost {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  font-size: 15px; font-weight: 500; color: var(--tg-green-700);
+  background: #fff; border: 1px solid var(--tg-border); border-radius: 10px;
+  padding: 10px 16px; cursor: pointer; transition: background 0.15s, border-color 0.15s;
+}
+.btn-ghost:hover { background: #f1f7f2; border-color: var(--tg-green-500); }
+
+/* Tour (driver.js) — brand-consistent popover + buttons */
+.driver-popover-title { font-family: 'Sora', 'Inter', sans-serif; font-size: 17px; }
+.driver-popover-next-btn {
+  background: var(--tg-grad) !important; color: #06210F !important;
+  text-shadow: none !important; border: none !important; border-radius: 8px !important;
+  font-weight: 600 !important; padding: 7px 16px !important; box-shadow: 0 4px 12px rgba(34,197,94,0.3) !important;
+}
+.driver-popover-prev-btn {
+  border-radius: 8px !important; font-weight: 500 !important; color: var(--tg-green-700) !important;
+}
+.driver-popover-progress-text { color: var(--tg-muted) !important; }
 
 /* Sidebar nav item */
 .nav-link-item {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 8px 12px;
-  border-radius: 8px;
-  margin-bottom: 2px;
-  font-size: 13px;
-  font-weight: 400;
-  color: rgba(255,255,255,0.45);
+  gap: 11px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  margin-bottom: 3px;
+  font-size: 15px;
+  font-weight: 500;
+  color: rgba(255,255,255,0.78);
   background: transparent;
   cursor: pointer;
   transition: color 0.15s ease, background 0.15s ease;
   text-decoration: none;
+  white-space: nowrap;
+  overflow: hidden;
 }
 .nav-link-item:hover {
-  color: rgba(255,255,255,0.8);
-  background: rgba(255,255,255,0.06);
+  color: #ffffff;
+  background: rgba(255,255,255,0.07);
 }
 .nav-link-item.nav-active {
-  color: #fff;
-  font-weight: 500;
-  background: rgba(255,255,255,0.1);
+  color: #ffffff;
+  font-weight: 600;
+  background: rgba(255,255,255,0.13);
+}
+/* Collapsed sidebar — hide labels, center icons */
+.sidebar.is-collapsed .nav-label,
+.sidebar.is-collapsed .brand-text,
+.sidebar.is-collapsed .user-text { display: none; }
+.sidebar.is-collapsed .nav-link-item { justify-content: center; padding: 10px 0; }
+
+/* Desktop collapse toggle visible; mobile keeps the full drawer instead */
+.collapse-btn { display: flex !important; }
+@media (max-width: 640px) {
+  .collapse-btn { display: none !important; }
+  .sidebar.is-collapsed { width: 240px !important; min-width: 240px !important; }
+  .sidebar.is-collapsed .nav-label,
+  .sidebar.is-collapsed .brand-text,
+  .sidebar.is-collapsed .user-text { display: block !important; }
+  .sidebar.is-collapsed .nav-link-item { justify-content: flex-start !important; padding: 10px 12px !important; }
 }
 
 /* XP Toast animation */
@@ -89,6 +180,8 @@ body {
 
 /* Base (desktop) */
 .lp-features-grid  { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+.lp-hero-grid      { display: grid; grid-template-columns: 0.85fr 1.15fr; gap: 44px; align-items: center; }
+@media (max-width: 900px) { .lp-hero-grid { grid-template-columns: 1fr; gap: 36px; } }
 .lp-hero-mock-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
 .lp-hero-mock-row  { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; }
 .lp-comparison-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
@@ -100,7 +193,7 @@ body {
 .lp-mobile-menu { display: flex; flex-direction: column; gap: 6px; padding: 12px 20px 20px; }
 .lp-mobile-link {
   display: block; color: rgba(255,255,255,0.7); text-decoration: none;
-  font-size: 14px; font-weight: 500; padding: 10px 0;
+  font-size: 15px; font-weight: 500; padding: 10px 0;
   border-bottom: 1px solid rgba(255,255,255,0.06);
 }
 .lp-mobile-link:hover { color: #fff; }

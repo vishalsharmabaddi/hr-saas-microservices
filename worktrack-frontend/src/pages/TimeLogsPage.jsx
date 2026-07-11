@@ -93,11 +93,11 @@ function LogTimeModal({ onClose }) {
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           <div>
-            <label style={{ fontSize: 12, fontWeight: 500, color: '#64748b', display: 'block', marginBottom: 6 }}>Project</label>
+            <label style={{ fontSize: 13, fontWeight: 500, color: '#64748b', display: 'block', marginBottom: 6 }}>Project</label>
             <select
               value={projectId}
               onChange={e => { setProjectId(e.target.value); setTaskId('') }}
-              style={{ width: '100%', padding: '9px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 13, background: '#fff' }}
+              style={{ width: '100%', padding: '9px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 14, background: '#fff' }}
             >
               <option value="">Select project...</option>
               {projects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
@@ -106,44 +106,44 @@ function LogTimeModal({ onClose }) {
 
           {projectId && (
             <div>
-              <label style={{ fontSize: 12, fontWeight: 500, color: '#64748b', display: 'block', marginBottom: 6 }}>Task</label>
+              <label style={{ fontSize: 13, fontWeight: 500, color: '#64748b', display: 'block', marginBottom: 6 }}>Task</label>
               <select
                 value={taskId}
                 onChange={e => setTaskId(e.target.value)}
-                style={{ width: '100%', padding: '9px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 13, background: '#fff' }}
+                style={{ width: '100%', padding: '9px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 14, background: '#fff' }}
               >
                 <option value="">Select task...</option>
                 {tasks.map(t => <option key={t.id} value={t.id}>{t.title}</option>)}
               </select>
               {taskLists.length > 0 && tasks.length === 0 && (
-                <p style={{ fontSize: 12, color: '#94a3b8', marginTop: 4 }}>No tasks in this project yet.</p>
+                <p style={{ fontSize: 13, color: '#94a3b8', marginTop: 4 }}>No tasks in this project yet.</p>
               )}
             </div>
           )}
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
             <div>
-              <label style={{ fontSize: 12, fontWeight: 500, color: '#64748b', display: 'block', marginBottom: 6 }}>Date</label>
+              <label style={{ fontSize: 13, fontWeight: 500, color: '#64748b', display: 'block', marginBottom: 6 }}>Date</label>
               <input
                 type="date"
                 value={form.logDate}
                 onChange={e => setForm(f => ({ ...f, logDate: e.target.value }))}
-                style={{ width: '100%', padding: '9px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 13 }}
+                style={{ width: '100%', padding: '9px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 14 }}
               />
             </div>
             <div>
-              <label style={{ fontSize: 12, fontWeight: 500, color: '#64748b', display: 'block', marginBottom: 6 }}>Hours</label>
+              <label style={{ fontSize: 13, fontWeight: 500, color: '#64748b', display: 'block', marginBottom: 6 }}>Hours</label>
               <input
                 type="number" step="0.5" min="0.5" max="24" placeholder="e.g. 2.5"
                 value={form.hoursLogged}
                 onChange={e => setForm(f => ({ ...f, hoursLogged: e.target.value }))}
-                style={{ width: '100%', padding: '9px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 13 }}
+                style={{ width: '100%', padding: '9px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 14 }}
               />
             </div>
           </div>
 
           <div>
-            <label style={{ fontSize: 12, fontWeight: 500, color: '#64748b', display: 'block', marginBottom: 6 }}>
+            <label style={{ fontSize: 13, fontWeight: 500, color: '#64748b', display: 'block', marginBottom: 6 }}>
               Notes — what did you work on?
             </label>
             <textarea
@@ -153,20 +153,20 @@ function LogTimeModal({ onClose }) {
               onChange={e => setForm(f => ({ ...f, notes: e.target.value }))}
               style={{
                 width: '100%', padding: '9px 12px', borderRadius: 8,
-                border: '1px solid #e2e8f0', fontSize: 13,
+                border: '1px solid #e2e8f0', fontSize: 14,
                 resize: 'vertical', fontFamily: 'inherit',
               }}
             />
           </div>
 
           {logMutation.isError && (
-            <p style={{ fontSize: 12, color: '#ef4444' }}>Failed to save. Please try again.</p>
+            <p style={{ fontSize: 13, color: '#ef4444' }}>Failed to save. Please try again.</p>
           )}
 
           <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
             <button onClick={onClose} style={{
               padding: '9px 18px', borderRadius: 8, border: '1px solid #e2e8f0',
-              fontSize: 13, cursor: 'pointer', background: '#fff', color: '#64748b',
+              fontSize: 14, cursor: 'pointer', background: '#fff', color: '#64748b',
             }}>Cancel</button>
             <button
               disabled={!canSubmit}
@@ -179,9 +179,9 @@ function LogTimeModal({ onClose }) {
               })}
               style={{
                 padding: '9px 18px', borderRadius: 8, border: 'none',
-                fontSize: 13, fontWeight: 500,
+                fontSize: 14, fontWeight: 500,
                 cursor: canSubmit ? 'pointer' : 'not-allowed',
-                background: canSubmit ? '#4f46e5' : '#e2e8f0',
+                background: canSubmit ? '#16A34A' : '#e2e8f0',
                 color: canSubmit ? '#fff' : '#94a3b8',
               }}
             >
@@ -255,7 +255,7 @@ export default function TimeLogsPage() {
   const maxHours = Math.max(...barData.map(d => d.hours), 1)
 
   const summaryStats = [
-    { label: "Today's Hours", value: `${todayHours.toFixed(1)}h`, icon: Clock, accent: '#4f46e5', light: '#eef2ff' },
+    { label: "Today's Hours", value: `${todayHours.toFixed(1)}h`, icon: Clock, accent: '#16A34A', light: '#EAF7EE' },
     { label: 'This Week', value: `${weekHours.toFixed(1)}h`, icon: Calendar, accent: '#0284c7', light: '#f0f9ff' },
     { label: 'This Month', value: `${monthHours.toFixed(1)}h`, icon: TrendingUp, accent: '#16a34a', light: '#f0fdf4' },
     { label: 'Avg / Day', value: `${avgPerDay}h`, icon: Timer, accent: '#d97706', light: '#fffbeb' },
@@ -269,15 +269,15 @@ export default function TimeLogsPage() {
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 20 }}>
         <div>
-          <h1 style={{ fontSize: 20, fontWeight: 600, color: '#0f172a', letterSpacing: '-0.3px' }}>Time Logs</h1>
-          <p style={{ fontSize: 13, color: '#64748b', marginTop: 4 }}>Daily work tracker — your EOD report</p>
+          <h1 className="page-title">Time Logs</h1>
+          <p style={{ fontSize: 14, color: '#64748b', marginTop: 4 }}>Daily work tracker — your EOD report</p>
         </div>
         <button
           onClick={() => setShowModal(true)}
           style={{
             display: 'flex', alignItems: 'center', gap: 6,
-            background: '#4f46e5', color: '#fff', border: 'none',
-            borderRadius: 8, padding: '8px 14px', fontSize: 13,
+            background: '#16A34A', color: '#fff', border: 'none',
+            borderRadius: 8, padding: '8px 14px', fontSize: 14,
             fontWeight: 500, cursor: 'pointer', flexShrink: 0,
           }}
         >
@@ -291,7 +291,7 @@ export default function TimeLogsPage() {
         {summaryStats.map(({ label, value, icon: Icon, accent, light }) => (
           <div key={label} style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, padding: '14px 16px' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-              <span style={{ fontSize: 12, color: '#64748b' }}>{label}</span>
+              <span style={{ fontSize: 13, color: '#64748b' }}>{label}</span>
               <div style={{ background: light, borderRadius: 8, padding: 6 }}>
                 <Icon size={13} color={accent} strokeWidth={2} />
               </div>
@@ -329,17 +329,17 @@ export default function TimeLogsPage() {
                 onClick={() => setShowDatePicker(v => !v)}
                 style={{
                   display: 'flex', alignItems: 'center', gap: 6,
-                  background: isCustom ? '#eef2ff' : 'transparent',
-                  border: `1px solid ${showDatePicker ? '#6366f1' : isCustom ? '#c7d2fe' : '#e2e8f0'}`,
+                  background: isCustom ? '#EAF7EE' : 'transparent',
+                  border: `1px solid ${showDatePicker ? '#22C55E' : isCustom ? '#BBF7D0' : '#e2e8f0'}`,
                   borderRadius: 8, padding: '5px 12px', cursor: 'pointer',
                   transition: 'border-color 0.15s',
                 }}
               >
-                <Calendar size={13} color={isCustom ? '#4f46e5' : '#64748b'} />
-                <span style={{ fontSize: 13, fontWeight: 500, color: isCustom ? '#4f46e5' : '#0f172a' }}>
+                <Calendar size={13} color={isCustom ? '#16A34A' : '#64748b'} />
+                <span style={{ fontSize: 14, fontWeight: 500, color: isCustom ? '#16A34A' : '#0f172a' }}>
                   {isCustom ? `${customFrom} → ${customTo}` : week.label}
                 </span>
-                <Filter size={11} color={isCustom ? '#4f46e5' : '#94a3b8'} />
+                <Filter size={11} color={isCustom ? '#16A34A' : '#94a3b8'} />
               </button>
 
               {/* Inline date picker popover */}
@@ -351,27 +351,27 @@ export default function TimeLogsPage() {
                   padding: '16px 18px', zIndex: 50, minWidth: 260,
                   boxShadow: '0 8px 24px rgba(0,0,0,0.10)',
                 }}>
-                  <p style={{ fontSize: 12, fontWeight: 600, color: '#64748b', marginBottom: 12, letterSpacing: '0.4px' }}>
+                  <p style={{ fontSize: 13, fontWeight: 600, color: '#64748b', marginBottom: 12, letterSpacing: '0.4px' }}>
                     CUSTOM DATE RANGE
                   </p>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                     <div>
-                      <label style={{ fontSize: 11, color: '#94a3b8', display: 'block', marginBottom: 4 }}>FROM</label>
+                      <label style={{ fontSize: 12, color: '#94a3b8', display: 'block', marginBottom: 4 }}>FROM</label>
                       <input
                         type="date"
                         value={customFrom}
                         onChange={e => setCustomFrom(e.target.value)}
-                        style={{ width: '100%', padding: '8px 10px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 13 }}
+                        style={{ width: '100%', padding: '8px 10px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 14 }}
                       />
                     </div>
                     <div>
-                      <label style={{ fontSize: 11, color: '#94a3b8', display: 'block', marginBottom: 4 }}>TO</label>
+                      <label style={{ fontSize: 12, color: '#94a3b8', display: 'block', marginBottom: 4 }}>TO</label>
                       <input
                         type="date"
                         value={customTo}
                         min={customFrom}
                         onChange={e => setCustomTo(e.target.value)}
-                        style={{ width: '100%', padding: '8px 10px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 13 }}
+                        style={{ width: '100%', padding: '8px 10px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 14 }}
                       />
                     </div>
                     <div style={{ display: 'flex', gap: 8 }}>
@@ -380,7 +380,7 @@ export default function TimeLogsPage() {
                           onClick={() => { setCustomFrom(''); setCustomTo(''); setWeekOffset(0); setShowDatePicker(false) }}
                           style={{
                             flex: 1, padding: '7px', borderRadius: 8, border: '1px solid #e2e8f0',
-                            fontSize: 12, fontWeight: 500, color: '#64748b', cursor: 'pointer', background: '#f8fafc',
+                            fontSize: 13, fontWeight: 500, color: '#64748b', cursor: 'pointer', background: '#f8fafc',
                           }}
                         >
                           Clear
@@ -390,8 +390,8 @@ export default function TimeLogsPage() {
                         onClick={() => setShowDatePicker(false)}
                         style={{
                           flex: 1, padding: '7px', borderRadius: 8, border: 'none',
-                          fontSize: 12, fontWeight: 500, color: '#fff',
-                          cursor: 'pointer', background: '#4f46e5',
+                          fontSize: 13, fontWeight: 500, color: '#fff',
+                          cursor: 'pointer', background: '#16A34A',
                         }}
                       >
                         Apply
@@ -406,8 +406,8 @@ export default function TimeLogsPage() {
               <button
                 onClick={() => { setCustomFrom(''); setCustomTo(''); setWeekOffset(0); setShowDatePicker(false) }}
                 style={{
-                  fontSize: 11, fontWeight: 500, color: '#4f46e5',
-                  background: '#eef2ff', border: 'none', borderRadius: 4,
+                  fontSize: 12, fontWeight: 500, color: '#16A34A',
+                  background: '#EAF7EE', border: 'none', borderRadius: 4,
                   padding: '2px 8px', cursor: 'pointer',
                 }}
               >
@@ -434,21 +434,21 @@ export default function TimeLogsPage() {
             padding: '10px 20px', borderBottom: '1px solid #f1f5f9',
           }}>
             {['Task / Notes', 'Hours'].map(col => (
-              <span key={col} style={{ fontSize: 11, fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+              <span key={col} style={{ fontSize: 12, fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                 {col}
               </span>
             ))}
           </div>
 
           {isLoading ? (
-            <div style={{ padding: '40px 20px', textAlign: 'center', color: '#94a3b8', fontSize: 13 }}>Loading...</div>
+            <div style={{ padding: '40px 20px', textAlign: 'center', color: '#94a3b8', fontSize: 14 }}>Loading...</div>
           ) : sortedDates.length === 0 ? (
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '60px 24px', textAlign: 'center' }}>
               <div style={{ background: '#f1f5f9', borderRadius: 12, padding: 14, marginBottom: 14 }}>
                 <Clock size={22} color="#94a3b8" strokeWidth={1.5} />
               </div>
-              <p style={{ fontSize: 14, fontWeight: 500, color: '#334155' }}>No time logs this week</p>
-              <p style={{ fontSize: 13, color: '#94a3b8', marginTop: 6, marginBottom: 18 }}>
+              <p style={{ fontSize: 15, fontWeight: 500, color: '#334155' }}>No time logs this week</p>
+              <p style={{ fontSize: 14, color: '#94a3b8', marginTop: 6, marginBottom: 18 }}>
                 {isCustom ? `No entries between ${customFrom} and ${customTo}.` : weekOffset < 0 ? 'No entries logged this week.' : 'Start tracking your work hours.'}
               </p>
               {!isCustom && weekOffset === 0 && (
@@ -456,8 +456,8 @@ export default function TimeLogsPage() {
                   onClick={() => setShowModal(true)}
                   style={{
                     display: 'flex', alignItems: 'center', gap: 6,
-                    background: '#4f46e5', color: '#fff', border: 'none',
-                    borderRadius: 8, padding: '8px 16px', fontSize: 13, fontWeight: 500, cursor: 'pointer',
+                    background: '#16A34A', color: '#fff', border: 'none',
+                    borderRadius: 8, padding: '8px 16px', fontSize: 14, fontWeight: 500, cursor: 'pointer',
                   }}
                 >
                   <Plus size={13} />
@@ -482,17 +482,17 @@ export default function TimeLogsPage() {
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                       {isToday && (
                         <span style={{
-                          fontSize: 10, fontWeight: 700, color: '#4f46e5',
-                          background: '#eef2ff', borderRadius: 4, padding: '1px 6px', letterSpacing: '0.3px',
+                          fontSize: 11, fontWeight: 700, color: '#16A34A',
+                          background: '#EAF7EE', borderRadius: 4, padding: '1px 6px', letterSpacing: '0.3px',
                         }}>TODAY</span>
                       )}
-                      <span style={{ fontSize: 13, fontWeight: 600, color: '#334155' }}>
+                      <span style={{ fontSize: 14, fontWeight: 600, color: '#334155' }}>
                         {formatDate(date)}
                       </span>
                     </div>
                     <span style={{
-                      fontSize: 12, fontWeight: 700, color: '#4f46e5',
-                      background: '#eef2ff', borderRadius: 6, padding: '3px 10px',
+                      fontSize: 13, fontWeight: 700, color: '#16A34A',
+                      background: '#EAF7EE', borderRadius: 6, padding: '3px 10px',
                     }}>
                       {dayTotal.toFixed(1)}h
                     </span>
@@ -512,19 +512,19 @@ export default function TimeLogsPage() {
                       <div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                           <span style={{
-                            fontSize: 10, fontWeight: 600, color: '#94a3b8',
+                            fontSize: 11, fontWeight: 600, color: '#94a3b8',
                             background: '#f1f5f9', borderRadius: 4, padding: '1px 6px', fontFamily: 'monospace',
                           }}>
                             T-{log.taskId}
                           </span>
                           {log.notes ? (
-                            <span style={{ fontSize: 13, color: '#1e293b' }}>{log.notes}</span>
+                            <span style={{ fontSize: 14, color: '#1e293b' }}>{log.notes}</span>
                           ) : (
-                            <span style={{ fontSize: 12, color: '#94a3b8', fontStyle: 'italic' }}>No notes</span>
+                            <span style={{ fontSize: 13, color: '#94a3b8', fontStyle: 'italic' }}>No notes</span>
                           )}
                         </div>
                       </div>
-                      <span style={{ fontSize: 14, fontWeight: 600, color: '#4f46e5' }}>{log.hoursLogged}h</span>
+                      <span style={{ fontSize: 15, fontWeight: 600, color: '#16A34A' }}>{log.hoursLogged}h</span>
                     </div>
                   ))}
                 </div>
@@ -538,7 +538,7 @@ export default function TimeLogsPage() {
 
           {/* Bar chart */}
           <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, padding: '16px 18px' }}>
-            <p style={{ fontSize: 13, fontWeight: 600, color: '#0f172a', marginBottom: 14 }}>
+            <p style={{ fontSize: 14, fontWeight: 600, color: '#0f172a', marginBottom: 14 }}>
               {weekOffset === 0 ? 'This Week' : weekOffset === -1 ? 'Last Week' : `${weekOffset < 0 ? Math.abs(weekOffset) : ''}w ago`}
             </p>
             <div style={{ display: 'flex', alignItems: 'flex-end', gap: 5, height: 64 }}>
@@ -547,28 +547,28 @@ export default function TimeLogsPage() {
                 return (
                   <div key={day} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5 }}>
                     {hours > 0 && (
-                      <span style={{ fontSize: 9, color: '#64748b', fontWeight: 500 }}>{hours}h</span>
+                      <span style={{ fontSize: 10, color: '#64748b', fontWeight: 500 }}>{hours}h</span>
                     )}
                     <div style={{
                       width: '100%',
-                      background: isToday ? '#4f46e5' : hours > 0 ? '#818cf8' : '#eef2ff',
+                      background: isToday ? '#16A34A' : hours > 0 ? '#4ADE80' : '#EAF7EE',
                       borderRadius: 4, height: barH, transition: 'height 0.3s',
                     }} />
-                    <span style={{ fontSize: 10, fontWeight: isToday ? 600 : 400, color: isToday ? '#4f46e5' : '#94a3b8' }}>
+                    <span style={{ fontSize: 11, fontWeight: isToday ? 600 : 400, color: isToday ? '#16A34A' : '#94a3b8' }}>
                       {day}
                     </span>
                   </div>
                 )
               })}
             </div>
-            <div style={{ marginTop: 12, fontSize: 12, color: '#94a3b8', textAlign: 'center' }}>
+            <div style={{ marginTop: 12, fontSize: 13, color: '#94a3b8', textAlign: 'center' }}>
               {weekHours.toFixed(1)}h total this week
             </div>
           </div>
 
           {/* Summary */}
           <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, padding: '16px 18px' }}>
-            <p style={{ fontSize: 13, fontWeight: 600, color: '#0f172a', marginBottom: 12 }}>Summary</p>
+            <p style={{ fontSize: 14, fontWeight: 600, color: '#0f172a', marginBottom: 12 }}>Summary</p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               {[
                 { label: 'Entries', value: weekLogs.length },
@@ -576,8 +576,8 @@ export default function TimeLogsPage() {
                 { label: 'Month total', value: `${monthHours.toFixed(1)}h` },
               ].map(({ label, value }) => (
                 <div key={label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ fontSize: 12, color: '#64748b' }}>{label}</span>
-                  <span style={{ fontSize: 13, fontWeight: 600, color: '#0f172a' }}>{value}</span>
+                  <span style={{ fontSize: 13, color: '#64748b' }}>{label}</span>
+                  <span style={{ fontSize: 14, fontWeight: 600, color: '#0f172a' }}>{value}</span>
                 </div>
               ))}
             </div>
@@ -587,7 +587,7 @@ export default function TimeLogsPage() {
             background: '#f8fafc', border: '1px dashed #e2e8f0',
             borderRadius: 12, padding: '14px 16px', textAlign: 'center',
           }}>
-            <p style={{ fontSize: 12, color: '#94a3b8', lineHeight: 1.6 }}>
+            <p style={{ fontSize: 13, color: '#94a3b8', lineHeight: 1.6 }}>
               Click the date range above to filter by custom dates
             </p>
           </div>

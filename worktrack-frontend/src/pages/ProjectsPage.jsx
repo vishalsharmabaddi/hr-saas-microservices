@@ -13,7 +13,7 @@ function projectCode(name, id) {
 
 const statusColors = {
   PLANNING:    { bg: '#f1f5f9', color: '#475569' },
-  IN_PROGRESS: { bg: '#eff6ff', color: '#2563eb' },
+  IN_PROGRESS: { bg: '#EEF2F8', color: '#3155A4' },
   ON_HOLD:     { bg: '#fffbeb', color: '#d97706' },
   COMPLETED:   { bg: '#f0fdf4', color: '#16a34a' },
   CANCELLED:   { bg: '#fef2f2', color: '#dc2626' },
@@ -32,24 +32,24 @@ function ProjectCard({ project, onClick }) {
     >
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 10 }}>
         <div>
-          <div style={{ fontSize: 10, fontWeight: 600, color: '#94a3b8', letterSpacing: '0.5px', marginBottom: 3 }}>
+          <div style={{ fontSize: 11, fontWeight: 600, color: '#94a3b8', letterSpacing: '0.5px', marginBottom: 3 }}>
             {projectCode(project.name, project.id)}
           </div>
-          <h3 style={{ fontSize: 14, fontWeight: 600, color: '#0f172a', margin: 0 }}>{project.name}</h3>
+          <h3 style={{ fontSize: 15, fontWeight: 600, color: '#0f172a', margin: 0 }}>{project.name}</h3>
         </div>
         <span style={{
-          fontSize: 11, fontWeight: 500, padding: '2px 8px', borderRadius: 6,
+          fontSize: 12, fontWeight: 500, padding: '2px 8px', borderRadius: 6,
           background: status.bg, color: status.color,
         }}>{project.status?.replace('_', ' ')}</span>
       </div>
 
       {project.description && (
-        <p style={{ fontSize: 13, color: '#64748b', marginBottom: 12, lineHeight: 1.5,
+        <p style={{ fontSize: 14, color: '#64748b', marginBottom: 12, lineHeight: 1.5,
           overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical',
         }}>{project.description}</p>
       )}
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: 14, fontSize: 12, color: '#94a3b8' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 14, fontSize: 13, color: '#94a3b8' }}>
         {project.startDate && (
           <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
             <Calendar size={12} /> {project.startDate}
@@ -81,7 +81,7 @@ export default function ProjectsPage() {
   )
 
   return (
-    <div style={{ maxWidth: 1100 }}>
+    <div style={{ width: '100%' }}>
 
       {/* Modal */}
       {showModal && <NewProjectModal onClose={() => setShowModal(false)} />}
@@ -89,20 +89,14 @@ export default function ProjectsPage() {
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 16 }}>
         <div>
-          <h1 style={{ fontSize: 20, fontWeight: 600, color: '#0f172a', letterSpacing: '-0.3px' }}>Projects</h1>
-          <p style={{ fontSize: 13, color: '#64748b', marginTop: 4 }}>
+          <h1 className="page-title">Projects</h1>
+          <p style={{ fontSize: 15, color: 'var(--tg-muted)', marginTop: 4 }}>
             {isLoading ? 'Loading…' : `${filtered.length} of ${projects.length} project${projects.length !== 1 ? 's' : ''}`}
           </p>
         </div>
         {canManageProject && (
-        <button onClick={() => setShowModal(true)} style={{
-          display: 'flex', alignItems: 'center', gap: 6,
-          background: '#4f46e5', color: '#fff',
-          border: 'none', borderRadius: 8,
-          padding: '8px 14px', fontSize: 13, fontWeight: 500,
-          cursor: 'pointer', flexShrink: 0,
-        }}>
-          <Plus size={14} />
+        <button onClick={() => setShowModal(true)} className="btn-primary" style={{ flexShrink: 0 }}>
+          <Plus size={16} />
           New Project
         </button>
         )}
@@ -120,7 +114,7 @@ export default function ProjectsPage() {
             style={{
               width: '100%', padding: '8px 12px 8px 34px',
               borderRadius: 8, border: '1px solid #e2e8f0',
-              fontSize: 13, color: '#0f172a', outline: 'none',
+              fontSize: 14, color: '#0f172a', outline: 'none',
             }}
           />
         </div>
@@ -139,8 +133,8 @@ export default function ProjectsPage() {
         </div>
       ) : search ? (
         <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, padding: '60px 24px', textAlign: 'center' }}>
-          <p style={{ fontSize: 14, fontWeight: 500, color: '#334155' }}>No projects match "{search}"</p>
-          <p style={{ fontSize: 13, color: '#94a3b8', marginTop: 6 }}>Try a different name or project code</p>
+          <p style={{ fontSize: 15, fontWeight: 500, color: '#334155' }}>No projects match "{search}"</p>
+          <p style={{ fontSize: 14, color: '#94a3b8', marginTop: 6 }}>Try a different name or project code</p>
         </div>
       ) : (
         <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12 }}>
@@ -148,15 +142,15 @@ export default function ProjectsPage() {
             <div style={{ background: '#f1f5f9', borderRadius: 12, padding: 16, marginBottom: 16 }}>
               <FolderKanban size={24} color="#94a3b8" strokeWidth={1.5} />
             </div>
-            <p style={{ fontSize: 14, fontWeight: 500, color: '#334155' }}>No projects yet</p>
-            <p style={{ fontSize: 13, color: '#94a3b8', marginTop: 6, marginBottom: 20 }}>
+            <p style={{ fontSize: 15, fontWeight: 500, color: '#334155' }}>No projects yet</p>
+            <p style={{ fontSize: 14, color: '#94a3b8', marginTop: 6, marginBottom: 20 }}>
               Create your first project to get started
             </p>
             <button onClick={() => setShowModal(true)} style={{
               display: 'flex', alignItems: 'center', gap: 6,
-              background: '#4f46e5', color: '#fff',
+              background: '#16A34A', color: '#fff',
               border: 'none', borderRadius: 8,
-              padding: '8px 16px', fontSize: 13, fontWeight: 500,
+              padding: '8px 16px', fontSize: 14, fontWeight: 500,
               cursor: 'pointer',
             }}>
               <Plus size={14} />

@@ -7,14 +7,14 @@ import api from '../api/axios'
 
 const priorityColors = {
   LOW:      { bg: '#f1f5f9', color: '#64748b' },
-  MEDIUM:   { bg: '#eff6ff', color: '#2563eb' },
+  MEDIUM:   { bg: '#EEF2F8', color: '#3155A4' },
   HIGH:     { bg: '#fffbeb', color: '#d97706' },
   CRITICAL: { bg: '#fef2f2', color: '#dc2626' },
 }
 
 const statusColors = {
   PLANNING:    { bg: '#f1f5f9', color: '#475569' },
-  IN_PROGRESS: { bg: '#eff6ff', color: '#2563eb' },
+  IN_PROGRESS: { bg: '#EEF2F8', color: '#3155A4' },
   ON_HOLD:     { bg: '#fffbeb', color: '#d97706' },
   COMPLETED:   { bg: '#f0fdf4', color: '#16a34a' },
   CANCELLED:   { bg: '#fef2f2', color: '#dc2626' },
@@ -176,7 +176,7 @@ export default function ProjectDetailPage() {
   }
 
   if (projectLoading) {
-    return <div style={{ padding: 32, color: '#94a3b8', fontSize: 14 }}>Loading…</div>
+    return <div style={{ padding: 32, color: '#94a3b8', fontSize: 15 }}>Loading…</div>
   }
 
   const status = statusColors[project?.status] || statusColors.PLANNING
@@ -190,13 +190,13 @@ export default function ProjectDetailPage() {
   const banner = bannerConfig[project?.status]
 
   return (
-    <div style={{ maxWidth: 900 }}>
+    <div style={{ width: '100%' }}>
 
       {/* Back + Header */}
       <div style={{ marginBottom: 20 }}>
         <button onClick={() => navigate('/projects')} style={{
           display: 'flex', alignItems: 'center', gap: 6, background: 'none',
-          border: 'none', cursor: 'pointer', color: '#64748b', fontSize: 13,
+          border: 'none', cursor: 'pointer', color: '#64748b', fontSize: 14,
           padding: 0, marginBottom: 12,
         }}>
           <ArrowLeft size={14} /> Back to Projects
@@ -204,11 +204,11 @@ export default function ProjectDetailPage() {
 
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 }}>
           <div>
-            <h1 style={{ fontSize: 22, fontWeight: 700, color: '#0f172a', margin: 0, letterSpacing: '-0.5px' }}>
+            <h1 className="page-title">
               {project?.name}
             </h1>
             {project?.description && (
-              <p style={{ fontSize: 13, color: '#64748b', marginTop: 6, lineHeight: 1.6 }}>
+              <p style={{ fontSize: 14, color: '#64748b', marginTop: 6, lineHeight: 1.6 }}>
                 {project.description}
               </p>
             )}
@@ -218,14 +218,14 @@ export default function ProjectDetailPage() {
             <button
               onClick={() => canManageProject && setShowStatusMenu(v => !v)}
               style={{
-                fontSize: 12, fontWeight: 500, padding: '4px 12px', borderRadius: 8,
+                fontSize: 13, fontWeight: 500, padding: '4px 12px', borderRadius: 8,
                 background: status.bg, color: status.color,
                 border: `1px solid ${status.color}30`,
                 cursor: canManageProject ? 'pointer' : 'default', display: 'flex', alignItems: 'center', gap: 6,
               }}
             >
               {project?.status?.replace('_', ' ')}
-              {canManageProject && <span style={{ fontSize: 10 }}>▾</span>}
+              {canManageProject && <span style={{ fontSize: 11 }}>▾</span>}
             </button>
 
             {showStatusMenu && canManageProject && (
@@ -243,12 +243,12 @@ export default function ProjectDetailPage() {
                       background: project?.status === s ? style.bg : '#fff',
                       cursor: 'pointer', textAlign: 'left',
                       display: 'flex', alignItems: 'center', gap: 8,
-                      fontSize: 13, color: style.color, fontWeight: project?.status === s ? 600 : 400,
+                      fontSize: 14, color: style.color, fontWeight: project?.status === s ? 600 : 400,
                     }}
                     onMouseEnter={e => e.currentTarget.style.background = style.bg}
                     onMouseLeave={e => e.currentTarget.style.background = project?.status === s ? style.bg : '#fff'}
                   >
-                    {project?.status === s && <span style={{ fontSize: 10 }}>✓</span>}
+                    {project?.status === s && <span style={{ fontSize: 11 }}>✓</span>}
                     {s.replace('_', ' ')}
                   </button>
                 ))}
@@ -260,17 +260,17 @@ export default function ProjectDetailPage() {
         {/* Meta info row */}
         <div style={{ display: 'flex', gap: 20, marginTop: 12, flexWrap: 'wrap' }}>
           {project?.startDate && (
-            <span style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 12, color: '#64748b' }}>
+            <span style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 13, color: '#64748b' }}>
               <Calendar size={13} /> Start: {project.startDate}
             </span>
           )}
           {project?.endDate && (
-            <span style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 12, color: '#64748b' }}>
+            <span style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 13, color: '#64748b' }}>
               <Calendar size={13} /> End: {project.endDate}
             </span>
           )}
-          <span style={{ fontSize: 12, color: '#64748b' }}>Type: {project?.type}</span>
-          <span style={{ fontSize: 12, color: '#64748b' }}>Billing: {project?.billingType?.replace('_', ' ')}</span>
+          <span style={{ fontSize: 13, color: '#64748b' }}>Type: {project?.type}</span>
+          <span style={{ fontSize: 13, color: '#64748b' }}>Billing: {project?.billingType?.replace('_', ' ')}</span>
         </div>
       </div>
 
@@ -279,7 +279,7 @@ export default function ProjectDetailPage() {
         <div style={{
           background: banner.bg, border: `1px solid ${banner.border}`,
           borderRadius: 10, padding: '10px 16px', marginBottom: 16,
-          fontSize: 13, color: banner.color, display: 'flex', alignItems: 'center', gap: 8,
+          fontSize: 14, color: banner.color, display: 'flex', alignItems: 'center', gap: 8,
         }}>
           <span>⚠</span>
           {banner.text}
@@ -291,9 +291,9 @@ export default function ProjectDetailPage() {
         {['tasks', 'members'].map(tab => (
           <button key={tab} onClick={() => setActiveTab(tab)} style={{
             padding: '8px 16px', border: 'none', background: 'none', cursor: 'pointer',
-            fontSize: 13, fontWeight: activeTab === tab ? 600 : 400,
-            color: activeTab === tab ? '#4f46e5' : '#64748b',
-            borderBottom: activeTab === tab ? '2px solid #4f46e5' : '2px solid transparent',
+            fontSize: 14, fontWeight: activeTab === tab ? 600 : 400,
+            color: activeTab === tab ? '#16A34A' : '#64748b',
+            borderBottom: activeTab === tab ? '2px solid #16A34A' : '2px solid transparent',
             marginBottom: -1, textTransform: 'capitalize',
           }}>
             {tab === 'tasks' ? `Tasks (${tasks.length})` : `Members (${members.length})`}
@@ -309,8 +309,8 @@ export default function ProjectDetailPage() {
             {!showAddTask && !isEditable ? null : !showAddTask ? (
               <button onClick={() => setShowAddTask(true)} style={{
                 display: 'flex', alignItems: 'center', gap: 6,
-                background: '#4f46e5', color: '#fff', border: 'none',
-                borderRadius: 8, padding: '8px 14px', fontSize: 13,
+                background: '#16A34A', color: '#fff', border: 'none',
+                borderRadius: 8, padding: '8px 14px', fontSize: 14,
                 fontWeight: 500, cursor: 'pointer',
               }}>
                 <Plus size={14} /> Add Task
@@ -371,7 +371,7 @@ export default function ProjectDetailPage() {
                       disabled={!taskForm.title.trim() || addTask.isPending}
                       style={{
                         padding: '8px 16px', borderRadius: 8, border: 'none',
-                        background: '#4f46e5', color: '#fff', fontSize: 13,
+                        background: '#16A34A', color: '#fff', fontSize: 14,
                         fontWeight: 500, cursor: 'pointer',
                       }}
                     >
@@ -382,7 +382,7 @@ export default function ProjectDetailPage() {
                       style={{
                         padding: '8px 12px', borderRadius: 8,
                         border: '1px solid #e2e8f0', background: '#fff',
-                        fontSize: 13, color: '#64748b', cursor: 'pointer',
+                        fontSize: 14, color: '#64748b', cursor: 'pointer',
                       }}
                     >
                       Cancel
@@ -401,8 +401,8 @@ export default function ProjectDetailPage() {
               padding: '48px 24px', textAlign: 'center',
             }}>
               <CheckSquare size={28} color="#cbd5e1" strokeWidth={1.2} style={{ marginBottom: 10 }} />
-              <p style={{ fontSize: 14, fontWeight: 500, color: '#334155', margin: 0 }}>No tasks yet</p>
-              <p style={{ fontSize: 13, color: '#94a3b8', marginTop: 6 }}>Click "Add Task" to create your first task</p>
+              <p style={{ fontSize: 15, fontWeight: 500, color: '#334155', margin: 0 }}>No tasks yet</p>
+              <p style={{ fontSize: 14, color: '#94a3b8', marginTop: 6 }}>Click "Add Task" to create your first task</p>
             </div>
           ) : (
             <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, overflow: 'hidden' }}>
@@ -454,7 +454,7 @@ export default function ProjectDetailPage() {
                             onClick={() => editTask.mutate({ taskId: task.id, form: editForm })}
                             style={{
                               padding: '8px 16px', borderRadius: 8, border: 'none',
-                              background: '#4f46e5', color: '#fff', fontSize: 13,
+                              background: '#16A34A', color: '#fff', fontSize: 14,
                               fontWeight: 500, cursor: 'pointer',
                             }}
                           >
@@ -465,7 +465,7 @@ export default function ProjectDetailPage() {
                             style={{
                               padding: '8px 10px', borderRadius: 8,
                               border: '1px solid #e2e8f0', background: '#fff',
-                              fontSize: 13, color: '#64748b', cursor: 'pointer',
+                              fontSize: 14, color: '#64748b', cursor: 'pointer',
                             }}
                           >
                             <X size={14} />
@@ -502,13 +502,13 @@ export default function ProjectDetailPage() {
                     {/* Title + description */}
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <span style={{
-                        fontSize: 14, color: isDone ? '#94a3b8' : '#1e293b',
+                        fontSize: 15, color: isDone ? '#94a3b8' : '#1e293b',
                         textDecoration: isDone ? 'line-through' : 'none',
                       }}>
                         {task.title}
                       </span>
                       {task.description && (
-                        <p style={{ fontSize: 12, color: '#94a3b8', margin: '3px 0 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        <p style={{ fontSize: 13, color: '#94a3b8', margin: '3px 0 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                           {task.description}
                         </p>
                       )}
@@ -516,7 +516,7 @@ export default function ProjectDetailPage() {
 
                     {/* Priority badge */}
                     <span style={{
-                      fontSize: 11, fontWeight: 500, padding: '2px 8px',
+                      fontSize: 12, fontWeight: 500, padding: '2px 8px',
                       borderRadius: 6, background: p.bg, color: p.color, flexShrink: 0,
                     }}>
                       {task.priority}
@@ -524,7 +524,7 @@ export default function ProjectDetailPage() {
 
                     {/* Due date */}
                     {task.dueDate && (
-                      <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: '#94a3b8', flexShrink: 0 }}>
+                      <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 13, color: '#94a3b8', flexShrink: 0 }}>
                         <Calendar size={11} /> {task.dueDate}
                       </span>
                     )}
@@ -601,7 +601,7 @@ export default function ProjectDetailPage() {
                             onClick={() => logTime.mutate(task.id)}
                             style={{
                               padding: '8px 16px', borderRadius: 8, border: 'none',
-                              background: '#0284c7', color: '#fff', fontSize: 13,
+                              background: '#0284c7', color: '#fff', fontSize: 14,
                               fontWeight: 500, cursor: 'pointer',
                             }}
                           >
@@ -610,7 +610,7 @@ export default function ProjectDetailPage() {
                           <button onClick={() => setLoggingTaskId(null)} style={{
                             padding: '8px 10px', borderRadius: 8,
                             border: '1px solid #e2e8f0', background: '#fff',
-                            fontSize: 13, color: '#64748b', cursor: 'pointer',
+                            fontSize: 14, color: '#64748b', cursor: 'pointer',
                           }}>
                             <X size={14} />
                           </button>
@@ -635,8 +635,8 @@ export default function ProjectDetailPage() {
               padding: '48px 24px', textAlign: 'center',
             }}>
               <Users size={28} color="#cbd5e1" strokeWidth={1.2} style={{ marginBottom: 10 }} />
-              <p style={{ fontSize: 14, fontWeight: 500, color: '#334155', margin: 0 }}>No members yet</p>
-              <p style={{ fontSize: 13, color: '#94a3b8', marginTop: 6 }}>Add team members to this project</p>
+              <p style={{ fontSize: 15, fontWeight: 500, color: '#334155', margin: 0 }}>No members yet</p>
+              <p style={{ fontSize: 14, color: '#94a3b8', marginTop: 6 }}>Add team members to this project</p>
             </div>
           ) : (
             <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, overflow: 'hidden' }}>
@@ -651,22 +651,22 @@ export default function ProjectDetailPage() {
                   onMouseLeave={e => e.currentTarget.querySelector('.member-actions').style.opacity = '0'}
                 >
                   <div style={{
-                    width: 32, height: 32, borderRadius: '50%', background: '#eef2ff',
+                    width: 32, height: 32, borderRadius: '50%', background: '#EAF7EE',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: 12, fontWeight: 600, color: '#4f46e5', flexShrink: 0,
+                    fontSize: 13, fontWeight: 600, color: '#16A34A', flexShrink: 0,
                   }}>
                     {m.employeeId?.toString().charAt(0)}
                   </div>
                   <div style={{ flex: 1 }}>
-                    <p style={{ fontSize: 13, fontWeight: 500, color: '#0f172a', margin: 0 }}>
+                    <p style={{ fontSize: 14, fontWeight: 500, color: '#0f172a', margin: 0 }}>
                       Employee #{m.employeeId}
                     </p>
-                    <p style={{ fontSize: 11, color: '#94a3b8', margin: '2px 0 0' }}>
+                    <p style={{ fontSize: 12, color: '#94a3b8', margin: '2px 0 0' }}>
                       Joined {new Date(m.joinedAt).toLocaleDateString()}
                     </p>
                   </div>
                   <span style={{
-                    fontSize: 11, fontWeight: 500, padding: '2px 8px', borderRadius: 6,
+                    fontSize: 12, fontWeight: 500, padding: '2px 8px', borderRadius: 6,
                     background: '#f1f5f9', color: '#475569',
                   }}>
                     {m.role?.replace('_', ' ')}
@@ -700,15 +700,15 @@ export default function ProjectDetailPage() {
         }}>
           <div style={{
             width: 44, height: 44, borderRadius: 10, flexShrink: 0,
-            background: 'linear-gradient(135deg, #4f46e5, #7c3aed)',
+            background: 'linear-gradient(135deg, #16A34A, #7c3aed)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 13, fontWeight: 800, color: '#fff',
+            fontSize: 14, fontWeight: 700, color: '#fff',
           }}>+{xpToast.xp}</div>
           <div>
-            <div style={{ fontSize: 13, fontWeight: 700, color: '#fff', marginBottom: 2 }}>
+            <div style={{ fontSize: 14, fontWeight: 700, color: '#fff', marginBottom: 2 }}>
               XP Earned!
             </div>
-            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)' }}>
+            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)' }}>
               Streak: {xpToast.streak} day{xpToast.streak !== 1 ? 's' : ''} · {xpToast.level}
             </div>
           </div>
@@ -719,12 +719,12 @@ export default function ProjectDetailPage() {
 }
 
 const labelStyle = {
-  display: 'block', fontSize: 12, fontWeight: 500,
+  display: 'block', fontSize: 13, fontWeight: 500,
   color: '#475569', marginBottom: 6,
 }
 
 const inputStyle = {
   padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0',
-  fontSize: 13, color: '#0f172a', outline: 'none',
+  fontSize: 14, color: '#0f172a', outline: 'none',
   boxSizing: 'border-box', background: '#fff',
 }

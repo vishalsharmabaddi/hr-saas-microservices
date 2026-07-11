@@ -67,29 +67,29 @@ export default function SettingsPage() {
   return (
     <div style={{ maxWidth: 720, margin: '0 auto' }}>
       <div style={{ marginBottom: 24 }}>
-        <h1 style={{ fontSize: 20, fontWeight: 700, color: '#0f172a', letterSpacing: '-0.4px' }}>Settings</h1>
-        <p style={{ fontSize: 13, color: '#64748b', marginTop: 4 }}>Manage your company workspace, departments, and team roles.</p>
+        <h1 className="page-title">Settings</h1>
+        <p style={{ fontSize: 14, color: '#64748b', marginTop: 4 }}>Manage your company workspace, departments, and team roles.</p>
       </div>
 
       {/* Company Settings */}
       <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, padding: '20px 22px', marginBottom: 16 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
           <Building2 size={15} color="#374151" />
-          <span style={{ fontSize: 14, fontWeight: 600, color: '#0f172a' }}>Company</span>
+          <span style={{ fontSize: 15, fontWeight: 600, color: '#0f172a' }}>Company</span>
         </div>
-        <p style={{ fontSize: 12, color: '#94a3b8', marginBottom: 18 }}>
+        <p style={{ fontSize: 13, color: '#94a3b8', marginBottom: 18 }}>
           {company ? 'Edit your company workspace details.' : 'Set up your company workspace to get started.'}
         </p>
 
         {isLoading ? (
-          <div style={{ color: '#94a3b8', fontSize: 13, padding: '10px 0' }}>Loading…</div>
+          <div style={{ color: '#94a3b8', fontSize: 14, padding: '10px 0' }}>Loading…</div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             <Field label="Company Name" required>
               <input
                 value={form.name}
                 onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-                placeholder="e.g. WorkTrack Inc."
+                placeholder="e.g. Taurus Go Inc."
                 style={inputStyle}
               />
             </Field>
@@ -118,16 +118,16 @@ export default function SettingsPage() {
                 disabled={!canSave}
                 style={{
                   display: 'flex', alignItems: 'center', gap: 6,
-                  background: canSave ? '#4f46e5' : '#c7d2fe', color: '#fff',
+                  background: canSave ? '#16A34A' : '#BBF7D0', color: '#fff',
                   border: 'none', borderRadius: 8, padding: '9px 16px',
-                  fontSize: 13, fontWeight: 500, cursor: canSave ? 'pointer' : 'default',
+                  fontSize: 14, fontWeight: 500, cursor: canSave ? 'pointer' : 'default',
                 }}
               >
                 {saved ? <Check size={14} /> : <Save size={14} />}
                 {saved ? 'Saved!' : company ? 'Save Changes' : 'Create Company'}
               </button>
               {saveMutation.isError && (
-                <span style={{ fontSize: 12, color: '#dc2626' }}>Save failed — name must be unique.</span>
+                <span style={{ fontSize: 13, color: '#dc2626' }}>Save failed — name must be unique.</span>
               )}
             </div>
           </div>
@@ -138,14 +138,14 @@ export default function SettingsPage() {
       <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, padding: '20px 22px', marginBottom: 16 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
           <Layers size={15} color="#374151" />
-          <span style={{ fontSize: 14, fontWeight: 600, color: '#0f172a' }}>Departments</span>
+          <span style={{ fontSize: 15, fontWeight: 600, color: '#0f172a' }}>Departments</span>
         </div>
-        <p style={{ fontSize: 12, color: '#94a3b8', marginBottom: 18 }}>
+        <p style={{ fontSize: 13, color: '#94a3b8', marginBottom: 18 }}>
           {departments.length} department{departments.length !== 1 ? 's' : ''} • {employees.length} employee{employees.length !== 1 ? 's' : ''} total
         </p>
 
         {departments.length === 0 ? (
-          <div style={{ color: '#94a3b8', fontSize: 13, padding: '10px 0' }}>
+          <div style={{ color: '#94a3b8', fontSize: 14, padding: '10px 0' }}>
             No employees yet — add employees to see departments here.
           </div>
         ) : (
@@ -155,9 +155,9 @@ export default function SettingsPage() {
                 display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                 padding: '10px 14px', background: '#f8fafc', borderRadius: 8, border: '1px solid #f1f5f9',
               }}>
-                <span style={{ fontSize: 13, fontWeight: 500, color: '#334155' }}>{d.name}</span>
+                <span style={{ fontSize: 14, fontWeight: 500, color: '#334155' }}>{d.name}</span>
                 <span style={{
-                  fontSize: 12, fontWeight: 600, color: '#4f46e5', background: '#eef2ff',
+                  fontSize: 13, fontWeight: 600, color: '#16A34A', background: '#EAF7EE',
                   padding: '2px 10px', borderRadius: 999,
                 }}>
                   {d.count} {d.count === 1 ? 'member' : 'members'}
@@ -173,16 +173,16 @@ export default function SettingsPage() {
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <Users size={15} color="#374151" />
-            <span style={{ fontSize: 14, fontWeight: 600, color: '#0f172a' }}>Team & Roles</span>
+            <span style={{ fontSize: 15, fontWeight: 600, color: '#0f172a' }}>Team & Roles</span>
           </div>
           <Link to="/members" style={{
-            display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, fontWeight: 500,
-            color: '#4f46e5', textDecoration: 'none',
+            display: 'flex', alignItems: 'center', gap: 4, fontSize: 13, fontWeight: 500,
+            color: '#16A34A', textDecoration: 'none',
           }}>
             Manage <ArrowRight size={13} />
           </Link>
         </div>
-        <p style={{ fontSize: 12, color: '#94a3b8', marginBottom: 18 }}>
+        <p style={{ fontSize: 13, color: '#94a3b8', marginBottom: 18 }}>
           Who can log in and what they can access.
         </p>
 
@@ -202,8 +202,8 @@ export default function SettingsPage() {
         </div>
 
         {otherMembers.length === 0 && (
-          <p style={{ fontSize: 12, color: '#94a3b8', marginTop: 12 }}>
-            No additional members yet. Use <Link to="/members" style={{ color: '#4f46e5' }}>Members → App Access</Link> to invite people and assign roles.
+          <p style={{ fontSize: 13, color: '#94a3b8', marginTop: 12 }}>
+            No additional members yet. Use <Link to="/members" style={{ color: '#16A34A' }}>Members → App Access</Link> to invite people and assign roles.
           </p>
         )}
       </div>
@@ -219,14 +219,14 @@ function MemberRow({ name, email, role, isOwner }) {
       padding: '10px 14px', background: '#f8fafc', borderRadius: 8, border: '1px solid #f1f5f9',
     }}>
       <div style={{ minWidth: 0 }}>
-        <div style={{ fontSize: 13, fontWeight: 500, color: '#334155', display: 'flex', alignItems: 'center', gap: 6 }}>
+        <div style={{ fontSize: 14, fontWeight: 500, color: '#334155', display: 'flex', alignItems: 'center', gap: 6 }}>
           {name}
-          {isOwner && <span style={{ fontSize: 10, fontWeight: 600, color: '#64748b', background: '#e2e8f0', padding: '1px 6px', borderRadius: 4 }}>OWNER</span>}
+          {isOwner && <span style={{ fontSize: 11, fontWeight: 600, color: '#64748b', background: '#e2e8f0', padding: '1px 6px', borderRadius: 4 }}>OWNER</span>}
         </div>
-        {email && <div style={{ fontSize: 11, color: '#94a3b8', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{email}</div>}
+        {email && <div style={{ fontSize: 12, color: '#94a3b8', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{email}</div>}
       </div>
       <span style={{
-        fontSize: 12, fontWeight: 600, color: rs.color, background: rs.bg,
+        fontSize: 13, fontWeight: 600, color: rs.color, background: rs.bg,
         padding: '3px 10px', borderRadius: 999, whiteSpace: 'nowrap',
       }}>
         {rs.label}
@@ -238,7 +238,7 @@ function MemberRow({ name, email, role, isOwner }) {
 function Field({ label, required, children }) {
   return (
     <div>
-      <label style={{ fontSize: 12, fontWeight: 500, color: '#64748b', display: 'block', marginBottom: 6 }}>
+      <label style={{ fontSize: 13, fontWeight: 500, color: '#64748b', display: 'block', marginBottom: 6 }}>
         {label} {required && <span style={{ color: '#dc2626' }}>*</span>}
       </label>
       {children}
@@ -248,5 +248,5 @@ function Field({ label, required, children }) {
 
 const inputStyle = {
   width: '100%', padding: '9px 12px', borderRadius: 8,
-  border: '1px solid #e2e8f0', fontSize: 13, background: '#fff', boxSizing: 'border-box',
+  border: '1px solid #e2e8f0', fontSize: 14, background: '#fff', boxSizing: 'border-box',
 }

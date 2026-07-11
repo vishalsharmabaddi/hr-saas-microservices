@@ -8,7 +8,7 @@ const EMPLOYMENT_TYPES = ['FULL_TIME', 'PART_TIME', 'CONTRACT', 'INTERN']
 const typeLabel = { FULL_TIME: 'Full Time', PART_TIME: 'Part Time', CONTRACT: 'Contract', INTERN: 'Intern' }
 const typeStyle = {
   FULL_TIME: { background: '#f0fdf4', color: '#16a34a' },
-  PART_TIME: { background: '#eff6ff', color: '#2563eb' },
+  PART_TIME: { background: '#EEF2F8', color: '#3155A4' },
   CONTRACT:  { background: '#fffbeb', color: '#d97706' },
   INTERN:    { background: '#faf5ff', color: '#7c3aed' },
 }
@@ -95,16 +95,16 @@ export default function EmployeesPage() {
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 20 }}>
         <div>
-          <h1 style={{ fontSize: 20, fontWeight: 600, color: '#0f172a', letterSpacing: '-0.3px' }}>Employees</h1>
-          <p style={{ fontSize: 13, color: '#64748b', marginTop: 4 }}>
+          <h1 className="page-title">Employees</h1>
+          <p style={{ fontSize: 14, color: '#64748b', marginTop: 4 }}>
             {activeCount} Active {activeCount === 1 ? 'Employee' : 'Employees'}{inactiveCount > 0 ? ` · ${inactiveCount} Inactive` : ''}
           </p>
         </div>
         {isAdmin && (
         <button onClick={() => { setShowForm(true); setEditingId(null); setForm(emptyForm) }} style={{
           display: 'flex', alignItems: 'center', gap: 6,
-          background: '#4f46e5', color: '#fff', border: 'none',
-          borderRadius: 8, padding: '8px 14px', fontSize: 13,
+          background: '#16A34A', color: '#fff', border: 'none',
+          borderRadius: 8, padding: '8px 14px', fontSize: 14,
           fontWeight: 500, cursor: 'pointer', flexShrink: 0,
         }}>
           <Plus size={14} /> Add Employee
@@ -122,7 +122,7 @@ export default function EmployeesPage() {
           style={{
             width: '100%', padding: '8px 12px 8px 32px',
             borderRadius: 8, border: '1px solid #e2e8f0',
-            fontSize: 13, outline: 'none', boxSizing: 'border-box',
+            fontSize: 14, outline: 'none', boxSizing: 'border-box',
           }}
         />
       </div>
@@ -171,18 +171,18 @@ export default function EmployeesPage() {
               </div>
             </div>
 
-            {isError && <p style={{ fontSize: 12, color: '#ef4444', marginTop: 10 }}>Failed to save. Check all fields and try again.</p>}
+            {isError && <p style={{ fontSize: 13, color: '#ef4444', marginTop: 10 }}>Failed to save. Check all fields and try again.</p>}
 
             <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 18 }}>
-              <button onClick={() => { setShowForm(false); setEditingId(null) }} style={{ padding: '9px 18px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 13, cursor: 'pointer', background: '#fff', color: '#64748b' }}>
+              <button onClick={() => { setShowForm(false); setEditingId(null) }} style={{ padding: '9px 18px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 14, cursor: 'pointer', background: '#fff', color: '#64748b' }}>
                 Cancel
               </button>
               <button
                 disabled={!form.firstName || !form.lastName || !form.email || isPending}
                 onClick={handleSubmit}
                 style={{
-                  padding: '9px 18px', borderRadius: 8, border: 'none', fontSize: 13, fontWeight: 500,
-                  cursor: 'pointer', background: '#4f46e5', color: '#fff',
+                  padding: '9px 18px', borderRadius: 8, border: 'none', fontSize: 14, fontWeight: 500,
+                  cursor: 'pointer', background: '#16A34A', color: '#fff',
                 }}
               >
                 {isPending ? 'Saving…' : editingId ? 'Update' : 'Add Employee'}
@@ -198,19 +198,19 @@ export default function EmployeesPage() {
       ) : filtered.length === 0 ? (
         <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, padding: '60px 24px', textAlign: 'center' }}>
           <Users size={28} color="#cbd5e1" strokeWidth={1.2} style={{ marginBottom: 10 }} />
-          <p style={{ fontSize: 14, fontWeight: 500, color: '#334155' }}>
+          <p style={{ fontSize: 15, fontWeight: 500, color: '#334155' }}>
             {search ? 'No employees match your search' : 'No employees yet'}
           </p>
-          <p style={{ fontSize: 13, color: '#94a3b8', marginTop: 6 }}>
+          <p style={{ fontSize: 14, color: '#94a3b8', marginTop: 6 }}>
             {!search && 'Click "Add Employee" to get started'}
           </p>
         </div>
       ) : (
-        <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, overflow: 'hidden' }}>
+        <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, overflow: 'auto' }}>
           {/* Table header */}
-          <div style={{ display: 'grid', gridTemplateColumns: '2fr 1.5fr 1fr 1fr 100px', gap: 0, padding: '10px 20px', borderBottom: '1px solid #f1f5f9', background: '#f8fafc' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '2fr 1.5fr 1fr 1fr 180px', minWidth: 720, gap: 0, padding: '10px 20px', borderBottom: '1px solid #f1f5f9', background: '#f8fafc' }}>
             {['Employee', 'Contact', 'Department', 'Type', 'Actions'].map(col => (
-              <span key={col} style={{ fontSize: 11, fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{col}</span>
+              <span key={col} style={{ fontSize: 12, fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{col}</span>
             ))}
           </div>
 
@@ -218,7 +218,7 @@ export default function EmployeesPage() {
             const ts = typeStyle[emp.employmentType] || typeStyle.FULL_TIME
             return (
               <div key={emp.id} style={{
-                display: 'grid', gridTemplateColumns: '2fr 1.5fr 1fr 1fr 100px',
+                display: 'grid', gridTemplateColumns: '2fr 1.5fr 1fr 1fr 180px', minWidth: 720,
                 padding: '14px 20px', alignItems: 'center',
                 borderBottom: i < filtered.length - 1 ? '1px solid #f8fafc' : 'none',
                 opacity: emp.isActive ? 1 : 0.45,
@@ -227,16 +227,16 @@ export default function EmployeesPage() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                   <div style={{
                     width: 34, height: 34, borderRadius: '50%',
-                    background: emp.isActive ? '#eef2ff' : '#f1f5f9',
+                    background: emp.isActive ? '#EAF7EE' : '#f1f5f9',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: 12, fontWeight: 700, color: emp.isActive ? '#4f46e5' : '#94a3b8',
+                    fontSize: 13, fontWeight: 700, color: emp.isActive ? '#16A34A' : '#94a3b8',
                     flexShrink: 0,
                   }}>
                     {emp.firstName?.[0]}{emp.lastName?.[0]}
                   </div>
                   <div>
-                    <p style={{ fontSize: 13, fontWeight: 600, color: '#0f172a', margin: 0 }}>{emp.fullName}</p>
-                    <p style={{ fontSize: 11, color: '#94a3b8', margin: '2px 0 0' }}>
+                    <p style={{ fontSize: 14, fontWeight: 600, color: '#0f172a', margin: 0 }}>{emp.fullName}</p>
+                    <p style={{ fontSize: 12, color: '#94a3b8', margin: '2px 0 0' }}>
                       EMP-{String(emp.id).padStart(3, '0')}
                       {!emp.isActive && <span style={{ color: '#ef4444', marginLeft: 4 }}>· Inactive</span>}
                     </p>
@@ -246,12 +246,12 @@ export default function EmployeesPage() {
                 {/* Contact */}
                 <div>
                   {emp.email && (
-                    <p style={{ fontSize: 12, color: '#475569', margin: 0, display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <p style={{ fontSize: 13, color: '#475569', margin: 0, display: 'flex', alignItems: 'center', gap: 4 }}>
                       <Mail size={11} /> {emp.email}
                     </p>
                   )}
                   {emp.phone && (
-                    <p style={{ fontSize: 12, color: '#94a3b8', margin: '2px 0 0', display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <p style={{ fontSize: 13, color: '#94a3b8', margin: '2px 0 0', display: 'flex', alignItems: 'center', gap: 4 }}>
                       <Phone size={11} /> {emp.phone}
                     </p>
                   )}
@@ -259,17 +259,17 @@ export default function EmployeesPage() {
 
                 {/* Department + Designation */}
                 <div>
-                  {emp.department && <p style={{ fontSize: 12, fontWeight: 500, color: '#334155', margin: 0, display: 'flex', alignItems: 'center', gap: 4 }}><Briefcase size={11} /> {emp.department}</p>}
-                  {emp.designation && <p style={{ fontSize: 11, color: '#94a3b8', margin: '2px 0 0' }}>{emp.designation}</p>}
+                  {emp.department && <p style={{ fontSize: 13, fontWeight: 500, color: '#334155', margin: 0, display: 'flex', alignItems: 'center', gap: 4 }}><Briefcase size={11} /> {emp.department}</p>}
+                  {emp.designation && <p style={{ fontSize: 12, color: '#94a3b8', margin: '2px 0 0' }}>{emp.designation}</p>}
                 </div>
 
                 {/* Employment type */}
                 <div>
-                  <span style={{ fontSize: 11, fontWeight: 500, padding: '3px 8px', borderRadius: 6, ...ts }}>
+                  <span style={{ fontSize: 12, fontWeight: 500, padding: '3px 8px', borderRadius: 6, ...ts }}>
                     {typeLabel[emp.employmentType] || emp.employmentType}
                   </span>
                   {emp.joiningDate && (
-                    <p style={{ fontSize: 11, color: '#94a3b8', margin: '4px 0 0', display: 'flex', alignItems: 'center', gap: 3 }}>
+                    <p style={{ fontSize: 12, color: '#94a3b8', margin: '4px 0 0', display: 'flex', alignItems: 'center', gap: 3 }}>
                       <Calendar size={10} /> {emp.joiningDate}
                     </p>
                   )}
@@ -279,7 +279,7 @@ export default function EmployeesPage() {
                 {isAdmin && (
                 <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
                   <button onClick={() => startEdit(emp)} style={{
-                    fontSize: 12, padding: '5px 12px', borderRadius: 6,
+                    fontSize: 13, padding: '5px 12px', borderRadius: 6,
                     border: '1px solid #e2e8f0', background: '#fff',
                     color: '#475569', cursor: 'pointer', whiteSpace: 'nowrap',
                   }}>
@@ -289,7 +289,7 @@ export default function EmployeesPage() {
                     <button
                       onClick={() => { if (window.confirm(`Deactivate ${emp.fullName}?`)) deactivateMutation.mutate(emp.id) }}
                       style={{
-                        fontSize: 12, padding: '5px 12px', borderRadius: 6,
+                        fontSize: 13, padding: '5px 12px', borderRadius: 6,
                         border: '1px solid #fecaca', background: '#fff',
                         color: '#dc2626', cursor: 'pointer', whiteSpace: 'nowrap',
                       }}
@@ -300,7 +300,7 @@ export default function EmployeesPage() {
                     <button
                       onClick={() => activateMutation.mutate(emp.id)}
                       style={{
-                        fontSize: 12, padding: '5px 12px', borderRadius: 6,
+                        fontSize: 13, padding: '5px 12px', borderRadius: 6,
                         border: '1px solid #bbf7d0', background: '#f0fdf4',
                         color: '#16a34a', cursor: 'pointer', whiteSpace: 'nowrap',
                       }}
@@ -319,5 +319,5 @@ export default function EmployeesPage() {
   )
 }
 
-const labelSt = { display: 'block', fontSize: 12, fontWeight: 500, color: '#475569', marginBottom: 5 }
-const inputSt  = { width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 13, boxSizing: 'border-box', background: '#fff' }
+const labelSt = { display: 'block', fontSize: 13, fontWeight: 500, color: '#475569', marginBottom: 5 }
+const inputSt  = { width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 14, boxSizing: 'border-box', background: '#fff' }

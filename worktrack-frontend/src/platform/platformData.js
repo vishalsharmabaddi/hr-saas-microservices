@@ -8,13 +8,13 @@
 // Pricing model — MRR isi se banta hai (flat monthly price per company)
 export const PLANS = {
   FREE:     { label: 'Free',     price: 0,    color: '#64748b', bg: '#f1f5f9' },
-  PRO:      { label: 'Pro',      price: 2400, color: '#4f46e5', bg: '#eef2ff' },
-  BUSINESS: { label: 'Business', price: 7900, color: '#7c3aed', bg: '#f5f3ff' },
+  PRO:      { label: 'Pro',      price: 2400, color: '#16A34A', bg: '#EAF7EE' },
+  BUSINESS: { label: 'Business', price: 7900, color: '#B45309', bg: '#FEF3E2' },
 }
 
-// Demo tenants — pehli company tumhari asli wali (WorkTrack Inc.)
+// Demo tenants — pehli company tumhari asli wali (Taurus Go Inc.)
 const SEED = [
-  { id: 1, name: 'WorkTrack Inc.', domain: 'worktrack.com', plan: 'BUSINESS', seats: 12, status: 'active',    createdAt: '2026-07-08' },
+  { id: 1, name: 'Taurus Go Inc.', domain: 'worktrack.com', plan: 'BUSINESS', seats: 12, status: 'active',    createdAt: '2026-07-08' },
   { id: 2, name: 'Acme Corp',      domain: 'acme.com',      plan: 'PRO',      seats: 8,  status: 'active',    createdAt: '2026-05-21' },
   { id: 3, name: 'Globex',         domain: 'globex.io',     plan: 'FREE',     seats: 3,  status: 'active',    createdAt: '2026-06-02' },
   { id: 4, name: 'Initech',        domain: 'initech.com',   plan: 'PRO',      seats: 15, status: 'active',    createdAt: '2026-04-11' },

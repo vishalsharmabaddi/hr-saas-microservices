@@ -1,5 +1,9 @@
 import { driver } from 'driver.js'
 import 'driver.js/dist/driver.css'
+import taurusLogo from '../assets/Taurus-Logo.png'
+
+// Har tour popover ke top pe brand logo ek rounded "profile" circle me
+const brandMark = `<div style="display:flex;justify-content:center;margin-bottom:12px"><img src="${taurusLogo}" alt="Taurus Go" style="width:48px;height:48px;border-radius:50%;object-fit:cover;border:2px solid #E6E9E3;box-shadow:0 2px 10px rgba(0,0,0,0.12)"/></div>`
 
 // localStorage flag — batata hai ki is user ne tour dekh liya hai
 const TOUR_FLAG = 'wt_tourDone'
@@ -7,7 +11,7 @@ const TOUR_FLAG = 'wt_tourDone'
 // Poora tour — har sidebar feature + header. Text ENGLISH only (professional product).
 // Note: nav role-based hai, isliye jo element DOM me maujood nahi uska step skip ho jayega.
 const ALL_STEPS = [
-  { element: '#tour-brand',      popover: { title: 'Welcome to WorkTrack', description: 'This is your company workspace. Take a quick tour to see what you can do here.' } },
+  { element: '#tour-brand',      popover: { title: 'Welcome to Taurus Go', description: 'This is your company workspace. Take a quick tour to see what you can do here.' } },
   { element: '#tour-dashboard',  popover: { title: 'Dashboard', description: 'Your daily overview — projects, tasks, attendance and pending leaves at a glance.' } },
   { element: '#tour-projects',   popover: { title: 'Projects', description: 'Create projects, organise them into task lists, and track progress.' } },
   { element: '#tour-timelogs',   popover: { title: 'Time Logs', description: 'Log the hours you spend on tasks. This doubles as your daily EOD report.' } },
@@ -24,7 +28,12 @@ const ALL_STEPS = [
 
 // Sirf un steps ko rakho jinke element abhi screen par hain (role ke hisaab se)
 function buildSteps() {
-  return ALL_STEPS.filter(step => document.querySelector(step.element))
+  return ALL_STEPS
+    .filter(step => document.querySelector(step.element))
+    .map(step => ({
+      ...step,
+      popover: { ...step.popover, description: brandMark + step.popover.description },
+    }))
 }
 
 function makeTour() {

@@ -1,102 +1,76 @@
 import { useNavigate } from 'react-router-dom'
 import { useState } from 'react'
-import { TypeAnimation } from 'react-type-animation'
 import {
-  CheckCircle, X, BarChart2, Clock, CalendarOff, Users,
+  CheckCircle2, X, BarChart2, Clock, CalendarOff, Users,
   FileText, Zap, Shield, ArrowRight, Check, ChevronDown, Menu,
 } from 'lucide-react'
+import taurusMark from '../assets/Taurus-Logo.png'
+import dashboardImg from '../assets/Dashboard.png'
 
 // ─── Data ────────────────────────────────────────────────────────────────────
-
 const features = [
-  {
-    icon: FileText,
-    title: 'EOD Reports',
-    desc: 'Daily work diaries built into every task. No separate forms — employees log time and notes in one place.',
-  },
-  {
-    icon: Clock,
-    title: 'Time Logs — Free',
-    desc: 'Billable and non-billable time tracking at task level. Zoho charges extra for this. WorkTrack gives it free.',
-  },
-  {
-    icon: BarChart2,
-    title: 'Workload Reports — Free',
-    desc: 'See who is overloaded and who has capacity. Real-time workload view across your entire team.',
-  },
-  {
-    icon: CalendarOff,
-    title: 'Leave Management',
-    desc: 'Apply, approve, and track leaves in seconds. Manager gets notified instantly via Kafka events.',
-  },
-  {
-    icon: Zap,
-    title: 'AI Summaries',
-    desc: "Claude AI reads your team's EOD reports and delivers a single daily digest to managers. No manual review.",
-  },
-  {
-    icon: Shield,
-    title: 'Role-Based Access',
-    desc: 'Admin, Manager, Employee — each role sees exactly what they need. Nothing more, nothing less.',
-  },
+  { icon: FileText,   title: 'EOD Reports',        desc: 'Daily work diaries built into every task. No separate forms — people log time and notes in one place.' },
+  { icon: Clock,      title: 'Time Logs — Free',   desc: 'Billable and non-billable time tracking at task level. Most tools charge extra for this. Taurus Go gives it free.' },
+  { icon: BarChart2,  title: 'Workload Reports',   desc: 'See who is overloaded and who has capacity. A real-time workload view across your entire team.' },
+  { icon: CalendarOff,title: 'Leave Management',   desc: 'Apply, approve, and track leaves in seconds. Managers get notified the moment a request comes in.' },
+  { icon: Zap,        title: 'AI Summaries',       desc: 'AI reads the day’s EOD reports and delivers a single digest to managers. No manual review.' },
+  { icon: Shield,     title: 'Role-Based Access',  desc: 'Admin, Manager, Employee — each role sees exactly what they need. Nothing more, nothing less.' },
 ]
 
 const comparison = [
-  { feature: 'Price (25 employees)',    zoho: '$75/mo',  bamboo: '$120/mo', wt: '$29/mo',  wtGood: true  },
-  { feature: 'EOD Reports',            zoho: false,      bamboo: false,     wt: true,      wtGood: true  },
-  { feature: 'AI Summaries',           zoho: false,      bamboo: false,     wt: true,      wtGood: true  },
-  { feature: 'Time Logs',              zoho: 'Paid',     bamboo: false,     wt: 'Free',    wtGood: true  },
-  { feature: 'Workload Report',        zoho: 'Paywalled',bamboo: false,     wt: 'Free',    wtGood: true  },
-  { feature: 'Leave Management',       zoho: true,       bamboo: true,      wt: true,      wtGood: false },
-  { feature: 'Task Management',        zoho: true,       bamboo: false,     wt: true,      wtGood: false },
-  { feature: 'Gamification',           zoho: false,      bamboo: false,     wt: true,      wtGood: true  },
-  { feature: 'Setup Time',             zoho: 'Hours',    bamboo: 'Hours',   wt: 'Minutes', wtGood: true  },
+  { feature: 'Price (25 people)',   legacy: '$75/mo',    sheets: '$120/mo', tg: '$29/mo',  good: true  },
+  { feature: 'EOD Reports',         legacy: false,       sheets: false,     tg: true,      good: true  },
+  { feature: 'AI Summaries',        legacy: false,       sheets: false,     tg: true,      good: true  },
+  { feature: 'Time Logs',           legacy: 'Paid',      sheets: false,     tg: 'Free',    good: true  },
+  { feature: 'Workload Report',     legacy: 'Paywalled', sheets: false,     tg: 'Free',    good: true  },
+  { feature: 'Leave Management',    legacy: true,        sheets: true,      tg: true,      good: false },
+  { feature: 'Task Management',     legacy: true,        sheets: false,     tg: true,      good: false },
+  { feature: 'Gamification',        legacy: false,       sheets: false,     tg: true,      good: true  },
+  { feature: 'Setup Time',          legacy: 'Hours',     sheets: 'Hours',   tg: 'Minutes', good: true  },
 ]
 
 const plans = [
-  {
-    name: 'Free',
-    price: '$0',
-    period: 'forever',
-    limit: 'Up to 12 employees',
-    features: ['All basic features', 'Leave management', 'Attendance tracking', 'Project & task management', 'Time logs'],
-    cta: 'Get started free',
-    highlight: false,
-  },
-  {
-    name: 'Starter',
-    price: '$29',
-    period: 'per month',
-    limit: 'Up to 25 employees',
-    features: ['Everything in Free', 'AI EOD summaries', 'CSV export', 'Priority support'],
-    cta: 'Start free trial',
-    highlight: true,
-  },
-  {
-    name: 'Growth',
-    price: '$99',
-    period: 'per month',
-    limit: 'Up to 150 employees',
-    features: ['Everything in Starter', 'Custom reports', 'Workload analytics', 'Milestones & issues tracker', 'API access'],
-    cta: 'Start free trial',
-    highlight: false,
-  },
-  {
-    name: 'Enterprise',
-    price: 'Custom',
-    period: '',
-    limit: 'Unlimited employees',
-    features: ['Everything in Growth', 'Dedicated instance', 'SSO / SAML', 'SLA guarantee', 'Onboarding support'],
-    cta: 'Contact sales',
-    highlight: false,
-  },
+  { name: 'Free',    price: '$0',     period: 'forever',   limit: 'Up to 12 people',   cta: 'Get started free', highlight: false,
+    features: ['All core features', 'Leave management', 'Attendance tracking', 'Projects & tasks', 'Time logs'] },
+  { name: 'Starter', price: '$29',    period: 'per month', limit: 'Up to 25 people',   cta: 'Start free trial', highlight: true,
+    features: ['Everything in Free', 'AI EOD summaries', 'CSV export', 'Priority support'] },
+  { name: 'Growth',  price: '$99',    period: 'per month', limit: 'Up to 150 people',  cta: 'Start free trial', highlight: false,
+    features: ['Everything in Starter', 'Custom reports', 'Workload analytics', 'Milestones & issues', 'API access'] },
+  { name: 'Scale',   price: 'Custom', period: '',          limit: 'Unlimited people',  cta: 'Contact sales',    highlight: false,
+    features: ['Everything in Growth', 'Dedicated instance', 'SSO / SAML', 'SLA guarantee', 'Onboarding support'] },
 ]
 
-// ─── Cell renderer ────────────────────────────────────────────────────────────
-function Cell({ val, isWt }) {
-  if (val === true)  return <CheckCircle size={16} color={isWt ? '#4f46e5' : '#16a34a'} />
+const faqs = [
+  { q: 'Is Taurus Go really free?', a: 'Yes. Up to 12 people, all core features are completely free — no credit card needed.' },
+  { q: 'Can I import my existing team data?', a: 'Yes. We support CSV import for people and projects. Getting your team set up takes under 30 minutes.' },
+  { q: 'How do AI summaries work?', a: 'At the end of each day, AI reads all EOD time logs and generates a team digest for your manager — automatically.' },
+  { q: 'Is my data secure?', a: 'All data is encrypted at rest and in transit. We never sell your data or share it with third parties.' },
+]
+
+const GRAD = 'linear-gradient(135deg, #16A34A 0%, #4ADE80 48%, #FACC15 100%)'
+
+// ─── Comparison cell ──────────────────────────────────────────────────────────
+function Cell({ val, isTaurus }) {
+  if (val === true)  return <CheckCircle2 size={17} color={isTaurus ? '#16A34A' : '#94a3b8'} />
   if (val === false) return <X size={16} color="#cbd5e1" />
-  return <span style={{ fontSize: 12, fontWeight: 600, color: isWt ? '#4f46e5' : '#64748b' }}>{val}</span>
+  return <span style={{ fontSize: 13, fontWeight: 600, color: isTaurus ? '#15803D' : '#64748b' }}>{val}</span>
+}
+
+// ─── Reusable primary CTA ─────────────────────────────────────────────────────
+function CtaButton({ children, onClick, size = 'md' }) {
+  const pad = size === 'lg' ? '13px 26px' : '10px 20px'
+  const fs  = size === 'lg' ? 15 : 14
+  return (
+    <button onClick={onClick} style={{
+      display: 'inline-flex', alignItems: 'center', gap: 8, background: GRAD,
+      color: '#06210F', border: 'none', borderRadius: 10, padding: pad, fontSize: fs,
+      fontWeight: 700, cursor: 'pointer', boxShadow: '0 8px 26px rgba(34,197,94,0.4)',
+      transition: 'transform 0.16s ease, box-shadow 0.16s ease',
+    }}
+      onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 12px 34px rgba(34,197,94,0.5)' }}
+      onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 8px 26px rgba(34,197,94,0.4)' }}
+    >{children}</button>
+  )
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -104,484 +78,226 @@ export default function LandingPage() {
   const navigate = useNavigate()
   const [openFaq, setOpenFaq] = useState(null)
   const [menuOpen, setMenuOpen] = useState(false)
-
-  const faqs = [
-    { q: 'Is WorkTrack really free?', a: 'Yes. Up to 12 employees, all core features are completely free — no credit card needed.' },
-    { q: 'Can I import my existing team data?', a: 'Yes. We support CSV import for employees and projects. Getting your team set up takes under 30 minutes.' },
-    { q: 'How does AI summary work?', a: 'At the end of each day, Claude AI reads all EOD time logs and generates a team digest for your manager — automatically.' },
-    { q: 'Is my data secure?', a: 'All data is encrypted at rest and in transit. We never sell your data or share it with third parties.' },
-  ]
+  const go = () => navigate('/login')
 
   return (
-    <div style={{ fontFamily: "'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif", color: '#0f172a' }}>
+    <div style={{ fontFamily: "'Inter', system-ui, sans-serif", color: '#14251A', background: '#F7F8F5' }}>
 
       {/* ── Navbar ── */}
-      <nav style={{
-        position: 'sticky', top: 0, zIndex: 50,
-        background: 'rgba(15,23,42,0.97)', backdropFilter: 'blur(16px)',
-        borderBottom: '1px solid rgba(255,255,255,0.07)',
-      }}>
-        {/* Main nav row */}
-        <div className="lp-nav-inner" style={{ maxWidth: 1100, margin: '0 auto', height: 60, padding: '0 40px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-
-          {/* Logo */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <div style={{
-              width: 30, height: 30, borderRadius: 8,
-              background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: 14, fontWeight: 800, color: '#fff', letterSpacing: '-0.5px',
-            }}>W</div>
-            <span style={{ color: '#fff', fontWeight: 700, fontSize: 15, letterSpacing: '-0.3px' }}>WorkTrack</span>
-            <span style={{
-              fontSize: 10, fontWeight: 700, color: '#a5b4fc',
-              background: 'rgba(99,102,241,0.2)', border: '1px solid rgba(99,102,241,0.3)',
-              borderRadius: 4, padding: '1px 6px', letterSpacing: '0.5px',
-            }}>BETA</span>
+      <nav style={{ position: 'sticky', top: 0, zIndex: 50, background: 'rgba(3,16,10,0.92)', backdropFilter: 'blur(14px)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+        <div className="lp-nav-inner" style={{ maxWidth: 1140, margin: '0 auto', height: 62, padding: '0 40px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
+            <div style={{ width: 32, height: 32, borderRadius: 8, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.12)', display: 'flex' }}>
+              <img src={taurusMark} alt="Taurus Go" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            </div>
+            <span className="tg-display" style={{ color: '#F5FBF6', fontWeight: 700, fontSize: 17 }}>Taurus <span style={{ color: '#FACC15' }}>Go</span></span>
+            <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.5px', color: '#FACC15', background: 'rgba(250,204,21,0.14)', border: '1px solid rgba(250,204,21,0.3)', borderRadius: 4, padding: '1px 5px' }}>BETA</span>
           </div>
 
-          {/* Desktop nav links */}
           <div className="lp-nav-links" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
             {[['Features', '#features'], ['Pricing', '#pricing'], ['FAQ', '#faq']].map(([label, href]) => (
-              <a key={label} href={href} style={{
-                color: 'rgba(255,255,255,0.5)', fontSize: 13, textDecoration: 'none',
-                fontWeight: 500, padding: '6px 12px', borderRadius: 6,
-                transition: 'color 0.15s, background 0.15s',
-              }}
-              onMouseEnter={e => { e.currentTarget.style.color = '#fff'; e.currentTarget.style.background = 'rgba(255,255,255,0.07)' }}
-              onMouseLeave={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.5)'; e.currentTarget.style.background = 'transparent' }}
-              >{label}</a>
+              <a key={label} href={href} style={{ color: 'rgba(255,255,255,0.6)', fontSize: 14, textDecoration: 'none', fontWeight: 500, padding: '6px 12px', borderRadius: 6 }}
+                onMouseEnter={e => e.currentTarget.style.color = '#fff'} onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.6)'}>{label}</a>
             ))}
-            <div style={{ width: 1, height: 18, background: 'rgba(255,255,255,0.1)', margin: '0 8px' }} />
-            <button onClick={() => navigate('/login')} style={{
-              background: 'none', color: 'rgba(255,255,255,0.6)', border: 'none',
-              fontSize: 13, fontWeight: 500, cursor: 'pointer', padding: '6px 12px',
-            }}>Sign in</button>
-            <button onClick={() => navigate('/login')} style={{
-              background: '#4f46e5', color: '#fff', border: 'none',
-              borderRadius: 8, padding: '7px 18px', fontSize: 13,
-              fontWeight: 600, cursor: 'pointer',
-              boxShadow: '0 0 0 1px rgba(255,255,255,0.1)',
-            }}>Get started free</button>
+            <div style={{ width: 1, height: 18, background: 'rgba(255,255,255,0.12)', margin: '0 8px' }} />
+            <button onClick={go} style={{ background: 'none', color: 'rgba(255,255,255,0.75)', border: 'none', fontSize: 14, fontWeight: 500, cursor: 'pointer', padding: '6px 12px' }}>Sign in</button>
+            <CtaButton onClick={go}>Get started free</CtaButton>
           </div>
 
-          {/* Hamburger — visible only on mobile via CSS */}
-          <button className="lp-hamburger" onClick={() => setMenuOpen(o => !o)} style={{
-            background: 'none', border: 'none', cursor: 'pointer',
-            color: '#fff', padding: 6, borderRadius: 6,
-          }}>
-            {menuOpen ? <X size={22} /> : <Menu size={22} />}
+          <button className="lp-hamburger" onClick={() => setMenuOpen(o => !o)} style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer', display: 'none' }}>
+            <Menu size={22} />
           </button>
         </div>
-
-        {/* Mobile dropdown menu */}
         {menuOpen && (
           <div className="lp-mobile-menu">
             {[['Features', '#features'], ['Pricing', '#pricing'], ['FAQ', '#faq']].map(([label, href]) => (
               <a key={label} href={href} className="lp-mobile-link" onClick={() => setMenuOpen(false)}>{label}</a>
             ))}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 12 }}>
-              <button onClick={() => { navigate('/login'); setMenuOpen(false) }} style={{
-                background: 'rgba(255,255,255,0.07)', color: '#fff', border: '1px solid rgba(255,255,255,0.1)',
-                borderRadius: 8, padding: '10px', fontSize: 14, fontWeight: 500, cursor: 'pointer',
-              }}>Sign in</button>
-              <button onClick={() => { navigate('/login'); setMenuOpen(false) }} style={{
-                background: '#4f46e5', color: '#fff', border: 'none',
-                borderRadius: 8, padding: '10px', fontSize: 14, fontWeight: 600, cursor: 'pointer',
-              }}>Get started free</button>
-            </div>
+            <button onClick={go} style={{ marginTop: 8, background: GRAD, color: '#06210F', border: 'none', borderRadius: 8, padding: '11px', fontSize: 14, fontWeight: 700, cursor: 'pointer' }}>Get started free</button>
           </div>
         )}
       </nav>
 
       {/* ── Hero ── */}
-      <section className="lp-section-pad" style={{
-        background: '#fff',
-        padding: '100px 40px 120px',
-        textAlign: 'center',
-      }}>
-        <div style={{ display: 'inline-block', background: '#eef2ff', border: '1px solid #c7d2fe', borderRadius: 20, padding: '4px 14px', marginBottom: 28 }}>
-          <span style={{ fontSize: 12, color: '#4f46e5', fontWeight: 500 }}>
-            Built for growing teams ·{' '}
-            <a href="#pricing" style={{ color: '#4f46e5', fontWeight: 700, textDecoration: 'underline', textUnderlineOffset: 2, cursor: 'pointer' }}>Free to start</a>
-          </span>
-        </div>
-
-        <h1 style={{
-          fontSize: 'clamp(32px, 5vw, 58px)', fontWeight: 800,
-          color: '#0f172a', lineHeight: 1.12, letterSpacing: '-1.5px',
-          maxWidth: 760, margin: '0 auto 22px',
-        }}>
-          HR operations for teams that don't have time for
-          <span style={{ display: 'block', minHeight: '1.15em' }}>
-            <TypeAnimation
-              sequence={[
-                'complicated software', 2500,
-                'expensive tools',      2500,
-                'manual HR tracking',   2500,
-                'messy spreadsheets',   2500,
-              ]}
-              speed={40}
-              deletionSpeed={60}
-              repeat={Infinity}
-              cursor={true}
-              style={{ color: '#4f46e5' }}
-            />
-          </span>
-        </h1>
-
-        <p style={{
-          fontSize: 'clamp(14px, 2vw, 18px)', color: '#374151',
-          maxWidth: 520, margin: '0 auto 40px', lineHeight: 1.7,
-        }}>
-          Attendance, leaves, projects, time logs, and AI summaries — all in one place.
-        </p>
-
-        <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
-          <button onClick={() => navigate('/login')} style={{
-            display: 'flex', alignItems: 'center', gap: 8,
-            background: '#4f46e5', color: '#fff', border: 'none',
-            borderRadius: 10, padding: '13px 28px', fontSize: 15,
-            fontWeight: 600, cursor: 'pointer',
-          }}>
-            Get started free <ArrowRight size={16} />
-          </button>
-          <button onClick={() => navigate('/login')} style={{
-            background: '#fff', color: '#0f172a',
-            border: '1px solid #e2e8f0',
-            borderRadius: 10, padding: '13px 28px', fontSize: 15,
-            fontWeight: 500, cursor: 'pointer',
-          }}>
-            View demo
-          </button>
-        </div>
-
-        {/* Social proof */}
-        <p style={{ marginTop: 36, fontSize: 12, color: '#6b7280' }}>
-          No credit card required · Setup in 5 minutes · Cancel anytime
-        </p>
-
-        {/* Mock dashboard preview */}
-        <div style={{ maxWidth: 860, margin: '56px auto 0', background: '#0f172a', border: '1px solid #1e293b', borderRadius: 16, overflow: 'hidden', boxShadow: '0 24px 60px rgba(0,0,0,0.12)' }}>
-          {/* Mock header bar */}
-          <div style={{ background: 'rgba(255,255,255,0.05)', borderBottom: '1px solid rgba(255,255,255,0.06)', padding: '10px 20px', display: 'flex', alignItems: 'center', gap: 8 }}>
-            <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#ef4444', opacity: 0.6 }} />
-            <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#f59e0b', opacity: 0.6 }} />
-            <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#10b981', opacity: 0.6 }} />
-            <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.2)', marginLeft: 12 }}>WorkTrack Dashboard</span>
-          </div>
-
-          {/* Mock content */}
-          <div className="lp-hero-mock-grid" style={{ padding: '24px' }}>
-            {[
-              { label: 'Total Projects', val: '12', color: '#818cf8' },
-              { label: 'Open Tasks',     val: '38', color: '#f59e0b' },
-              { label: 'Attendance Today', val: '24', color: '#34d399' },
-              { label: 'Pending Leaves', val: '3',  color: '#f87171' },
-            ].map(({ label, val, color }) => (
-              <div key={label} style={{ background: 'rgba(255,255,255,0.05)', borderRadius: 10, padding: '14px 16px', border: '1px solid rgba(255,255,255,0.06)' }}>
-                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginBottom: 8 }}>{label}</div>
-                <div style={{ fontSize: 24, fontWeight: 800, color, letterSpacing: '-1px' }}>{val}</div>
-              </div>
-            ))}
-          </div>
-
-          {/* Mock table rows */}
-          <div className="lp-hero-mock-row" style={{ padding: '0 24px 24px' }}>
-            <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: 10, border: '1px solid rgba(255,255,255,0.06)', overflow: 'hidden' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr', padding: '10px 16px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                {['Project', 'Status', 'Tasks', 'Due'].map(h => (
-                  <span key={h} style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{h}</span>
-                ))}
-              </div>
-              {[
-                { name: 'HR Portal Redesign', status: 'In Progress', tasks: '12/20', due: 'Aug 15' },
-                { name: 'Payroll Automation',  status: 'Planning',    tasks: '3/8',   due: 'Sep 1'  },
-                { name: 'Employee Onboarding', status: 'Completed',   tasks: '8/8',   due: 'Done'   },
-              ].map((row, i) => (
-                <div key={i} style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr', padding: '10px 16px', borderBottom: i < 2 ? '1px solid rgba(255,255,255,0.04)' : 'none' }}>
-                  <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', fontWeight: 500 }}>{row.name}</span>
-                  <span style={{ fontSize: 11, color: row.status === 'Completed' ? '#34d399' : row.status === 'In Progress' ? '#f59e0b' : '#818cf8' }}>{row.status}</span>
-                  <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)' }}>{row.tasks}</span>
-                  <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)' }}>{row.due}</span>
-                </div>
+      <section style={{ position: 'relative', background: 'radial-gradient(1200px 540px at 50% 125%, rgba(74,222,128,0.55), rgba(22,163,74,0.16) 45%, transparent 70%), linear-gradient(180deg, #03100A 0%, #04140C 52%, #0A4021 100%)', overflow: 'hidden' }}>
+        <div className="lp-section-pad lp-hero-grid" style={{ maxWidth: 1140, margin: '0 auto', padding: '72px 40px 80px' }}>
+          {/* Left — copy */}
+          <div>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 99, padding: '6px 14px', marginBottom: 22 }}>
+              <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#4ADE80' }} />
+              <span style={{ color: 'rgba(255,255,255,0.8)', fontSize: 13, fontWeight: 600, letterSpacing: '0.2px' }}>Work Smart. Go Further.</span>
+            </div>
+            <h1 className="tg-display" style={{ fontSize: 50, fontWeight: 700, color: '#fff', lineHeight: 1.08, letterSpacing: '-1.5px', margin: 0 }}>
+              HR operations for teams that <span style={{ background: GRAD, WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent' }}>move fast</span>.
+            </h1>
+            <p style={{ fontSize: 17, color: 'rgba(255,255,255,0.7)', lineHeight: 1.65, margin: '20px 0 30px', maxWidth: 480 }}>
+              Attendance, leaves, projects, time logs and AI summaries — everything your team needs in one clean workspace. No bloat, no per-seat surprises.
+            </p>
+            <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
+              <CtaButton onClick={go} size="lg">Get started free <ArrowRight size={17} /></CtaButton>
+              <a href="#features" style={{ display: 'inline-flex', alignItems: 'center', gap: 7, color: '#fff', textDecoration: 'none', fontSize: 15, fontWeight: 600, border: '1px solid rgba(255,255,255,0.18)', borderRadius: 10, padding: '13px 22px' }}>See features</a>
+            </div>
+            <div style={{ display: 'flex', gap: 18, flexWrap: 'wrap', marginTop: 26, color: 'rgba(255,255,255,0.55)', fontSize: 13 }}>
+              {['No credit card', 'Free up to 12 people', 'Setup in minutes'].map(t => (
+                <span key={t} style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><Check size={14} color="#4ADE80" /> {t}</span>
               ))}
+            </div>
+          </div>
+
+          {/* Right — product mock */}
+          <div style={{ position: 'relative' }}>
+            <div style={{ position: 'absolute', inset: '-6% -4%', background: 'radial-gradient(circle at 60% 40%, rgba(74,222,128,0.25), transparent 65%)', filter: 'blur(30px)', pointerEvents: 'none' }} />
+            <div style={{ position: 'relative', borderRadius: 14, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.12)', boxShadow: '0 40px 90px rgba(0,0,0,0.55)' }}>
+              <div style={{ height: 34, background: '#0A2E17', display: 'flex', alignItems: 'center', gap: 7, padding: '0 14px', borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
+                {['#ff5f57', '#febc2e', '#28c840'].map(c => <span key={c} style={{ width: 11, height: 11, borderRadius: '50%', background: c }} />)}
+              </div>
+              <img src={dashboardImg} alt="Taurus Go dashboard" style={{ width: '100%', display: 'block' }} />
             </div>
           </div>
         </div>
       </section>
 
       {/* ── Features ── */}
-      <section id="features" className="lp-section-pad" style={{ padding: '80px 40px', background: '#fff' }}>
-        <div style={{ maxWidth: 1100, margin: '0 auto' }}>
-          <div style={{ textAlign: 'center', marginBottom: 56 }}>
-            <p style={{ fontSize: 12, fontWeight: 700, color: '#4f46e5', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: 12 }}>Features</p>
-            <h2 style={{ fontSize: 'clamp(24px, 3.5vw, 38px)', fontWeight: 800, color: '#0f172a', letterSpacing: '-0.8px', lineHeight: 1.2 }}>
-              Everything your team needs.<br />Nothing they don't.
-            </h2>
-          </div>
-
-          <div className="lp-features-grid">
-            {features.map(({ icon: Icon, title, desc }) => (
-              <div key={title} style={{ padding: '28px 24px', borderRadius: 14, border: '1px solid #e2e8f0', background: '#fff' }}>
-                <div style={{ width: 40, height: 40, borderRadius: 10, background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 18 }}>
-                  <Icon size={18} color="#4f46e5" strokeWidth={1.8} />
-                </div>
-                <h3 style={{ fontSize: 15, fontWeight: 700, color: '#0f172a', marginBottom: 8 }}>{title}</h3>
-                <p style={{ fontSize: 13, color: '#475569', lineHeight: 1.65 }}>{desc}</p>
+      <section id="features" className="lp-section-pad" style={{ maxWidth: 1140, margin: '0 auto', padding: '84px 40px' }}>
+        <div style={{ textAlign: 'center', maxWidth: 640, margin: '0 auto 48px' }}>
+          <p style={{ fontSize: 13, fontWeight: 700, color: '#16A34A', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: 10 }}>Everything in one place</p>
+          <h2 className="tg-display" style={{ fontSize: 36, fontWeight: 700, letterSpacing: '-0.8px', margin: 0 }}>One workspace for the whole team</h2>
+          <p style={{ fontSize: 16, color: '#5B6B60', marginTop: 14, lineHeight: 1.6 }}>Stop stitching spreadsheets and half a dozen tools together. Taurus Go runs your people ops end to end.</p>
+        </div>
+        <div className="lp-features-grid">
+          {features.map(({ icon: Icon, title, desc }) => (
+            <div key={title} style={{ background: '#fff', border: '1px solid #E6E9E3', borderRadius: 16, padding: '26px 24px', transition: 'box-shadow 0.18s, transform 0.18s' }}
+              onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 12px 30px rgba(22,163,74,0.10)'; e.currentTarget.style.transform = 'translateY(-3px)' }}
+              onMouseLeave={e => { e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.transform = 'translateY(0)' }}>
+              <div style={{ width: 46, height: 46, borderRadius: 12, background: 'linear-gradient(135deg, #EAF7EE, #FEF9E7)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 18 }}>
+                <Icon size={22} color="#15803D" strokeWidth={2} />
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── Comparison ── */}
-      <section className="lp-section-pad" style={{ padding: '80px 40px', background: '#f8fafc' }}>
-        <div style={{ maxWidth: 860, margin: '0 auto' }}>
-          <div style={{ textAlign: 'center', marginBottom: 48 }}>
-            <p style={{ fontSize: 12, fontWeight: 700, color: '#4f46e5', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: 12 }}>Comparison</p>
-            <h2 style={{ fontSize: 'clamp(24px, 3.5vw, 36px)', fontWeight: 800, color: '#0f172a', letterSpacing: '-0.8px' }}>
-              Why teams switch to WorkTrack
-            </h2>
-          </div>
-
-          <div className="lp-comparison-scroll">
-          <div className="lp-comparison-inner" style={{ background: '#fff', borderRadius: 16, border: '1px solid #e2e8f0', overflow: 'hidden' }}>
-            {/* Header */}
-            <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr', background: '#0f172a', padding: '14px 24px' }}>
-              <span style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.4)' }}>Feature</span>
-              {['Zoho', 'BambooHR', 'WorkTrack'].map((h, i) => (
-                <span key={h} style={{ fontSize: 13, fontWeight: 700, color: i === 2 ? '#818cf8' : 'rgba(255,255,255,0.5)', textAlign: 'center' }}>{h}</span>
-              ))}
-            </div>
-
-            {comparison.map((row, i) => (
-              <div key={row.feature} style={{
-                display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr',
-                padding: '13px 24px', alignItems: 'center',
-                borderBottom: i < comparison.length - 1 ? '1px solid #f1f5f9' : 'none',
-                background: i % 2 === 0 ? '#fff' : '#fafafa',
-              }}>
-                <span style={{ fontSize: 13, color: '#334155', fontWeight: 500 }}>{row.feature}</span>
-                <div style={{ display: 'flex', justifyContent: 'center' }}><Cell val={row.zoho}   isWt={false} /></div>
-                <div style={{ display: 'flex', justifyContent: 'center' }}><Cell val={row.bamboo} isWt={false} /></div>
-                <div style={{ display: 'flex', justifyContent: 'center' }}><Cell val={row.wt}     isWt={true}  /></div>
-              </div>
-            ))}
-          </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── Pricing ── */}
-      <section id="pricing" className="lp-section-pad" style={{ padding: '80px 40px', background: '#fff' }}>
-        <div style={{ maxWidth: 1100, margin: '0 auto' }}>
-          <div style={{ textAlign: 'center', marginBottom: 52 }}>
-            <p style={{ fontSize: 12, fontWeight: 700, color: '#4f46e5', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: 12 }}>Pricing</p>
-            <h2 style={{ fontSize: 'clamp(24px, 3.5vw, 38px)', fontWeight: 800, color: '#0f172a', letterSpacing: '-0.8px' }}>Simple, transparent pricing</h2>
-            <p style={{ fontSize: 15, color: '#475569', marginTop: 12 }}>Start free. Scale as you grow. No hidden fees.</p>
-          </div>
-
-          <div className="lp-pricing-grid">
-            {plans.map(({ name, price, period, limit, features: feats, cta, highlight }) => {
-              const isFree = name === 'Free'
-              return (
-                <div key={name} style={{
-                  borderRadius: 16, padding: '28px 24px',
-                  border: highlight ? '2px solid #4f46e5' : '1px solid #e2e8f0',
-                  background: highlight ? '#fafafe' : '#fff',
-                  position: 'relative',
-                  opacity: isFree ? 1 : 0.7,
-                }}>
-                  {highlight && (
-                    <div style={{ position: 'absolute', top: -12, left: '50%', transform: 'translateX(-50%)', background: '#4f46e5', color: '#fff', fontSize: 11, fontWeight: 700, padding: '3px 14px', borderRadius: 20, whiteSpace: 'nowrap' }}>
-                      Most popular
-                    </div>
-                  )}
-                  {!isFree && (
-                    <div style={{ position: 'absolute', top: 12, right: 12, background: '#f1f5f9', color: '#64748b', fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 6, letterSpacing: '0.3px' }}>
-                      COMING SOON
-                    </div>
-                  )}
-                  <div style={{ marginBottom: 20 }}>
-                    <div style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', marginBottom: 8 }}>{name}</div>
-                    <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
-                      <span style={{ fontSize: 32, fontWeight: 800, color: '#0f172a', letterSpacing: '-1px' }}>{price}</span>
-                      {period && <span style={{ fontSize: 13, color: '#64748b' }}>{period}</span>}
-                    </div>
-                    <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 6 }}>{limit}</div>
-                  </div>
-
-                  {isFree ? (
-                    <button onClick={() => navigate('/login')} style={{
-                      width: '100%', padding: '10px', borderRadius: 8, fontSize: 13, fontWeight: 600,
-                      cursor: 'pointer', marginBottom: 24, border: 'none',
-                      background: '#f1f5f9', color: '#334155',
-                    }}>
-                      {cta}
-                    </button>
-                  ) : (
-                    <button disabled style={{
-                      width: '100%', padding: '10px', borderRadius: 8, fontSize: 13, fontWeight: 600,
-                      cursor: 'not-allowed', marginBottom: 24, border: '1px solid #e2e8f0',
-                      background: '#f8fafc', color: '#94a3b8',
-                    }}>
-                      Coming soon
-                    </button>
-                  )}
-
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                    {feats.map(f => (
-                      <div key={f} style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}>
-                        <Check size={14} color={isFree ? '#4f46e5' : '#94a3b8'} strokeWidth={2.5} style={{ marginTop: 1, flexShrink: 0 }} />
-                        <span style={{ fontSize: 13, color: isFree ? '#475569' : '#94a3b8', lineHeight: 1.4 }}>{f}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* ── FAQ ── */}
-      <section id="faq" style={{ padding: '70px 40px', background: '#f8fafc' }}>
-        <div style={{ maxWidth: 640, margin: '0 auto' }}>
-          <h2 style={{ fontSize: 28, fontWeight: 800, color: '#0f172a', letterSpacing: '-0.5px', textAlign: 'center', marginBottom: 40 }}>Frequently asked questions</h2>
-          {faqs.map((faq, i) => (
-            <div key={i} style={{ borderBottom: '1px solid #e2e8f0', paddingBottom: 16, marginBottom: 16 }}>
-              <button onClick={() => setOpenFaq(openFaq === i ? null : i)} style={{
-                width: '100%', background: 'none', border: 'none', cursor: 'pointer',
-                display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                padding: '4px 0', textAlign: 'left',
-              }}>
-                <span style={{ fontSize: 14, fontWeight: 600, color: '#0f172a' }}>{faq.q}</span>
-                <ChevronDown size={16} color="#64748b" style={{ transform: openFaq === i ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s', flexShrink: 0 }} />
-              </button>
-              {openFaq === i && <p style={{ fontSize: 13, color: '#475569', marginTop: 10, lineHeight: 1.7 }}>{faq.a}</p>}
+              <h3 className="tg-display" style={{ fontSize: 18, fontWeight: 700, margin: 0 }}>{title}</h3>
+              <p style={{ fontSize: 14.5, color: '#5B6B60', lineHeight: 1.6, marginTop: 8 }}>{desc}</p>
             </div>
           ))}
         </div>
       </section>
 
-      {/* ── CTA Banner ── */}
-      <section style={{
-        padding: '80px 40px',
-        background: 'linear-gradient(135deg, #f0f4ff 0%, #faf5ff 50%, #f0fdf4 100%)',
-        borderTop: '1px solid #e2e8f0',
-        textAlign: 'center',
-        position: 'relative',
-        overflow: 'hidden',
-      }}>
-        {/* Subtle background circles */}
-        <div style={{ position: 'absolute', top: -60, left: '10%', width: 300, height: 300, borderRadius: '50%', background: 'rgba(99,102,241,0.06)', pointerEvents: 'none' }} />
-        <div style={{ position: 'absolute', bottom: -80, right: '8%', width: 360, height: 360, borderRadius: '50%', background: 'rgba(16,185,129,0.05)', pointerEvents: 'none' }} />
-
-        <div style={{ position: 'relative', zIndex: 1 }}>
-          <div style={{ display: 'inline-block', background: '#fff', border: '1px solid #e2e8f0', borderRadius: 20, padding: '4px 16px', marginBottom: 24, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-            <span style={{ fontSize: 12, color: '#4f46e5', fontWeight: 600 }}>Free forever for small teams</span>
+      {/* ── Comparison ── */}
+      <section className="lp-section-pad" style={{ background: '#fff', borderTop: '1px solid #E6E9E3', borderBottom: '1px solid #E6E9E3' }}>
+        <div style={{ maxWidth: 900, margin: '0 auto', padding: '84px 40px' }}>
+          <div style={{ textAlign: 'center', marginBottom: 44 }}>
+            <h2 className="tg-display" style={{ fontSize: 34, fontWeight: 700, letterSpacing: '-0.8px', margin: 0 }}>Why teams switch to Taurus Go</h2>
+            <p style={{ fontSize: 16, color: '#5B6B60', marginTop: 12 }}>The same work, a fraction of the cost and setup time.</p>
           </div>
-
-          <h2 style={{ fontSize: 'clamp(26px, 4vw, 44px)', fontWeight: 800, color: '#0f172a', letterSpacing: '-1px', marginBottom: 16, lineHeight: 1.15 }}>
-            Your team deserves tools<br />they actually enjoy using.
-          </h2>
-
-          <p style={{ fontSize: 15, color: '#475569', marginBottom: 36, maxWidth: 460, margin: '0 auto 36px', lineHeight: 1.7 }}>
-            WorkTrack is built for the way modern teams work — fast, async, and without the overhead of enterprise software.
-          </p>
-
-          <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
-            <button onClick={() => navigate('/login')} style={{
-              display: 'inline-flex', alignItems: 'center', gap: 8,
-              background: '#4f46e5', color: '#fff', border: 'none',
-              borderRadius: 10, padding: '13px 28px', fontSize: 15,
-              fontWeight: 600, cursor: 'pointer',
-              boxShadow: '0 4px 14px rgba(79,70,229,0.3)',
-            }}>
-              Get started free <ArrowRight size={16} />
-            </button>
-            <button onClick={() => navigate('/login')} style={{
-              background: '#fff', color: '#334155',
-              border: '1px solid #e2e8f0',
-              borderRadius: 10, padding: '13px 28px', fontSize: 15,
-              fontWeight: 500, cursor: 'pointer',
-            }}>
-              View demo
-            </button>
+          <div className="lp-comparison-scroll">
+            <div className="lp-comparison-inner" style={{ borderRadius: 14, overflow: 'hidden', border: '1px solid #E6E9E3' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr', background: '#0B3D1E' }}>
+                <div style={{ padding: '14px 18px', fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.6px' }}>Feature</div>
+                {['Legacy HR', 'Spreadsheets', 'Taurus Go'].map((h, i) => (
+                  <div key={h} style={{ padding: '14px 18px', fontSize: 13, fontWeight: 700, textAlign: 'center', color: i === 2 ? '#FACC15' : 'rgba(255,255,255,0.5)' }}>{h}</div>
+                ))}
+              </div>
+              {comparison.map((row, i) => (
+                <div key={row.feature} style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr', borderTop: '1px solid #EEF1EC', background: i % 2 ? '#FAFBFA' : '#fff' }}>
+                  <div style={{ padding: '13px 18px', fontSize: 14, fontWeight: 500, color: '#14251A' }}>{row.feature}</div>
+                  <div style={{ padding: '13px 18px', display: 'flex', justifyContent: 'center' }}><Cell val={row.legacy} /></div>
+                  <div style={{ padding: '13px 18px', display: 'flex', justifyContent: 'center' }}><Cell val={row.sheets} /></div>
+                  <div style={{ padding: '13px 18px', display: 'flex', justifyContent: 'center', background: 'rgba(34,197,94,0.05)' }}><Cell val={row.tg} isTaurus /></div>
+                </div>
+              ))}
+            </div>
           </div>
+        </div>
+      </section>
 
-          <p style={{ fontSize: 12, color: '#94a3b8', marginTop: 20 }}>
-            No credit card required · Cancel anytime
-          </p>
+      {/* ── Pricing ── */}
+      <section id="pricing" className="lp-section-pad" style={{ maxWidth: 1140, margin: '0 auto', padding: '84px 40px' }}>
+        <div style={{ textAlign: 'center', maxWidth: 620, margin: '0 auto 48px' }}>
+          <p style={{ fontSize: 13, fontWeight: 700, color: '#16A34A', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: 10 }}>Simple pricing</p>
+          <h2 className="tg-display" style={{ fontSize: 36, fontWeight: 700, letterSpacing: '-0.8px', margin: 0 }}>Start free. Upgrade when you grow.</h2>
+          <p style={{ fontSize: 16, color: '#5B6B60', marginTop: 14 }}>No per-seat games. Flat, honest plans.</p>
+        </div>
+        <div className="lp-pricing-grid">
+          {plans.map(p => (
+            <div key={p.name} style={{
+              position: 'relative', background: '#fff', borderRadius: 16, padding: '26px 24px',
+              border: p.highlight ? '2px solid transparent' : '1px solid #E6E9E3',
+              backgroundImage: p.highlight ? `linear-gradient(#fff,#fff), ${GRAD}` : 'none',
+              backgroundOrigin: 'border-box', backgroundClip: p.highlight ? 'padding-box, border-box' : 'border-box',
+              boxShadow: p.highlight ? '0 20px 50px rgba(34,197,94,0.16)' : 'none',
+            }}>
+              {p.highlight && <div style={{ position: 'absolute', top: -12, left: '50%', transform: 'translateX(-50%)', background: GRAD, color: '#06210F', fontSize: 11, fontWeight: 700, padding: '3px 12px', borderRadius: 99, letterSpacing: '0.5px' }}>MOST POPULAR</div>}
+              <h3 className="tg-display" style={{ fontSize: 18, fontWeight: 700, margin: 0 }}>{p.name}</h3>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, marginTop: 12 }}>
+                <span className="tg-display" style={{ fontSize: 34, fontWeight: 700, letterSpacing: '-1px' }}>{p.price}</span>
+                {p.period && <span style={{ fontSize: 13, color: '#94a3b8' }}>/ {p.period}</span>}
+              </div>
+              <p style={{ fontSize: 13, color: '#5B6B60', marginTop: 6 }}>{p.limit}</p>
+              <button onClick={go} style={{
+                width: '100%', margin: '18px 0', padding: '11px', borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: 'pointer',
+                border: p.highlight ? 'none' : '1px solid #C9EAD4',
+                background: p.highlight ? GRAD : '#fff', color: p.highlight ? '#06210F' : '#15803D',
+                boxShadow: p.highlight ? '0 8px 22px rgba(34,197,94,0.35)' : 'none',
+              }}>{p.cta}</button>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                {p.features.map(f => (
+                  <div key={f} style={{ display: 'flex', alignItems: 'center', gap: 9, fontSize: 13.5, color: '#334155' }}>
+                    <Check size={15} color="#16A34A" strokeWidth={2.5} /> {f}
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── FAQ ── */}
+      <section id="faq" className="lp-section-pad" style={{ background: '#fff', borderTop: '1px solid #E6E9E3' }}>
+        <div style={{ maxWidth: 720, margin: '0 auto', padding: '84px 40px' }}>
+          <h2 className="tg-display" style={{ fontSize: 32, fontWeight: 700, letterSpacing: '-0.6px', textAlign: 'center', margin: '0 0 40px' }}>Frequently asked questions</h2>
+          {faqs.map((f, i) => (
+            <div key={i} style={{ borderBottom: '1px solid #EEF1EC' }}>
+              <button onClick={() => setOpenFaq(openFaq === i ? null : i)} style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, background: 'none', border: 'none', cursor: 'pointer', padding: '18px 0', textAlign: 'left' }}>
+                <span style={{ fontSize: 16, fontWeight: 600, color: '#14251A' }}>{f.q}</span>
+                <ChevronDown size={18} color="#94a3b8" style={{ flexShrink: 0, transform: openFaq === i ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
+              </button>
+              {openFaq === i && <p style={{ fontSize: 15, color: '#5B6B60', lineHeight: 1.65, margin: '0 0 18px' }}>{f.a}</p>}
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── CTA band ── */}
+      <section style={{ background: 'radial-gradient(700px 300px at 50% 0%, rgba(74,222,128,0.16), transparent 60%), linear-gradient(180deg, #0B3D1E, #072B14)' }}>
+        <div className="lp-section-pad" style={{ maxWidth: 720, margin: '0 auto', padding: '80px 40px', textAlign: 'center' }}>
+          <h2 className="tg-display" style={{ fontSize: 38, fontWeight: 700, color: '#fff', letterSpacing: '-1px', margin: 0 }}>Ready to work smart?</h2>
+          <p style={{ fontSize: 16, color: 'rgba(255,255,255,0.7)', margin: '16px 0 30px', lineHeight: 1.6 }}>Set up your team in minutes. Free up to 12 people — no credit card required.</p>
+          <CtaButton onClick={go} size="lg">Get started free <ArrowRight size={17} /></CtaButton>
         </div>
       </section>
 
       {/* ── Footer ── */}
-      <footer style={{ background: '#0f172a', borderTop: '1px solid rgba(255,255,255,0.07)', padding: '56px 40px 32px' }}>
-        <div style={{ maxWidth: 1100, margin: '0 auto' }}>
-
-          {/* Top row: brand + links */}
-          <div className="lp-footer-grid">
-
-            {/* Brand */}
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-                <div style={{
-                  width: 28, height: 28, borderRadius: 7,
-                  background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: 13, fontWeight: 800, color: '#fff',
-                }}>W</div>
-                <span style={{ color: '#fff', fontWeight: 700, fontSize: 14 }}>WorkTrack</span>
+      <footer style={{ background: '#072B14', color: 'rgba(255,255,255,0.6)', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+        <div className="lp-section-pad" style={{ maxWidth: 1140, margin: '0 auto', padding: '40px 40px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <div style={{ width: 30, height: 30, borderRadius: 8, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.12)', display: 'flex' }}>
+                <img src={taurusMark} alt="Taurus Go" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               </div>
-              <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)', lineHeight: 1.7, maxWidth: 240 }}>
-                HR operations for modern teams. Attendance, leaves, projects, and AI summaries — all in one place.
-              </p>
+              <div>
+                <div className="tg-display" style={{ color: '#fff', fontWeight: 700, fontSize: 15 }}>Taurus Go</div>
+                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>Work Smart. Go Further.</div>
+              </div>
             </div>
-
-            {/* Product */}
-            <div>
-              <p style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.25)', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: 16 }}>Product</p>
-              {['Features', 'Pricing', 'FAQ', 'Changelog'].map(item => (
-                <a key={item} href={`#${item.toLowerCase()}`} style={{ display: 'block', fontSize: 13, color: 'rgba(255,255,255,0.4)', textDecoration: 'none', marginBottom: 10, transition: 'color 0.15s' }}
-                  onMouseEnter={e => e.target.style.color = 'rgba(255,255,255,0.8)'}
-                  onMouseLeave={e => e.target.style.color = 'rgba(255,255,255,0.4)'}
-                >{item}</a>
+            <div style={{ display: 'flex', gap: 22, fontSize: 14, flexWrap: 'wrap' }}>
+              {[['Features', '#features'], ['Pricing', '#pricing'], ['FAQ', '#faq']].map(([l, h]) => (
+                <a key={l} href={h} style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none' }} onMouseEnter={e => e.currentTarget.style.color = '#fff'} onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.6)'}>{l}</a>
               ))}
-            </div>
-
-            {/* Company */}
-            <div>
-              <p style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.25)', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: 16 }}>Company</p>
-              {['About', 'Blog', 'Careers', 'Contact'].map(item => (
-                <a key={item} href="#" style={{ display: 'block', fontSize: 13, color: 'rgba(255,255,255,0.4)', textDecoration: 'none', marginBottom: 10, transition: 'color 0.15s' }}
-                  onMouseEnter={e => e.target.style.color = 'rgba(255,255,255,0.8)'}
-                  onMouseLeave={e => e.target.style.color = 'rgba(255,255,255,0.4)'}
-                >{item}</a>
-              ))}
-            </div>
-
-            {/* Legal */}
-            <div>
-              <p style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.25)', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: 16 }}>Legal</p>
-              {['Privacy Policy', 'Terms of Service', 'Security', 'Cookies'].map(item => (
-                <a key={item} href="#" style={{ display: 'block', fontSize: 13, color: 'rgba(255,255,255,0.4)', textDecoration: 'none', marginBottom: 10, transition: 'color 0.15s' }}
-                  onMouseEnter={e => e.target.style.color = 'rgba(255,255,255,0.8)'}
-                  onMouseLeave={e => e.target.style.color = 'rgba(255,255,255,0.4)'}
-                >{item}</a>
-              ))}
+              <button onClick={go} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.6)', fontSize: 14, cursor: 'pointer', padding: 0 }}>Sign in</button>
             </div>
           </div>
-
-          {/* Divider */}
-          <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: 24, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
-            <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.2)' }}>© 2026 WorkTrack. All rights reserved.</span>
-            <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.15)' }}>Built with ♥ for growing teams</span>
+          <div style={{ marginTop: 28, paddingTop: 20, borderTop: '1px solid rgba(255,255,255,0.06)', fontSize: 13, color: 'rgba(255,255,255,0.4)' }}>
+            © 2026 Taurus Go. All rights reserved. · Currently in beta.
           </div>
         </div>
       </footer>
-
     </div>
   )
 }

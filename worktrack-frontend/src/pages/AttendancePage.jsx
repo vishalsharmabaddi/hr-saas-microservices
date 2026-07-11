@@ -6,7 +6,7 @@ import api from '../api/axios'
 const statusStyle = {
   PRESENT:  { background: '#f0fdf4', color: '#16a34a' },
   LATE:     { background: '#fffbeb', color: '#d97706' },
-  HALF_DAY: { background: '#eff6ff', color: '#2563eb' },
+  HALF_DAY: { background: '#EEF2F8', color: '#3155A4' },
 }
 
 const statusLabel = {
@@ -93,15 +93,15 @@ export default function AttendancePage() {
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 20 }}>
         <div>
-          <h1 style={{ fontSize: 20, fontWeight: 600, color: '#0f172a', letterSpacing: '-0.3px' }}>Attendance</h1>
-          <p style={{ fontSize: 13, color: '#64748b', marginTop: 4 }}>{todayLabel()}</p>
+          <h1 className="page-title">Attendance</h1>
+          <p style={{ fontSize: 14, color: '#64748b', marginTop: 4 }}>{todayLabel()}</p>
         </div>
         <button
           onClick={() => setShowForm(v => !v)}
           style={{
             display: 'flex', alignItems: 'center', gap: 6,
-            background: '#4f46e5', color: '#fff', border: 'none',
-            borderRadius: 8, padding: '8px 14px', fontSize: 13,
+            background: '#16A34A', color: '#fff', border: 'none',
+            borderRadius: 8, padding: '8px 14px', fontSize: 14,
             fontWeight: 500, cursor: 'pointer', flexShrink: 0,
           }}
         >
@@ -110,16 +110,16 @@ export default function AttendancePage() {
       </div>
 
       {/* Stats row */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 20 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 12, marginBottom: 20 }}>
         {[
-          { label: 'Total Today',  value: records.length, icon: Clock,       color: '#4f46e5', bg: '#eef2ff' },
+          { label: 'Total Today',  value: records.length, icon: Clock,       color: '#16A34A', bg: '#EAF7EE' },
           { label: 'Present',      value: present,        icon: CheckCircle, color: '#16a34a', bg: '#f0fdf4' },
           { label: 'Late',         value: late,           icon: AlertCircle, color: '#d97706', bg: '#fffbeb' },
           { label: 'Checked Out',  value: checkedOut,     icon: LogOut,      color: '#64748b', bg: '#f1f5f9' },
         ].map(({ label, value, icon: Icon, color, bg }) => (
           <div key={label} style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, padding: '16px 18px' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-              <span style={{ fontSize: 12, fontWeight: 500, color: '#64748b' }}>{label}</span>
+              <span style={{ fontSize: 13, fontWeight: 500, color: '#64748b' }}>{label}</span>
               <div style={{ background: bg, borderRadius: 8, padding: 6 }}>
                 <Icon size={14} color={color} strokeWidth={2} />
               </div>
@@ -137,11 +137,11 @@ export default function AttendancePage() {
           display: 'flex', gap: 12, alignItems: 'flex-end', flexWrap: 'wrap',
         }}>
           <div style={{ flex: '1 1 200px' }}>
-            <label style={{ fontSize: 11, fontWeight: 600, color: '#64748b', display: 'block', marginBottom: 6 }}>EMPLOYEE</label>
+            <label style={{ fontSize: 12, fontWeight: 600, color: '#64748b', display: 'block', marginBottom: 6 }}>EMPLOYEE</label>
             <select
               value={form.employeeId}
               onChange={e => setForm(f => ({ ...f, employeeId: e.target.value }))}
-              style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 13, background: '#fff' }}
+              style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 14, background: '#fff' }}
             >
               <option value="">-- Select employee --</option>
               {employees.filter(e => e.isActive).map(e => (
@@ -152,20 +152,20 @@ export default function AttendancePage() {
             </select>
           </div>
           <div style={{ flex: '1 1 200px' }}>
-            <label style={{ fontSize: 11, fontWeight: 600, color: '#64748b', display: 'block', marginBottom: 6 }}>NOTES (optional)</label>
+            <label style={{ fontSize: 12, fontWeight: 600, color: '#64748b', display: 'block', marginBottom: 6 }}>NOTES (optional)</label>
             <input
               placeholder="e.g. Working from office"
               value={form.notes}
               onChange={e => setForm(f => ({ ...f, notes: e.target.value }))}
-              style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 13, boxSizing: 'border-box' }}
+              style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 14, boxSizing: 'border-box' }}
             />
           </div>
           <button
             disabled={!form.employeeId || checkInMutation.isPending}
             onClick={() => checkInMutation.mutate({ employeeId: Number(form.employeeId), notes: form.notes || null })}
             style={{
-              background: '#4f46e5', color: '#fff', border: 'none', borderRadius: 8,
-              padding: '8px 18px', fontSize: 13, fontWeight: 500,
+              background: '#16A34A', color: '#fff', border: 'none', borderRadius: 8,
+              padding: '8px 18px', fontSize: 14, fontWeight: 500,
               cursor: form.employeeId ? 'pointer' : 'not-allowed',
             }}
           >
@@ -173,12 +173,12 @@ export default function AttendancePage() {
           </button>
           <button
             onClick={() => { setShowForm(false); checkInMutation.reset() }}
-            style={{ background: '#fff', color: '#64748b', border: '1px solid #e2e8f0', borderRadius: 8, padding: '8px 12px', fontSize: 13, cursor: 'pointer' }}
+            style={{ background: '#fff', color: '#64748b', border: '1px solid #e2e8f0', borderRadius: 8, padding: '8px 12px', fontSize: 14, cursor: 'pointer' }}
           >
             Cancel
           </button>
           {checkInMutation.isError && (
-            <p style={{ fontSize: 12, color: '#ef4444', width: '100%', margin: 0 }}>
+            <p style={{ fontSize: 13, color: '#ef4444', width: '100%', margin: 0 }}>
               Failed. Employee may already be checked in today.
             </p>
           )}
@@ -228,12 +228,12 @@ export default function AttendancePage() {
             </div>
 
             {updateMutation.isError && (
-              <p style={{ fontSize: 12, color: '#ef4444', marginTop: 10 }}>Failed to update. Try again.</p>
+              <p style={{ fontSize: 13, color: '#ef4444', marginTop: 10 }}>Failed to update. Try again.</p>
             )}
 
             <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 20 }}>
               <button onClick={() => setEditingRecord(null)}
-                style={{ padding: '9px 18px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 13, cursor: 'pointer', background: '#fff', color: '#64748b' }}>
+                style={{ padding: '9px 18px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 14, cursor: 'pointer', background: '#fff', color: '#64748b' }}>
                 Cancel
               </button>
               <button
@@ -244,7 +244,7 @@ export default function AttendancePage() {
                   status: editForm.status,
                   notes:  editForm.notes || null,
                 }})}
-                style={{ padding: '9px 18px', borderRadius: 8, border: 'none', fontSize: 13, fontWeight: 500, cursor: 'pointer', background: '#4f46e5', color: '#fff' }}>
+                style={{ padding: '9px 18px', borderRadius: 8, border: 'none', fontSize: 14, fontWeight: 500, cursor: 'pointer', background: '#16A34A', color: '#fff' }}>
                 {updateMutation.isPending ? 'Saving...' : 'Save Changes'}
               </button>
             </div>
@@ -253,24 +253,24 @@ export default function AttendancePage() {
       )}
 
       {/* Table */}
-      <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, overflow: 'hidden' }}>
+      <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, overflow: 'auto' }}>
 
         {/* Table header */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 120px 120px 100px 80px 140px', padding: '12px 20px', borderBottom: '1px solid #f1f5f9', background: '#f8fafc' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 120px 120px 100px 80px 140px', minWidth: 680, padding: '12px 20px', borderBottom: '1px solid #f1f5f9', background: '#f8fafc' }}>
           {['Employee', 'Check In', 'Check Out', 'Status', 'Hours', ''].map(col => (
-            <span key={col} style={{ fontSize: 11, fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{col}</span>
+            <span key={col} style={{ fontSize: 12, fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{col}</span>
           ))}
         </div>
 
         {isLoading ? (
-          <div style={{ padding: '48px', textAlign: 'center', color: '#94a3b8', fontSize: 13 }}>Loading...</div>
+          <div style={{ padding: '48px', textAlign: 'center', color: '#94a3b8', fontSize: 14 }}>Loading...</div>
         ) : records.length === 0 ? (
           <div style={{ padding: '60px 24px', textAlign: 'center' }}>
             <div style={{ background: '#f1f5f9', borderRadius: 12, padding: 16, display: 'inline-block', marginBottom: 14 }}>
               <Clock size={24} color="#94a3b8" strokeWidth={1.5} />
             </div>
-            <p style={{ fontSize: 14, fontWeight: 500, color: '#334155', margin: 0 }}>No attendance records today</p>
-            <p style={{ fontSize: 13, color: '#94a3b8', marginTop: 6 }}>Click "Check In" to mark today's attendance</p>
+            <p style={{ fontSize: 15, fontWeight: 500, color: '#334155', margin: 0 }}>No attendance records today</p>
+            <p style={{ fontSize: 14, color: '#94a3b8', marginTop: 6 }}>Click "Check In" to mark today's attendance</p>
           </div>
         ) : (
           records.map((r, i) => {
@@ -278,7 +278,7 @@ export default function AttendancePage() {
             const st  = statusStyle[r.status] || { background: '#f1f5f9', color: '#64748b' }
             return (
               <div key={r.id} style={{
-                display: 'grid', gridTemplateColumns: '1fr 120px 120px 100px 80px 140px',
+                display: 'grid', gridTemplateColumns: '1fr 120px 120px 100px 80px 140px', minWidth: 680,
                 padding: '14px 20px', alignItems: 'center',
                 borderBottom: i < records.length - 1 ? '1px solid #f8fafc' : 'none',
               }}>
@@ -286,39 +286,39 @@ export default function AttendancePage() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                   <div style={{
                     width: 32, height: 32, borderRadius: '50%', flexShrink: 0,
-                    background: '#eef2ff', display: 'flex', alignItems: 'center',
-                    justifyContent: 'center', fontSize: 11, fontWeight: 700, color: '#4f46e5',
+                    background: '#EAF7EE', display: 'flex', alignItems: 'center',
+                    justifyContent: 'center', fontSize: 12, fontWeight: 700, color: '#16A34A',
                   }}>
                     {emp?.firstName?.[0]}{emp?.lastName?.[0]}
                   </div>
                   <div>
-                    <p style={{ fontSize: 13, fontWeight: 600, color: '#0f172a', margin: 0 }}>
+                    <p style={{ fontSize: 14, fontWeight: 600, color: '#0f172a', margin: 0 }}>
                       {emp?.fullName ?? `Employee #${r.employeeId}`}
                     </p>
-                    <p style={{ fontSize: 11, color: '#94a3b8', margin: '2px 0 0' }}>
+                    <p style={{ fontSize: 12, color: '#94a3b8', margin: '2px 0 0' }}>
                       {emp?.designation ?? emp?.department ?? ''}
                     </p>
                   </div>
                 </div>
 
                 {/* Check In */}
-                <span style={{ fontSize: 13, color: '#334155' }}>{formatTime(r.checkInTime)}</span>
+                <span style={{ fontSize: 14, color: '#334155' }}>{formatTime(r.checkInTime)}</span>
 
                 {/* Check Out */}
-                <span style={{ fontSize: 13, color: r.checkOutTime ? '#334155' : '#cbd5e1' }}>
+                <span style={{ fontSize: 14, color: r.checkOutTime ? '#334155' : '#cbd5e1' }}>
                   {formatTime(r.checkOutTime)}
                 </span>
 
                 {/* Status */}
                 <span style={{
                   display: 'inline-block', padding: '3px 10px', borderRadius: 6,
-                  fontSize: 11, fontWeight: 600, ...st,
+                  fontSize: 12, fontWeight: 600, ...st,
                 }}>
                   {statusLabel[r.status] || r.status}
                 </span>
 
                 {/* Hours */}
-                <span style={{ fontSize: 13, color: r.hoursWorked ? '#334155' : '#cbd5e1' }}>
+                <span style={{ fontSize: 14, color: r.hoursWorked ? '#334155' : '#cbd5e1' }}>
                   {r.hoursWorked ? `${r.hoursWorked}h` : '—'}
                 </span>
 
@@ -328,7 +328,7 @@ export default function AttendancePage() {
                     <button
                       onClick={() => checkOutMutation.mutate(r.employeeId)}
                       disabled={checkOutMutation.isPending}
-                      style={{ fontSize: 12, padding: '5px 10px', borderRadius: 6, border: '1px solid #e2e8f0', background: '#fff', color: '#475569', cursor: 'pointer', whiteSpace: 'nowrap' }}
+                      style={{ fontSize: 13, padding: '5px 10px', borderRadius: 6, border: '1px solid #e2e8f0', background: '#fff', color: '#475569', cursor: 'pointer', whiteSpace: 'nowrap' }}
                     >
                       Check Out
                     </button>
@@ -350,5 +350,5 @@ export default function AttendancePage() {
   )
 }
 
-const lbSt = { display: 'block', fontSize: 12, fontWeight: 500, color: '#475569', marginBottom: 5 }
-const inSt  = { width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 13, boxSizing: 'border-box', background: '#fff' }
+const lbSt = { display: 'block', fontSize: 13, fontWeight: 500, color: '#475569', marginBottom: 5 }
+const inSt  = { width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 14, boxSizing: 'border-box', background: '#fff' }

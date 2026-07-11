@@ -5,20 +5,20 @@ import api from '../api/axios'
 
 const priorityConfig = {
   LOW:      { bg: '#f1f5f9', color: '#64748b',  label: 'Low' },
-  MEDIUM:   { bg: '#eff6ff', color: '#2563eb',  label: 'Medium' },
+  MEDIUM:   { bg: '#EEF2F8', color: '#3155A4',  label: 'Medium' },
   HIGH:     { bg: '#fffbeb', color: '#d97706',  label: 'High' },
   CRITICAL: { bg: '#fef2f2', color: '#dc2626',  label: 'Critical' },
 }
 
 const statusConfig = {
   OPEN:        { bg: '#f1f5f9', color: '#475569', dot: '#94a3b8', label: 'Open' },
-  IN_PROGRESS: { bg: '#eff6ff', color: '#2563eb', dot: '#2563eb', label: 'In Progress' },
+  IN_PROGRESS: { bg: '#EEF2F8', color: '#3155A4', dot: '#3155A4', label: 'In Progress' },
   COMPLETED:   { bg: '#f0fdf4', color: '#16a34a', dot: '#16a34a', label: 'Completed' },
 }
 
 const headerAccent = {
   LOW:      '#64748b',
-  MEDIUM:   '#4f46e5',
+  MEDIUM:   '#16A34A',
   HIGH:     '#d97706',
   CRITICAL: '#dc2626',
 }
@@ -70,7 +70,7 @@ export default function TaskDetailPanel({ taskId, onClose }) {
   const totalLogged  = logs.reduce((sum, l) => sum + (l.hoursLogged || 0), 0)
   const estimated    = task?.estimatedHours
   const progress     = estimated ? Math.min((totalLogged / estimated) * 100, 100) : null
-  const accent       = headerAccent[task?.priority] || '#4f46e5'
+  const accent       = headerAccent[task?.priority] || '#16A34A'
   const p            = priorityConfig[task?.priority] || priorityConfig.MEDIUM
   const s            = statusConfig[task?.status]    || statusConfig.OPEN
 
@@ -102,7 +102,7 @@ export default function TaskDetailPanel({ taskId, onClose }) {
         }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
             <span style={{
-              fontFamily: 'monospace', fontSize: 11,
+              fontFamily: 'monospace', fontSize: 12,
               background: `${accent}18`, color: accent,
               padding: '3px 10px', borderRadius: 6, fontWeight: 600,
             }}>
@@ -129,14 +129,14 @@ export default function TaskDetailPanel({ taskId, onClose }) {
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
               <span style={{
                 display: 'inline-flex', alignItems: 'center', gap: 5,
-                fontSize: 12, fontWeight: 500, padding: '4px 10px', borderRadius: 20,
+                fontSize: 13, fontWeight: 500, padding: '4px 10px', borderRadius: 20,
                 background: s.bg, color: s.color, border: `1px solid ${s.color}30`,
               }}>
                 <span style={{ width: 6, height: 6, borderRadius: '50%', background: s.dot, flexShrink: 0 }} />
                 {s.label}
               </span>
               <span style={{
-                fontSize: 12, fontWeight: 500, padding: '4px 10px', borderRadius: 20,
+                fontSize: 13, fontWeight: 500, padding: '4px 10px', borderRadius: 20,
                 background: p.bg, color: p.color, border: `1px solid ${p.color}30`,
               }}>
                 {p.label}
@@ -144,7 +144,7 @@ export default function TaskDetailPanel({ taskId, onClose }) {
               {task?.dueDate && (
                 <span style={{
                   display: 'inline-flex', alignItems: 'center', gap: 5,
-                  fontSize: 12, color: '#64748b', padding: '4px 10px', borderRadius: 20,
+                  fontSize: 13, color: '#64748b', padding: '4px 10px', borderRadius: 20,
                   background: '#f8fafc', border: '1px solid #e2e8f0',
                 }}>
                   <Calendar size={11} /> {task.dueDate}
@@ -166,8 +166,8 @@ export default function TaskDetailPanel({ taskId, onClose }) {
             }}>
               {metaItems.map(({ label, value }) => (
                 <div key={label} style={{ background: '#fff', padding: '12px 18px' }}>
-                  <div style={{ fontSize: 10, color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 4 }}>{label}</div>
-                  <div style={{ fontSize: 13, color: '#334155', fontWeight: 500 }}>{value}</div>
+                  <div style={{ fontSize: 11, color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 4 }}>{label}</div>
+                  <div style={{ fontSize: 14, color: '#334155', fontWeight: 500 }}>{value}</div>
                 </div>
               ))}
             </div>
@@ -177,8 +177,8 @@ export default function TaskDetailPanel({ taskId, onClose }) {
           {progress !== null && (
             <div style={{ padding: '14px 20px', borderBottom: '1px solid #f1f5f9' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
-                <span style={{ fontSize: 11, color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Progress</span>
-                <span style={{ fontSize: 12, color: accent, fontWeight: 600 }}>{totalLogged.toFixed(1)}h / {estimated}h</span>
+                <span style={{ fontSize: 12, color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Progress</span>
+                <span style={{ fontSize: 13, color: accent, fontWeight: 600 }}>{totalLogged.toFixed(1)}h / {estimated}h</span>
               </div>
               <div style={{ height: 6, background: '#f1f5f9', borderRadius: 99, overflow: 'hidden' }}>
                 <div style={{ height: '100%', width: `${progress}%`, background: accent, borderRadius: 99, transition: 'width 0.4s ease' }} />
@@ -188,17 +188,17 @@ export default function TaskDetailPanel({ taskId, onClose }) {
 
           {/* Description */}
           <div style={{ padding: '18px 20px', borderBottom: '1px solid #f1f5f9' }}>
-            <p style={{ fontSize: 11, fontWeight: 600, color: '#94a3b8', marginBottom: 10, textTransform: 'uppercase', letterSpacing: '0.6px' }}>
+            <p style={{ fontSize: 12, fontWeight: 600, color: '#94a3b8', marginBottom: 10, textTransform: 'uppercase', letterSpacing: '0.6px' }}>
               Description
             </p>
             {taskLoading ? (
               <div style={{ height: 16, background: '#f1f5f9', borderRadius: 4, width: '70%' }} />
             ) : task?.description ? (
-              <p style={{ fontSize: 13, color: '#334155', lineHeight: 1.75, margin: 0, whiteSpace: 'pre-wrap' }}>
+              <p style={{ fontSize: 14, color: '#334155', lineHeight: 1.75, margin: 0, whiteSpace: 'pre-wrap' }}>
                 {task.description}
               </p>
             ) : (
-              <p style={{ fontSize: 13, color: '#cbd5e1', fontStyle: 'italic', margin: 0 }}>No description added</p>
+              <p style={{ fontSize: 14, color: '#cbd5e1', fontStyle: 'italic', margin: 0 }}>No description added</p>
             )}
           </div>
 
@@ -206,11 +206,11 @@ export default function TaskDetailPanel({ taskId, onClose }) {
           <div style={{ padding: '18px 20px' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <p style={{ fontSize: 11, fontWeight: 600, color: '#94a3b8', margin: 0, textTransform: 'uppercase', letterSpacing: '0.6px' }}>
+                <p style={{ fontSize: 12, fontWeight: 600, color: '#94a3b8', margin: 0, textTransform: 'uppercase', letterSpacing: '0.6px' }}>
                   Time Logs
                 </p>
                 {logs.length > 0 && (
-                  <span style={{ fontSize: 11, fontWeight: 700, color: '#0284c7', background: '#f0f9ff', padding: '2px 8px', borderRadius: 20 }}>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: '#0284c7', background: '#f0f9ff', padding: '2px 8px', borderRadius: 20 }}>
                     {totalLogged.toFixed(1)}h
                   </span>
                 )}
@@ -219,8 +219,8 @@ export default function TaskDetailPanel({ taskId, onClose }) {
                 onClick={() => setShowLogForm(v => !v)}
                 style={{
                   display: 'flex', alignItems: 'center', gap: 5,
-                  fontSize: 12, fontWeight: 500, color: '#4f46e5',
-                  background: '#eef2ff', border: 'none',
+                  fontSize: 13, fontWeight: 500, color: '#16A34A',
+                  background: '#EAF7EE', border: 'none',
                   padding: '5px 10px', borderRadius: 6, cursor: 'pointer',
                 }}
               >
@@ -268,7 +268,7 @@ export default function TaskDetailPanel({ taskId, onClose }) {
                     onClick={() => logTimeMutation.mutate()}
                     style={{
                       padding: '7px 16px', borderRadius: 7, border: 'none',
-                      background: '#4f46e5', color: '#fff', fontSize: 13,
+                      background: '#16A34A', color: '#fff', fontSize: 14,
                       fontWeight: 500, cursor: 'pointer',
                     }}
                   >
@@ -277,7 +277,7 @@ export default function TaskDetailPanel({ taskId, onClose }) {
                   <button onClick={() => setShowLogForm(false)} style={{
                     padding: '7px 12px', borderRadius: 7,
                     border: '1px solid #e2e8f0', background: '#fff',
-                    fontSize: 13, color: '#64748b', cursor: 'pointer',
+                    fontSize: 14, color: '#64748b', cursor: 'pointer',
                   }}>
                     Cancel
                   </button>
@@ -287,15 +287,15 @@ export default function TaskDetailPanel({ taskId, onClose }) {
 
             {/* Log entries */}
             {logsLoading ? (
-              <div style={{ color: '#94a3b8', fontSize: 13, textAlign: 'center', padding: '20px 0' }}>Loading…</div>
+              <div style={{ color: '#94a3b8', fontSize: 14, textAlign: 'center', padding: '20px 0' }}>Loading…</div>
             ) : logs.length === 0 && !showLogForm ? (
               <div style={{
                 background: '#f8fafc', borderRadius: 10, padding: '28px 16px',
                 textAlign: 'center', border: '1px dashed #e2e8f0',
               }}>
                 <Clock size={24} color="#cbd5e1" strokeWidth={1.2} style={{ marginBottom: 8 }} />
-                <p style={{ fontSize: 13, color: '#94a3b8', margin: 0 }}>No time logged yet</p>
-                <p style={{ fontSize: 12, color: '#cbd5e1', margin: '4px 0 0' }}>Click "Log Time" above to add an entry</p>
+                <p style={{ fontSize: 14, color: '#94a3b8', margin: 0 }}>No time logged yet</p>
+                <p style={{ fontSize: 13, color: '#cbd5e1', margin: '4px 0 0' }}>Click "Log Time" above to add an entry</p>
               </div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -313,12 +313,12 @@ export default function TaskDetailPanel({ taskId, onClose }) {
                     {/* Right: content */}
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
-                        <span style={{ fontSize: 11, color: '#64748b', display: 'flex', alignItems: 'center', gap: 4 }}>
+                        <span style={{ fontSize: 12, color: '#64748b', display: 'flex', alignItems: 'center', gap: 4 }}>
                           <Calendar size={10} /> {log.logDate}
                         </span>
-                        <span style={{ fontSize: 14, fontWeight: 700, color: '#0284c7' }}>{log.hoursLogged}h</span>
+                        <span style={{ fontSize: 15, fontWeight: 700, color: '#0284c7' }}>{log.hoursLogged}h</span>
                       </div>
-                      <p style={{ fontSize: 13, color: '#334155', margin: 0, lineHeight: 1.5 }}>
+                      <p style={{ fontSize: 14, color: '#334155', margin: 0, lineHeight: 1.5 }}>
                         {log.notes || <span style={{ color: '#cbd5e1', fontStyle: 'italic' }}>No notes</span>}
                       </p>
                     </div>
@@ -333,9 +333,9 @@ export default function TaskDetailPanel({ taskId, onClose }) {
   )
 }
 
-const labelSt = { display: 'block', fontSize: 11, fontWeight: 600, color: '#64748b', marginBottom: 5 }
+const labelSt = { display: 'block', fontSize: 12, fontWeight: 600, color: '#64748b', marginBottom: 5 }
 const inputSt  = {
   padding: '7px 10px', borderRadius: 7, border: '1px solid #e2e8f0',
-  fontSize: 13, color: '#0f172a', outline: 'none',
+  fontSize: 14, color: '#0f172a', outline: 'none',
   boxSizing: 'border-box', background: '#fff', width: '100%',
 }

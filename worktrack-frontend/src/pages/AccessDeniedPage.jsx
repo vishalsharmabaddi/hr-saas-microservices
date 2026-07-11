@@ -11,12 +11,12 @@ export default function AccessDeniedPage() {
           <ShieldOff size={26} color="#dc2626" strokeWidth={1.5} />
         </div>
         <h2 style={{ fontSize: 18, fontWeight: 600, color: '#0f172a', marginBottom: 8 }}>Access Denied</h2>
-        <p style={{ fontSize: 13, color: '#64748b', lineHeight: 1.6, marginBottom: 24 }}>
+        <p style={{ fontSize: 14, color: '#64748b', lineHeight: 1.6, marginBottom: 24 }}>
           You don't have permission to view this page. Contact your admin to request access.
         </p>
         <button
           onClick={() => navigate('/dashboard')}
-          style={{ padding: '9px 20px', borderRadius: 8, border: 'none', background: '#4f46e5', color: '#fff', fontSize: 13, fontWeight: 500, cursor: 'pointer' }}
+          style={{ padding: '9px 20px', borderRadius: 8, border: 'none', background: '#16A34A', color: '#fff', fontSize: 14, fontWeight: 500, cursor: 'pointer' }}
         >
           Back to Dashboard
         </button>

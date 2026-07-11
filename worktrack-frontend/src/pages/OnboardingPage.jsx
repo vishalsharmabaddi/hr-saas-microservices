@@ -106,14 +106,14 @@ export default function OnboardingPage() {
         {/* Progress header */}
         <div style={{ padding: '20px 28px', borderBottom: '1px solid #f1f5f9' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-            <span style={{ fontSize: 13, fontWeight: 600, color: '#0f172a' }}>WorkTrack Setup</span>
-            <span style={{ fontSize: 12, color: '#94a3b8' }}>Step {step + 1} of {STEPS.length}</span>
+            <span style={{ fontSize: 14, fontWeight: 600, color: '#0f172a' }}>Taurus Go Setup</span>
+            <span style={{ fontSize: 13, color: '#94a3b8' }}>Step {step + 1} of {STEPS.length}</span>
           </div>
           <div style={{ display: 'flex', gap: 8 }}>
             {STEPS.map((s, i) => (
               <div key={s.key} style={{
                 flex: 1, height: 4, borderRadius: 999,
-                background: i <= step ? '#4f46e5' : '#e2e8f0', transition: 'background 0.25s',
+                background: i <= step ? '#16A34A' : '#e2e8f0', transition: 'background 0.25s',
               }} />
             ))}
           </div>
@@ -138,7 +138,7 @@ export default function OnboardingPage() {
         <div style={{ padding: '16px 28px', borderTop: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <button onClick={back} disabled={step === 0} style={{
             display: 'flex', alignItems: 'center', gap: 6, background: 'none', border: 'none',
-            cursor: step === 0 ? 'default' : 'pointer', fontSize: 13, fontWeight: 500,
+            cursor: step === 0 ? 'default' : 'pointer', fontSize: 14, fontWeight: 500,
             color: step === 0 ? '#cbd5e1' : '#64748b',
           }}>
             <ArrowLeft size={15} /> Back
@@ -146,14 +146,14 @@ export default function OnboardingPage() {
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
             {isLast && (
-              <button onClick={finish} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, color: '#94a3b8' }}>
+              <button onClick={finish} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 14, color: '#94a3b8' }}>
                 Skip for now
               </button>
             )}
             <button onClick={next} disabled={!canContinue} style={{
               display: 'flex', alignItems: 'center', gap: 6,
-              background: canContinue ? '#4f46e5' : '#c7d2fe', color: '#fff', border: 'none', borderRadius: 8,
-              padding: '9px 18px', fontSize: 13, fontWeight: 500, cursor: canContinue ? 'pointer' : 'default',
+              background: canContinue ? '#16A34A' : '#BBF7D0', color: '#fff', border: 'none', borderRadius: 8,
+              padding: '9px 18px', fontSize: 14, fontWeight: 500, cursor: canContinue ? 'pointer' : 'default',
             }}>
               {saveCompany.isPending ? 'Saving…' : isLast ? <>Finish <Check size={15} /></> : <>Continue <ArrowRight size={15} /></>}
             </button>
@@ -167,11 +167,11 @@ export default function OnboardingPage() {
 function WelcomeStep() {
   return (
     <div style={{ textAlign: 'center' }}>
-      <div style={{ width: 56, height: 56, borderRadius: 14, background: '#eef2ff', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 18px' }}>
-        <Rocket size={26} color="#4f46e5" />
+      <div style={{ width: 56, height: 56, borderRadius: 14, background: '#EAF7EE', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 18px' }}>
+        <Rocket size={26} color="#16A34A" />
       </div>
-      <h1 style={{ fontSize: 22, fontWeight: 700, color: '#0f172a', letterSpacing: '-0.5px', margin: 0 }}>Welcome to WorkTrack</h1>
-      <p style={{ fontSize: 14, color: '#64748b', marginTop: 10, lineHeight: 1.6, maxWidth: 400, margin: '10px auto 0' }}>
+      <h1 style={{ fontSize: 22, fontWeight: 700, color: '#0f172a', letterSpacing: '-0.5px', margin: 0 }}>Welcome to Taurus Go</h1>
+      <p style={{ fontSize: 15, color: '#64748b', marginTop: 10, lineHeight: 1.6, maxWidth: 400, margin: '10px auto 0' }}>
         Let's set up your workspace in a couple of quick steps. You can add your company details and invite your team — it only takes a minute.
       </p>
     </div>
@@ -184,7 +184,7 @@ function CompanyStep({ form, setForm, error }) {
       <StepHead icon={Building2} title="Company details" subtitle="This is how your workspace appears to your team." />
       <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginTop: 20 }}>
         <Field label="Company Name" required>
-          <input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="e.g. WorkTrack Inc." style={inputStyle} />
+          <input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="e.g. Taurus Go Inc." style={inputStyle} />
         </Field>
         <Field label="Domain">
           <input value={form.domain} onChange={e => setForm(f => ({ ...f, domain: e.target.value }))} placeholder="e.g. worktrack.com" style={inputStyle} />
@@ -192,7 +192,7 @@ function CompanyStep({ form, setForm, error }) {
         <Field label="Logo URL">
           <input value={form.logoUrl} onChange={e => setForm(f => ({ ...f, logoUrl: e.target.value }))} placeholder="https://…/logo.png" style={inputStyle} />
         </Field>
-        {error && <span style={{ fontSize: 12, color: '#dc2626' }}>Save failed — company name must be unique.</span>}
+        {error && <span style={{ fontSize: 13, color: '#dc2626' }}>Save failed — company name must be unique.</span>}
       </div>
     </div>
   )
@@ -218,8 +218,8 @@ function InviteStep({ invites, form, setForm, onAdd, onRemove }) {
           <option value="ADMIN">Admin</option>
         </select>
         <button onClick={onAdd} style={{
-          display: 'flex', alignItems: 'center', gap: 4, background: '#eef2ff', color: '#4f46e5',
-          border: 'none', borderRadius: 8, padding: '0 14px', fontSize: 13, fontWeight: 600, cursor: 'pointer',
+          display: 'flex', alignItems: 'center', gap: 4, background: '#EAF7EE', color: '#16A34A',
+          border: 'none', borderRadius: 8, padding: '0 14px', fontSize: 14, fontWeight: 600, cursor: 'pointer',
         }}>
           <Plus size={15} /> Add
         </button>
@@ -228,7 +228,7 @@ function InviteStep({ invites, form, setForm, onAdd, onRemove }) {
       {/* Invited list */}
       <div style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: 8 }}>
         {invites.length === 0 ? (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#94a3b8', fontSize: 13, padding: '8px 0' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#94a3b8', fontSize: 14, padding: '8px 0' }}>
             <Mail size={14} /> No invites added yet — that's okay, you can skip this.
           </div>
         ) : invites.map(inv => {
@@ -238,9 +238,9 @@ function InviteStep({ invites, form, setForm, onAdd, onRemove }) {
               display: 'flex', alignItems: 'center', justifyContent: 'space-between',
               padding: '9px 12px', background: '#f8fafc', borderRadius: 8, border: '1px solid #f1f5f9',
             }}>
-              <span style={{ fontSize: 13, color: '#334155', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{inv.email}</span>
+              <span style={{ fontSize: 14, color: '#334155', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{inv.email}</span>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <span style={{ fontSize: 11, fontWeight: 600, color: rs.color, background: rs.bg, padding: '2px 9px', borderRadius: 999 }}>{rs.label}</span>
+                <span style={{ fontSize: 12, fontWeight: 600, color: rs.color, background: rs.bg, padding: '2px 9px', borderRadius: 999 }}>{rs.label}</span>
                 <button onClick={() => onRemove(inv.email)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8', display: 'flex' }}>
                   <X size={14} />
                 </button>
@@ -257,10 +257,10 @@ function StepHead({ icon: Icon, title, subtitle }) {
   return (
     <div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-        <Icon size={18} color="#4f46e5" />
+        <Icon size={18} color="#16A34A" />
         <h2 style={{ fontSize: 17, fontWeight: 700, color: '#0f172a', margin: 0 }}>{title}</h2>
       </div>
-      <p style={{ fontSize: 13, color: '#94a3b8', marginTop: 6 }}>{subtitle}</p>
+      <p style={{ fontSize: 14, color: '#94a3b8', marginTop: 6 }}>{subtitle}</p>
     </div>
   )
 }
@@ -268,7 +268,7 @@ function StepHead({ icon: Icon, title, subtitle }) {
 function Field({ label, required, children }) {
   return (
     <div>
-      <label style={{ fontSize: 12, fontWeight: 500, color: '#64748b', display: 'block', marginBottom: 6 }}>
+      <label style={{ fontSize: 13, fontWeight: 500, color: '#64748b', display: 'block', marginBottom: 6 }}>
         {label} {required && <span style={{ color: '#dc2626' }}>*</span>}
       </label>
       {children}
@@ -278,5 +278,5 @@ function Field({ label, required, children }) {
 
 const inputStyle = {
   width: '100%', padding: '9px 12px', borderRadius: 8,
-  border: '1px solid #e2e8f0', fontSize: 13, background: '#fff', boxSizing: 'border-box',
+  border: '1px solid #e2e8f0', fontSize: 14, background: '#fff', boxSizing: 'border-box',
 }

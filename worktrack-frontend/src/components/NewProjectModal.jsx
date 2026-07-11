@@ -116,7 +116,7 @@ export default function NewProjectModal({ onClose }) {
 
           {/* Error */}
           {mutation.isError && (
-            <p style={{ fontSize: 13, color: '#dc2626', margin: 0 }}>
+            <p style={{ fontSize: 14, color: '#dc2626', margin: 0 }}>
               Something went wrong. Try again.
             </p>
           )}
@@ -125,14 +125,14 @@ export default function NewProjectModal({ onClose }) {
           <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 4 }}>
             <button type="button" onClick={onClose} style={{
               padding: '8px 16px', borderRadius: 8, border: '1px solid #e2e8f0',
-              background: '#fff', fontSize: 13, color: '#475569', cursor: 'pointer',
+              background: '#fff', fontSize: 14, color: '#475569', cursor: 'pointer',
             }}>
               Cancel
             </button>
             <button type="submit" disabled={mutation.isPending} style={{
               padding: '8px 18px', borderRadius: 8, border: 'none',
-              background: mutation.isPending ? '#a5b4fc' : '#4f46e5',
-              color: '#fff', fontSize: 13, fontWeight: 500, cursor: 'pointer',
+              background: mutation.isPending ? '#86EFAC' : '#16A34A',
+              color: '#fff', fontSize: 14, fontWeight: 500, cursor: 'pointer',
             }}>
               {mutation.isPending ? 'Creating…' : 'Create Project'}
             </button>
@@ -144,12 +144,12 @@ export default function NewProjectModal({ onClose }) {
 }
 
 const labelStyle = {
-  display: 'block', fontSize: 12, fontWeight: 500,
+  display: 'block', fontSize: 13, fontWeight: 500,
   color: '#475569', marginBottom: 6,
 }
 
 const inputStyle = {
   width: '100%', padding: '8px 12px', borderRadius: 8,
-  border: '1px solid #e2e8f0', fontSize: 13, color: '#0f172a',
+  border: '1px solid #e2e8f0', fontSize: 14, color: '#0f172a',
   outline: 'none', boxSizing: 'border-box', background: '#fff',
 }

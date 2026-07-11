@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { GoogleLogin } from '@react-oauth/google'
 import { getRoleForEmail } from '../auth/roles'
 import api from '../api/axios'
+import taurusLogo from '../assets/Taurus.png'
 
 function LoginPage() {
   const navigate = useNavigate()
@@ -57,7 +58,7 @@ function LoginPage() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+    <div style={{ minHeight: '100vh', background: 'var(--tg-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <div style={{
         background: '#fff', borderRadius: 16, border: '1px solid #e2e8f0',
         padding: '40px 36px', width: '100%', maxWidth: 400,
@@ -65,9 +66,9 @@ function LoginPage() {
       }}>
 
         {/* Branding */}
-        <div style={{ marginBottom: 28 }}>
-          <div style={{ fontSize: 24, fontWeight: 700, color: '#0f172a', letterSpacing: '-0.5px' }}>WorkTrack</div>
-          <div style={{ fontSize: 13, color: '#64748b', marginTop: 4 }}>Sign in to your workspace</div>
+        <div style={{ marginBottom: 28, textAlign: 'center' }}>
+          <img src={taurusLogo} alt="Taurus Go" style={{ width: 200, height: 'auto', display: 'inline-block', marginBottom: 8 }} />
+          <div style={{ fontSize: 15, color: 'var(--tg-muted)' }}>Sign in to your workspace</div>
         </div>
 
         {/* Google */}
@@ -85,7 +86,7 @@ function LoginPage() {
         {/* Divider */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '20px 0' }}>
           <div style={{ flex: 1, height: 1, background: '#e2e8f0' }} />
-          <span style={{ fontSize: 12, color: '#94a3b8', whiteSpace: 'nowrap' }}>or continue with email</span>
+          <span style={{ fontSize: 13, color: '#94a3b8', whiteSpace: 'nowrap' }}>or continue with email</span>
           <div style={{ flex: 1, height: 1, background: '#e2e8f0' }} />
         </div>
 
@@ -108,18 +109,14 @@ function LoginPage() {
           />
         </div>
 
-        {error && <p style={{ fontSize: 12, color: '#ef4444', marginTop: 8 }}>{error}</p>}
+        {error && <p style={{ fontSize: 13, color: '#ef4444', marginTop: 8 }}>{error}</p>}
 
-        <button onClick={handleEmailLogin} style={{
-          width: '100%', marginTop: 14, padding: '10px',
-          background: '#4f46e5', color: '#fff', border: 'none',
-          borderRadius: 8, fontSize: 14, fontWeight: 500, cursor: 'pointer',
-        }}>
+        <button onClick={handleEmailLogin} className="btn-primary" style={{ width: '100%', marginTop: 14 }}>
           Sign In
         </button>
 
-        <p style={{ fontSize: 11, color: '#94a3b8', marginTop: 20, textAlign: 'center', lineHeight: 1.6 }}>
-          By signing in, you agree to WorkTrack's terms of service
+        <p style={{ fontSize: 12, color: '#94a3b8', marginTop: 20, textAlign: 'center', lineHeight: 1.6 }}>
+          By signing in, you agree to Taurus Go's terms of service
         </p>
       </div>
     </div>
@@ -127,8 +124,8 @@ function LoginPage() {
 }
 
 const inSt = {
-  width: '100%', padding: '10px 12px', borderRadius: 8,
-  border: '1px solid #e2e8f0', fontSize: 13, outline: 'none',
+  width: '100%', padding: '11px 12px', borderRadius: 8,
+  border: '1px solid #e2e8f0', fontSize: 15, outline: 'none',
   boxSizing: 'border-box', color: '#0f172a', background: '#fff',
 }
 

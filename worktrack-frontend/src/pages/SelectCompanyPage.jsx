@@ -41,7 +41,7 @@ export default function SelectCompanyPage() {
     <div style={{ minHeight: '100vh', background: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
       <div style={{ width: '100%', maxWidth: 460, background: '#fff', border: '1px solid #e2e8f0', borderRadius: 16, boxShadow: '0 4px 24px rgba(0,0,0,0.06)', padding: '32px 28px' }}>
         <h1 style={{ fontSize: 20, fontWeight: 700, color: '#0f172a', margin: 0 }}>Choose a workspace</h1>
-        <p style={{ fontSize: 13, color: '#64748b', marginTop: 8, marginBottom: 22 }}>
+        <p style={{ fontSize: 14, color: '#64748b', marginTop: 8, marginBottom: 22 }}>
           You belong to more than one company. Pick one to continue.
         </p>
 
@@ -56,22 +56,22 @@ export default function SelectCompanyPage() {
                   background: '#fff', border: '1px solid #e2e8f0', borderRadius: 10, padding: '14px 16px',
                   cursor: busy !== null ? 'default' : 'pointer', width: '100%',
                 }}>
-                <div style={{ width: 38, height: 38, borderRadius: 9, background: '#eef2ff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                  <Building2 size={18} color="#4f46e5" />
+                <div style={{ width: 38, height: 38, borderRadius: 9, background: '#EAF7EE', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <Building2 size={18} color="#16A34A" />
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 14, fontWeight: 600, color: '#0f172a', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  <div style={{ fontSize: 15, fontWeight: 600, color: '#0f172a', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {m.companyName || `Company #${m.companyId}`}
                   </div>
-                  <span style={{ fontSize: 11, fontWeight: 600, color: rs.color, background: rs.bg, padding: '2px 8px', borderRadius: 999, display: 'inline-block', marginTop: 4 }}>{rs.label}</span>
+                  <span style={{ fontSize: 12, fontWeight: 600, color: rs.color, background: rs.bg, padding: '2px 8px', borderRadius: 999, display: 'inline-block', marginTop: 4 }}>{rs.label}</span>
                 </div>
-                {loading ? <span style={{ fontSize: 12, color: '#94a3b8' }}>…</span> : <ArrowRight size={16} color="#cbd5e1" />}
+                {loading ? <span style={{ fontSize: 13, color: '#94a3b8' }}>…</span> : <ArrowRight size={16} color="#cbd5e1" />}
               </button>
             )
           })}
         </div>
 
-        {error && <p style={{ fontSize: 12, color: '#ef4444', marginTop: 14 }}>{error}</p>}
+        {error && <p style={{ fontSize: 13, color: '#ef4444', marginTop: 14 }}>{error}</p>}
       </div>
     </div>
   )
