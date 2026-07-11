@@ -16,6 +16,7 @@ import EngagementPage from './pages/EngagementPage'
 import AnalyticsPage from './pages/AnalyticsPage'
 import SettingsPage from './pages/SettingsPage'
 import OnboardingPage from './pages/OnboardingPage'
+import AcceptInvitePage from './pages/AcceptInvitePage'
 import PlatformAdminPage from './pages/PlatformAdminPage'
 import AccessDeniedPage from './pages/AccessDeniedPage'
 import { isPlatformOwner } from './auth/roles'
@@ -64,6 +65,8 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
+        {/* Invite accept — public (login se pehle bhi khule) */}
+        <Route path="/accept-invite" element={<AcceptInvitePage />} />
 
         <Route element={<PrivateRoute />}>
           {/* Onboarding — full page, no sidebar */}

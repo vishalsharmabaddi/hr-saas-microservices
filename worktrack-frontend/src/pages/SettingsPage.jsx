@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Building2, Save, Check, Layers, Users, ArrowRight } from 'lucide-react'
-import { getAppMembers, ROLE_STYLE } from '../auth/roles'
+import { ROLE_STYLE } from '../auth/roles'
 import api from '../api/axios'
 
 export default function SettingsPage() {
@@ -32,9 +32,14 @@ export default function SettingsPage() {
     .map(([name, count]) => ({ name, count }))
     .sort((a, b) => b.count - a.count)
 
-  // App-level members (login roles) — localStorage se, current user (owner) sabse upar
+  // App-level members (login roles) — real /api/team se, current user (owner) sabse upar
   const currentUser = JSON.parse(localStorage.getItem('wt_user') || '{}')
-  const appMembers = getAppMembers()
+  const { data: teamMembers = [] } = useQuery({
+    queryKey: ['team'],
+    queryFn: () => api.get('/team').then(r => Array.isArray(r.data) ? r.data : []),
+  })
+  // owner apni alag row me dikhta hai — list se self hata do (duplicate na ho)
+  const otherMembers = teamMembers.filter(m => m.email?.toLowerCase() !== currentUser.email?.toLowerCase())
 
   const [form, setForm] = useState({ name: '', domain: '', logoUrl: '' })
   const [saved, setSaved] = useState(false)
@@ -191,12 +196,12 @@ export default function SettingsPage() {
           />
 
           {/* Admin-assigned members */}
-          {appMembers.map(m => (
-            <MemberRow key={m.email} name={m.name || m.email?.split('@')[0]} email={m.email} role={m.role} />
+          {otherMembers.map(m => (
+            <MemberRow key={m.id} name={m.name || m.email?.split('@')[0]} email={m.email} role={m.role} />
           ))}
         </div>
 
-        {appMembers.length === 0 && (
+        {otherMembers.length === 0 && (
           <p style={{ fontSize: 12, color: '#94a3b8', marginTop: 12 }}>
             No additional members yet. Use <Link to="/members" style={{ color: '#4f46e5' }}>Members → App Access</Link> to invite people and assign roles.
           </p>

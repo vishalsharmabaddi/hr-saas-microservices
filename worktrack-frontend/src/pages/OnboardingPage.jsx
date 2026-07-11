@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Rocket, Building2, Users, ArrowRight, ArrowLeft, Check, Plus, X, Mail } from 'lucide-react'
 import api from '../api/axios'
-import { addAppMember, ROLE_STYLE } from '../auth/roles'
+import { ROLE_STYLE } from '../auth/roles'
 
 const STEPS = [
   { key: 'welcome', label: 'Welcome' },
@@ -62,7 +62,7 @@ export default function OnboardingPage() {
     },
   })
 
-  // ── O3: Invite team (reuse addAppMember) ───────────────────
+  // ── O3: Invite team (real /api/team on finish) ─────────────
   const [invites, setInvites] = useState([])
   const [inviteForm, setInviteForm] = useState({ email: '', role: 'EMPLOYEE' })
 
@@ -76,8 +76,12 @@ export default function OnboardingPage() {
     setInvites(list => list.filter(i => i.email !== email))
   }
 
-  function finish() {
-    invites.forEach(i => addAppMember(i.email, i.role))   // localStorage me roles save
+  async function finish() {
+    // Real memberships banao — company banne ke baad token ADMIN + companyId rakhta hai.
+    // allSettled: koi ek invite fail ho (jaise duplicate) to baaki na rukein.
+    await Promise.allSettled(
+      invites.map(i => api.post('/team', { email: i.email, role: i.role }))
+    )
     localStorage.setItem('wt_onboarded', 'true')          // dobara onboarding na dikhe
     navigate('/dashboard')
   }

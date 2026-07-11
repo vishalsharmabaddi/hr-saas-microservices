@@ -1,8 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
-import { Users, Plus, Trash2, Shield, Mail } from 'lucide-react'
+import { Users, Plus, Trash2, Shield, Mail, Link2, Copy, Check } from 'lucide-react'
 import api from '../api/axios'
-import { getAppMembers, addAppMember, removeAppMember } from '../auth/roles'
 
 const PROJECT_ROLES = ['PROJECT_MANAGER', 'TEAM_MEMBER', 'CLIENT']
 const APP_ROLES     = ['ADMIN', 'MANAGER', 'EMPLOYEE']
@@ -29,8 +28,9 @@ export default function MembersPage() {
   const [showAddProject, setShowAddProject] = useState(false)
   const [projectForm, setProjectForm]     = useState({ employeeId: '', role: 'TEAM_MEMBER' })
   const [appForm, setAppForm]             = useState({ email: '', name: '', role: 'EMPLOYEE' })
-  const [appMembers, setAppMembers]       = useState(getAppMembers())
   const [appError, setAppError]           = useState('')
+  const [inviteLink, setInviteLink]       = useState('')
+  const [copied, setCopied]               = useState(false)
   const queryClient = useQueryClient()
 
   const { data: projects = [] } = useQuery({
@@ -66,21 +66,59 @@ export default function MembersPage() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['members', activeProjectId] }),
   })
 
+  // ── App Access = real company memberships (/api/team) ──
+  const { data: teamMembers = [] } = useQuery({
+    queryKey: ['team'],
+    queryFn: () => api.get('/team').then(r => Array.isArray(r.data) ? r.data : []),
+    enabled: isAdmin && activeTab === 'access',
+  })
+
+  // Pending invites (jinhone abhi accept nahi kiya)
+  const { data: pendingInvites = [] } = useQuery({
+    queryKey: ['pendingInvites'],
+    queryFn: () => api.get('/team/invites').then(r => Array.isArray(r.data) ? r.data : []),
+    enabled: isAdmin && activeTab === 'access',
+  })
+
+  const inviteMutation = useMutation({
+    mutationFn: (data) => api.post('/team', data).then(r => r.data),
+    onSuccess: (invite) => {
+      queryClient.invalidateQueries({ queryKey: ['pendingInvites'] })
+      // Copy-link: backend token deta hai, usse accept-link banao
+      setInviteLink(`${window.location.origin}/accept-invite?token=${invite.token}`)
+      setCopied(false)
+      setAppForm({ email: '', name: '', role: 'EMPLOYEE' })
+      setAppError('')
+    },
+    onError: (err) => setAppError(err.response?.data?.message || 'Failed to create invite'),
+  })
+
+  const revokePendingMutation = useMutation({
+    mutationFn: (id) => api.delete(`/team/invites/${id}`),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['pendingInvites'] }),
+  })
+
+  function copyLink(link) {
+    navigator.clipboard?.writeText(link)
+    setInviteLink(link)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
+  const roleMutation = useMutation({
+    mutationFn: ({ id, role }) => api.put(`/team/${id}`, { role }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['team'] }),
+  })
+
+  const removeTeamMutation = useMutation({
+    mutationFn: (id) => api.delete(`/team/${id}`),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['team'] }),
+  })
+
   function handleAddAppMember() {
     if (!appForm.email) { setAppError('Email required'); return }
     if (!appForm.email.includes('@')) { setAppError('Valid email required'); return }
-    if (appForm.email.toLowerCase() === 'vishalsharmabaddi@gmail.com') {
-      setAppError('Super admin cannot be modified'); return
-    }
-    addAppMember(appForm.email, appForm.role, appForm.name)
-    setAppMembers(getAppMembers())
-    setAppForm({ email: '', name: '', role: 'EMPLOYEE' })
-    setAppError('')
-  }
-
-  function handleRemoveAppMember(email) {
-    removeAppMember(email)
-    setAppMembers(getAppMembers())
+    inviteMutation.mutate({ email: appForm.email, name: appForm.name, role: appForm.role })
   }
 
   return (
@@ -247,17 +285,60 @@ export default function MembersPage() {
                   {APP_ROLES.map(r => <option key={r} value={r}>{appRoleStyle[r].label}</option>)}
                 </select>
               </div>
-              <button onClick={handleAddAppMember} style={{ background: '#4f46e5', color: '#fff', border: 'none', borderRadius: 8, padding: '8px 16px', fontSize: 13, fontWeight: 500, cursor: 'pointer', whiteSpace: 'nowrap' }}>
-                {appMembers.some(m => m.email?.toLowerCase() === appForm.email?.toLowerCase()) ? 'Update' : 'Add'}
+              <button onClick={handleAddAppMember} disabled={inviteMutation.isPending} style={{ background: '#4f46e5', color: '#fff', border: 'none', borderRadius: 8, padding: '8px 16px', fontSize: 13, fontWeight: 500, cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                {inviteMutation.isPending ? 'Creating…' : 'Create invite'}
               </button>
             </div>
             {appError && <p style={{ fontSize: 12, color: '#ef4444', marginTop: 8 }}>{appError}</p>}
             <p style={{ fontSize: 11, color: '#94a3b8', marginTop: 10 }}>
-              This person will receive the assigned role automatically when they sign in.
+              An invite link is created. Share it with them — they join after signing in with this exact email.
             </p>
+
+            {/* Copy-link box — invite banne ke baad */}
+            {inviteLink && (
+              <div style={{ marginTop: 12, background: '#eef2ff', border: '1px solid #c7d2fe', borderRadius: 8, padding: '10px 12px' }}>
+                <div style={{ fontSize: 11, fontWeight: 600, color: '#4338ca', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 5 }}>
+                  <Link2 size={13} /> Invite link ready — share it with them
+                </div>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <input readOnly value={inviteLink} onFocus={e => e.target.select()}
+                    style={{ flex: 1, padding: '7px 10px', borderRadius: 6, border: '1px solid #c7d2fe', fontSize: 12, background: '#fff', color: '#334155' }} />
+                  <button onClick={() => copyLink(inviteLink)}
+                    style={{ display: 'flex', alignItems: 'center', gap: 4, background: '#4f46e5', color: '#fff', border: 'none', borderRadius: 6, padding: '0 12px', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
+                    {copied ? <><Check size={13} /> Copied</> : <><Copy size={13} /> Copy</>}
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
-          {/* Members list */}
+          {/* Pending invites — abhi tak accept nahi hue */}
+          {pendingInvites.length > 0 && (
+            <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, overflow: 'hidden', marginBottom: 20 }}>
+              <div style={{ padding: '12px 20px', borderBottom: '1px solid #f1f5f9', background: '#fffbeb', fontSize: 12, fontWeight: 600, color: '#92400e' }}>
+                Pending Invites ({pendingInvites.length}) — waiting to be accepted
+              </div>
+              {pendingInvites.map((inv, i) => (
+                <div key={inv.id} style={{ display: 'grid', gridTemplateColumns: '1fr 110px 80px 44px', padding: '12px 20px', alignItems: 'center', gap: 8, borderBottom: i < pendingInvites.length - 1 ? '1px solid #f8fafc' : 'none' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <Mail size={13} color="#94a3b8" />
+                    <span style={{ fontSize: 13, color: '#0f172a' }}>{inv.email}</span>
+                  </div>
+                  <span style={{ fontSize: 11, fontWeight: 600, color: '#64748b' }}>{appRoleStyle[inv.role]?.label || inv.role}</span>
+                  <button onClick={() => copyLink(`${window.location.origin}/accept-invite?token=${inv.token}`)}
+                    style={{ display: 'flex', alignItems: 'center', gap: 4, background: '#eef2ff', color: '#4f46e5', border: 'none', borderRadius: 6, padding: '5px 8px', fontSize: 12, fontWeight: 600, cursor: 'pointer', justifySelf: 'start' }}>
+                    <Link2 size={13} /> Copy
+                  </button>
+                  <button onClick={() => revokePendingMutation.mutate(inv.id)}
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#cbd5e1', padding: 4, justifySelf: 'end' }} title="Cancel invite">
+                    <Trash2 size={14} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Active members list */}
           <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, overflow: 'hidden' }}>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 160px 140px 48px', padding: '12px 20px', borderBottom: '1px solid #f1f5f9', background: '#f8fafc' }}>
               {['Email', 'Name', 'Role', ''].map(col => (
@@ -265,34 +346,35 @@ export default function MembersPage() {
               ))}
             </div>
 
-            {/* Super admin row (always there) */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 160px 140px 48px', padding: '14px 20px', alignItems: 'center', borderBottom: '1px solid #f8fafc' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <Mail size={13} color="#94a3b8" />
-                <span style={{ fontSize: 13, color: '#0f172a' }}>vishalsharmabaddi@gmail.com</span>
-              </div>
-              <span style={{ fontSize: 13, color: '#64748b' }}>Vishal (You)</span>
-              <span style={{ fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 6, background: '#eef2ff', color: '#4f46e5', display: 'inline-block' }}>Admin</span>
-              <span style={{ fontSize: 11, color: '#94a3b8' }}>—</span>
-            </div>
-
-            {appMembers.length === 0 ? (
+            {teamMembers.length === 0 ? (
               <div style={{ padding: '40px 24px', textAlign: 'center', color: '#94a3b8', fontSize: 13 }}>
-                No members added yet. Add someone above to give them access.
+                No members yet. Add someone above to give them access.
               </div>
-            ) : appMembers.map((m, i) => {
+            ) : teamMembers.map((m, i) => {
               const rs = appRoleStyle[m.role] || appRoleStyle.EMPLOYEE
+              const isSelf = m.email?.toLowerCase() === currentUser.email?.toLowerCase()
               return (
-                <div key={m.email} style={{ display: 'grid', gridTemplateColumns: '1fr 160px 140px 48px', padding: '14px 20px', alignItems: 'center', borderBottom: i < appMembers.length - 1 ? '1px solid #f8fafc' : 'none' }}>
+                <div key={m.id} style={{ display: 'grid', gridTemplateColumns: '1fr 160px 140px 48px', padding: '14px 20px', alignItems: 'center', borderBottom: i < teamMembers.length - 1 ? '1px solid #f8fafc' : 'none' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <Mail size={13} color="#94a3b8" />
-                    <span style={{ fontSize: 13, color: '#0f172a' }}>{m.email}</span>
+                    <span style={{ fontSize: 13, color: '#0f172a' }}>{m.email}{isSelf && ' (You)'}</span>
                   </div>
                   <span style={{ fontSize: 13, color: '#64748b' }}>{m.name || '—'}</span>
-                  <span style={{ fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 6, background: rs.background, color: rs.color, display: 'inline-block' }}>{rs.label}</span>
-                  <button onClick={() => handleRemoveAppMember(m.email)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#cbd5e1', padding: 4 }} title="Remove access">
-                    <Trash2 size={14} />
-                  </button>
+                  {isSelf ? (
+                    <span style={{ fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 6, background: rs.background, color: rs.color, display: 'inline-block', width: 'fit-content' }}>{rs.label}</span>
+                  ) : (
+                    <select value={m.role} onChange={e => roleMutation.mutate({ id: m.id, role: e.target.value })}
+                      style={{ padding: '4px 8px', borderRadius: 6, border: '1px solid #e2e8f0', fontSize: 12, background: '#fff', color: rs.color, fontWeight: 600, cursor: 'pointer', width: 'fit-content' }}>
+                      {APP_ROLES.map(r => <option key={r} value={r}>{appRoleStyle[r].label}</option>)}
+                    </select>
+                  )}
+                  {isSelf ? (
+                    <span style={{ fontSize: 11, color: '#cbd5e1', textAlign: 'center' }}>—</span>
+                  ) : (
+                    <button onClick={() => removeTeamMutation.mutate(m.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#cbd5e1', padding: 4 }} title="Remove access">
+                      <Trash2 size={14} />
+                    </button>
+                  )}
                 </div>
               )
             })}

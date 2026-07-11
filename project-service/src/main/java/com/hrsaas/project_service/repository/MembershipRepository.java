@@ -15,4 +15,7 @@ public interface MembershipRepository extends JpaRepository<Membership, Long> {
 
     // Duplicate rokne ke liye — pehle se member hai kya?
     boolean existsByEmailAndCompanyId(String email, Long companyId);
+
+    // Ek company ke saare members (team list ke liye)
+    List<Membership> findByCompanyId(Long companyId);
 }

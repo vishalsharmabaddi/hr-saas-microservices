@@ -34,6 +34,9 @@ public class Membership {
     @Column(nullable = false)
     private String role;
 
+    // optional — invite ke waqt admin bhar sakta hai; login pe Google se asli naam aata hai
+    private String name;
+
     @Column(updatable = false)
     private LocalDateTime createdAt;
 

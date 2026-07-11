@@ -22,7 +22,14 @@ function LoginPage() {
       const { data } = await api.post('/auth/google', { token })
       const primary = data.memberships?.[0] || null   // abhi pehli company; multi-company picker baad me
       const isNewUser = !data.memberships || data.memberships.length === 0
+      const pendingInvite = data.pendingInvites?.[0] || null   // koi invite jo accept hona baaki hai
       localStorage.setItem('wt_token', data.token)     // humara backend JWT (wristband)
+      // Naya user: pending invite hai → accept karo; warna apni company banao (M5)
+      const dest = !isNewUser
+        ? '/dashboard'
+        : pendingInvite
+          ? `/accept-invite?token=${pendingInvite.inviteToken}`
+          : '/onboarding'
       saveAndGo({
         name: data.name,
         email: data.email,
@@ -31,7 +38,7 @@ function LoginPage() {
         role: primary?.role || null,                  // company banne tak koi role nahi
         companyId: primary?.companyId ?? null,
         memberships: data.memberships || [],
-      }, isNewUser ? '/onboarding' : '/dashboard')      // naya user → apni company banaye (M5)
+      }, dest)
     } catch (err) {
       setError('Login verification failed. Please try again.')
     }

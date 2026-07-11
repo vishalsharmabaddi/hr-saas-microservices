@@ -1,5 +1,6 @@
 package com.hrsaas.project_service.controller;
 
+import com.hrsaas.project_service.dto.AcceptInviteRequest;
 import com.hrsaas.project_service.dto.AuthResponse;
 import com.hrsaas.project_service.dto.GoogleAuthRequest;
 import com.hrsaas.project_service.dto.RegisterCompanyRequest;
@@ -26,5 +27,12 @@ public class AuthController {
     public ResponseEntity<AuthResponse> registerCompany(@RequestBody RegisterCompanyRequest request) {
         return ResponseEntity.ok(
                 authService.registerCompany(request.getToken(), request.getCompanyName(), request.getDomain()));
+    }
+
+    // Invite accept: Google login + invite token → membership banti hai + naya token
+    @PostMapping("/accept-invite")
+    public ResponseEntity<AuthResponse> acceptInvite(@RequestBody AcceptInviteRequest request) {
+        return ResponseEntity.ok(
+                authService.acceptInvite(request.getGoogleToken(), request.getInviteToken()));
     }
 }

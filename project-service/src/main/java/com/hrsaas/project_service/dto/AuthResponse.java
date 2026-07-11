@@ -16,4 +16,5 @@ public class AuthResponse {
     private String picture;
     private List<MembershipInfo> memberships;
     private String token;              // M3: humara signed JWT (wristband)
+    private List<PendingInviteInfo> pendingInvites;   // koi pending invite? (login pe route decide karne ke liye)
 }
