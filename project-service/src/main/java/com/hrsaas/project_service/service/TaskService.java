@@ -2,6 +2,7 @@ package com.hrsaas.project_service.service;
 
 import com.hrsaas.project_service.dto.TaskRequest;
 import com.hrsaas.project_service.dto.TaskResponse;
+import com.hrsaas.project_service.enums.TaskStatus;
 import com.hrsaas.project_service.exception.ResourceNotFoundException;
 import com.hrsaas.project_service.model.Task;
 import com.hrsaas.project_service.model.TaskList;
@@ -10,7 +11,9 @@ import com.hrsaas.project_service.repository.TaskAssigneeRepository;
 import com.hrsaas.project_service.repository.TaskListRepository;
 import com.hrsaas.project_service.repository.TaskRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 
 @Service
@@ -21,7 +24,7 @@ public class TaskService {
     private final TaskListRepository taskListRepository;
     private final TaskEventProducer taskEventProducer;
 
-    public TaskResponse createTask(Long companyId, TaskRequest request) {
+    public TaskResponse createTask(Long companyId, TaskRequest request, String createdByEmail) {
         TaskList taskList = taskListRepository.findById(request.getTaskListId())
             .filter(t -> t.getCompanyId().equals(companyId))
             .orElseThrow(() -> new ResourceNotFoundException("TaskList not found: " + request.getTaskListId()));
@@ -34,6 +37,7 @@ public class TaskService {
         task.setPriority(request.getPriority());
         task.setDueDate(request.getDueDate());
         task.setEstimatedHours(request.getEstimatedHours());
+        task.setCreatedByEmail(createdByEmail);     // ownership ke liye — kisne banaya
         TaskResponse response = toResponse(taskRepository.save(task));
         // Kafka event — notification-service ko batao
         taskEventProducer.sendTaskAssignedEvent(response.getId(), companyId, request.getTitle());
@@ -52,15 +56,33 @@ public class TaskService {
         return toResponse(task);
     }
 
-    public TaskResponse updateTask(Long companyId, Long taskId, TaskRequest request) {
+    public TaskResponse updateTask(Long companyId, Long taskId, TaskRequest request, String role, String email) {
         Task task = taskRepository.findById(taskId)
             .filter(t -> t.getCompanyId().equals(companyId))
             .orElseThrow(() -> new ResourceNotFoundException("Task not found: " + taskId));
+
+        // Ownership: sirf MANAGER+ ya jisne task banaya wahi edit kar sakta hai
+        boolean isManager = "ADMIN".equalsIgnoreCase(role) || "MANAGER".equalsIgnoreCase(role);
+        boolean isOwner = task.getCreatedByEmail() != null && task.getCreatedByEmail().equalsIgnoreCase(email);
+        if (!isManager && !isOwner) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                "Only the task creator or a manager can edit this task");
+        }
+
         task.setTitle(request.getTitle());
         task.setDescription(request.getDescription());
         task.setPriority(request.getPriority());
         task.setDueDate(request.getDueDate());
         task.setEstimatedHours(request.getEstimatedHours());
+        return toResponse(taskRepository.save(task));
+    }
+
+    // Status-only update — sabke liye khula (collaborative). Ownership yahan nahi lagti.
+    public TaskResponse updateStatus(Long companyId, Long taskId, TaskStatus status) {
+        Task task = taskRepository.findById(taskId)
+            .filter(t -> t.getCompanyId().equals(companyId))
+            .orElseThrow(() -> new ResourceNotFoundException("Task not found: " + taskId));
+        task.setStatus(status);
         return toResponse(taskRepository.save(task));
     }
 
@@ -82,6 +104,7 @@ public class TaskService {
         res.setPriority(t.getPriority());
         res.setDueDate(t.getDueDate());
         res.setEstimatedHours(t.getEstimatedHours());
+        res.setCreatedByEmail(t.getCreatedByEmail());
         res.setCreatedAt(t.getCreatedAt());
         return res;
     }

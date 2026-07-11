@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { FolderKanban, Plus, Calendar, Users, Search } from 'lucide-react'
 import api from '../api/axios'
 import NewProjectModal from '../components/NewProjectModal'
+import { canManage } from '../auth/roles'
 
 function projectCode(name, id) {
   const letters = (name || '').replace(/[aeiou\s]/gi, '').toUpperCase().slice(0, 3) || name.slice(0, 2).toUpperCase()
@@ -72,6 +73,8 @@ export default function ProjectsPage() {
     queryFn: () => api.get('/projects').then(r => Array.isArray(r.data) ? r.data : []),
   })
 
+  const canManageProject = canManage(JSON.parse(localStorage.getItem('wt_user') || '{}').role)
+
   const filtered = projects.filter(p =>
     p.name.toLowerCase().includes(search.toLowerCase()) ||
     projectCode(p.name, p.id).toLowerCase().includes(search.toLowerCase())
@@ -91,6 +94,7 @@ export default function ProjectsPage() {
             {isLoading ? 'Loading…' : `${filtered.length} of ${projects.length} project${projects.length !== 1 ? 's' : ''}`}
           </p>
         </div>
+        {canManageProject && (
         <button onClick={() => setShowModal(true)} style={{
           display: 'flex', alignItems: 'center', gap: 6,
           background: '#4f46e5', color: '#fff',
@@ -101,6 +105,7 @@ export default function ProjectsPage() {
           <Plus size={14} />
           New Project
         </button>
+        )}
       </div>
 
       {/* Search bar */}

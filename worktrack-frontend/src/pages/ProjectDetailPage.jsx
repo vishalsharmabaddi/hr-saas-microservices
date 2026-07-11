@@ -31,6 +31,7 @@ export default function ProjectDetailPage() {
   const [editForm, setEditForm] = useState({ title: '', description: '', priority: 'MEDIUM', dueDate: '' })
   const [showStatusMenu, setShowStatusMenu] = useState(false)
   const canManageProject = canManage(JSON.parse(localStorage.getItem('wt_user') || '{}').role)
+  const currentEmail = (JSON.parse(localStorage.getItem('wt_user') || '{}').email || '').toLowerCase()
   const [loggingTaskId, setLoggingTaskId] = useState(null)
   const [logForm, setLogForm] = useState({ logDate: new Date().toISOString().slice(0, 10), hoursLogged: '', notes: '' })
   const [xpToast, setXpToast] = useState({ show: false, xp: 0, streak: 0, level: '' })
@@ -139,8 +140,7 @@ export default function ProjectDetailPage() {
   })
 
   const toggleStatus = useMutation({
-    mutationFn: ({ taskId, currentStatus }) => api.put(`/tasks/${taskId}`, {
-      taskListId: defaultList?.id,
+    mutationFn: ({ taskId, currentStatus }) => api.patch(`/tasks/${taskId}/status`, {
       status: currentStatus === 'OPEN' ? 'IN_PROGRESS' : currentStatus === 'IN_PROGRESS' ? 'COMPLETED' : 'OPEN',
     }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['tasks'] }),
@@ -216,19 +216,19 @@ export default function ProjectDetailPage() {
           {/* Status badge — click to change */}
           <div style={{ position: 'relative', flexShrink: 0 }}>
             <button
-              onClick={() => setShowStatusMenu(v => !v)}
+              onClick={() => canManageProject && setShowStatusMenu(v => !v)}
               style={{
                 fontSize: 12, fontWeight: 500, padding: '4px 12px', borderRadius: 8,
                 background: status.bg, color: status.color,
                 border: `1px solid ${status.color}30`,
-                cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6,
+                cursor: canManageProject ? 'pointer' : 'default', display: 'flex', alignItems: 'center', gap: 6,
               }}
             >
               {project?.status?.replace('_', ' ')}
-              <span style={{ fontSize: 10 }}>▾</span>
+              {canManageProject && <span style={{ fontSize: 10 }}>▾</span>}
             </button>
 
-            {showStatusMenu && (
+            {showStatusMenu && canManageProject && (
               <div style={{
                 position: 'absolute', right: 0, top: 'calc(100% + 6px)',
                 background: '#fff', border: '1px solid #e2e8f0', borderRadius: 10,
@@ -410,6 +410,7 @@ export default function ProjectDetailPage() {
                 const p = priorityColors[task.priority] || priorityColors.MEDIUM
                 const isDone = task.status === 'COMPLETED'
                 const isEditing = editingTaskId === task.id
+                const isTaskOwner = (task.createdByEmail || '').toLowerCase() === currentEmail
 
                 if (isEditing) {
                   return (
@@ -541,7 +542,7 @@ export default function ProjectDetailPage() {
                       >
                         <Timer size={14} />
                       </button>
-                      {isEditable && (<>
+                      {isEditable && (canManageProject || isTaskOwner) && (
                         <button
                           onClick={() => startEdit(task)}
                           style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8', padding: 4, display: 'flex' }}
@@ -549,7 +550,8 @@ export default function ProjectDetailPage() {
                         >
                           <Pencil size={14} />
                         </button>
-                        {canManageProject && (
+                      )}
+                      {isEditable && canManageProject && (
                         <button
                           onClick={() => { if (window.confirm(`Delete "${task.title}"?`)) deleteTask.mutate(task.id) }}
                           style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#fca5a5', padding: 4, display: 'flex' }}
@@ -557,8 +559,7 @@ export default function ProjectDetailPage() {
                         >
                           <Trash2 size={14} />
                         </button>
-                        )}
-                      </>)}
+                      )}
                     </div>
                   </div>
 

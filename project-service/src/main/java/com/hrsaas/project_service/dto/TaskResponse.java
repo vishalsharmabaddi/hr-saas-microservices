@@ -17,5 +17,6 @@ public class TaskResponse {
     private Priority priority;
     private LocalDate dueDate;
     private Double estimatedHours;
+    private String createdByEmail;
     private LocalDateTime createdAt;
 }

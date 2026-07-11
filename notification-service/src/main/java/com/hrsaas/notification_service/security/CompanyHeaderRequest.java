@@ -5,31 +5,30 @@ import jakarta.servlet.http.HttpServletRequestWrapper;
 
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.Map;
 
-// Request ke upar ek "cover" — X-Company-Id maango toh HAMESHA token wala companyId milega,
-// client ne jo bheja tha wo dikhega hi nahi. Isse spoofing rukti hai.
+// Request ke upar "cover" — kuch headers (X-Company-Id, X-User-Role, X-User-Email)
+// verified token se force kar dete hain. Client ne jo bheja tha wo dikhega hi nahi.
 public class CompanyHeaderRequest extends HttpServletRequestWrapper {
 
-    private static final String HEADER = "X-Company-Id";
-    private final String companyId;
+    private final Map<String, String> overrides;   // header name (lowercase) -> value
 
-    public CompanyHeaderRequest(HttpServletRequest request, String companyId) {
+    public CompanyHeaderRequest(HttpServletRequest request, Map<String, String> overrides) {
         super(request);
-        this.companyId = companyId;
+        this.overrides = overrides;
     }
 
     @Override
     public String getHeader(String name) {
-        if (HEADER.equalsIgnoreCase(name)) {
-            return companyId;                       // token wala — client ka nahi
-        }
-        return super.getHeader(name);
+        String v = overrides.get(name.toLowerCase());
+        return v != null ? v : super.getHeader(name);   // token wala — client ka nahi
     }
 
     @Override
     public Enumeration<String> getHeaders(String name) {
-        if (HEADER.equalsIgnoreCase(name)) {
-            return Collections.enumeration(Collections.singletonList(companyId));
+        String v = overrides.get(name.toLowerCase());
+        if (v != null) {
+            return Collections.enumeration(Collections.singletonList(v));
         }
         return super.getHeaders(name);
     }

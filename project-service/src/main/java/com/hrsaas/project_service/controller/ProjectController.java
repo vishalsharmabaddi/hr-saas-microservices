@@ -3,6 +3,7 @@ package com.hrsaas.project_service.controller;
 import com.hrsaas.project_service.dto.ProjectRequest;
 import com.hrsaas.project_service.dto.ProjectResponse;
 import com.hrsaas.project_service.service.ProjectService;
+import com.hrsaas.project_service.security.RoleGuard;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.http.HttpStatus;
@@ -21,7 +22,9 @@ public class ProjectController {
     @PostMapping
     public ResponseEntity<ProjectResponse> createProject(
             @RequestHeader("X-Company-Id") Long companyId,
+            @RequestHeader(value = "X-User-Role", required = false) String role,
             @RequestBody ProjectRequest request) {
+        RoleGuard.requireManager(role);
         return ResponseEntity.status(HttpStatus.CREATED)
             .body(projectService.createProject(companyId, request));
     }
@@ -42,8 +45,10 @@ public class ProjectController {
     @PutMapping("/{id}")
     public ResponseEntity<ProjectResponse> updateProject(
             @RequestHeader("X-Company-Id") Long companyId,
+            @RequestHeader(value = "X-User-Role", required = false) String role,
             @PathVariable Long id,
             @RequestBody ProjectRequest request) {
+        RoleGuard.requireManager(role);
         return ResponseEntity.ok(projectService.updateProject(companyId, id, request));
     }
 }

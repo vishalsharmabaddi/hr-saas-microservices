@@ -43,6 +43,7 @@ public class Task {
 
     private LocalDate dueDate;
     private Long createdByEmployeeId;
+    private String createdByEmail;      // token wale user ka email — ownership check ke liye
     private Double estimatedHours;
 
     @Column(updatable = false)

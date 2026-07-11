@@ -10,6 +10,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 // Har request se pehle chalta hai. Token verify karke companyId nikaalta hai aur
 // request ko wrap karke X-Company-Id ko token wale value se force kar deta hai.
@@ -48,8 +50,14 @@ public class TenantFilter extends OncePerRequestFilter {
                 response.sendError(HttpServletResponse.SC_FORBIDDEN, "No company in token");
                 return;
             }
-            // X-Company-Id ko token wale companyId se force karo, phir aage bhejo
-            HttpServletRequest wrapped = new CompanyHeaderRequest(request, String.valueOf(companyId));
+            // Token se companyId + role + email force karo (client ke bheje headers ignore)
+            Map<String, String> overrides = new HashMap<>();
+            overrides.put("x-company-id", String.valueOf(companyId));
+            Object role = claims.get("role");
+            if (role != null) overrides.put("x-user-role", String.valueOf(role));
+            if (claims.getSubject() != null) overrides.put("x-user-email", claims.getSubject());
+
+            HttpServletRequest wrapped = new CompanyHeaderRequest(request, overrides);
             chain.doFilter(wrapped, response);
         } catch (Exception e) {
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid token");
