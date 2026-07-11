@@ -45,11 +45,12 @@ public class GamificationService {
     private static final int LEGEND_THRESHOLD   = 1500;
 
     @Transactional
-    public void processTimeLog(Long employeeId, LocalDate logDate, double hoursLogged) {
-        // 1. Get or create employee XP record
-        EmployeeXP xp = xpRepo.findById(employeeId).orElseGet(() -> {
+    public void processTimeLog(Long companyId, String email, LocalDate logDate, double hoursLogged) {
+        // 1. Is company+email ka XP record lao ya naya banao
+        EmployeeXP xp = xpRepo.findByCompanyIdAndEmail(companyId, email).orElseGet(() -> {
             EmployeeXP fresh = new EmployeeXP();
-            fresh.setEmployeeId(employeeId);
+            fresh.setCompanyId(companyId);
+            fresh.setEmail(email);
             fresh.setLevel("ROOKIE");
             return fresh;
         });
@@ -69,17 +70,18 @@ public class GamificationService {
 
         // 5. Save history record
         XPHistory history = new XPHistory();
-        history.setEmployeeId(employeeId);
+        history.setCompanyId(companyId);
+        history.setEmail(email);
         history.setLogDate(logDate);
         history.setXpGained(earned);
         history.setReason(reason);
         historyRepo.save(history);
 
         // 6. Check and award badges
-        checkBadges(employeeId, xp.getCurrentStreak());
+        checkBadges(companyId, email, xp.getCurrentStreak());
 
-        log.info("XP processed → employeeId={} earned={}XP reason={} streak={} level={}",
-                employeeId, earned, reason, xp.getCurrentStreak(), xp.getLevel());
+        log.info("XP processed → company={} email={} earned={}XP reason={} streak={} level={}",
+                companyId, email, earned, reason, xp.getCurrentStreak(), xp.getLevel());
     }
 
     private void updateStreak(EmployeeXP xp, LocalDate logDate) {
@@ -110,41 +112,43 @@ public class GamificationService {
         return "ROOKIE";
     }
 
-    private void checkBadges(Long employeeId, int currentStreak) {
+    private void checkBadges(Long companyId, String email, int currentStreak) {
         // HOT_STREAK: 5 consecutive days
-        if (currentStreak >= 5 && !badgeRepo.existsByEmployeeIdAndBadgeType(employeeId, "HOT_STREAK")) {
-            awardBadge(employeeId, "HOT_STREAK");
+        if (currentStreak >= 5 && !badgeRepo.existsByCompanyIdAndEmailAndBadgeType(companyId, email, "HOT_STREAK")) {
+            awardBadge(companyId, email, "HOT_STREAK");
         }
         // IRON_STREAK: 30 consecutive days
-        if (currentStreak >= 30 && !badgeRepo.existsByEmployeeIdAndBadgeType(employeeId, "IRON_STREAK")) {
-            awardBadge(employeeId, "IRON_STREAK");
+        if (currentStreak >= 30 && !badgeRepo.existsByCompanyIdAndEmailAndBadgeType(companyId, email, "IRON_STREAK")) {
+            awardBadge(companyId, email, "IRON_STREAK");
         }
     }
 
-    private void awardBadge(Long employeeId, String badgeType) {
+    private void awardBadge(Long companyId, String email, String badgeType) {
         Badge badge = new Badge();
-        badge.setEmployeeId(employeeId);
+        badge.setCompanyId(companyId);
+        badge.setEmail(email);
         badge.setBadgeType(badgeType);
         badge.setEarnedAt(LocalDateTime.now());
         badgeRepo.save(badge);
-        log.info("Badge awarded → employeeId={} badge={}", employeeId, badgeType);
+        log.info("Badge awarded → company={} email={} badge={}", companyId, email, badgeType);
     }
 
     // ── REST API methods ─────────────────────────────────────────────────────
 
-    public GamificationSummary getSummary(Long employeeId) {
-        EmployeeXP xp = xpRepo.findById(employeeId).orElseGet(() -> {
+    public GamificationSummary getSummary(Long companyId, String email) {
+        EmployeeXP xp = xpRepo.findByCompanyIdAndEmail(companyId, email).orElseGet(() -> {
             EmployeeXP empty = new EmployeeXP();
-            empty.setEmployeeId(employeeId);
+            empty.setCompanyId(companyId);
+            empty.setEmail(email);
             empty.setLevel("ROOKIE");
             return empty;
         });
 
-        List<String> badges = badgeRepo.findByEmployeeId(employeeId)
+        List<String> badges = badgeRepo.findByCompanyIdAndEmail(companyId, email)
                 .stream().map(Badge::getBadgeType).collect(Collectors.toList());
 
         return new GamificationSummary(
-                employeeId,
+                email,
                 xp.getTotalXp(),
                 xp.getLevel(),
                 xp.getCurrentStreak(),
@@ -154,43 +158,43 @@ public class GamificationService {
         );
     }
 
-    public List<XPHistory> getHistory(Long employeeId) {
-        return historyRepo.findByEmployeeIdOrderByLogDateDesc(employeeId);
+    public List<XPHistory> getHistory(Long companyId, String email) {
+        return historyRepo.findByCompanyIdAndEmailOrderByLogDateDesc(companyId, email);
     }
 
-    public List<LeaderboardEntry> getLeaderboard() {
-        return xpRepo.findAll(PageRequest.of(0, 5,
-                        org.springframework.data.domain.Sort.by("totalXp").descending()))
+    public List<LeaderboardEntry> getLeaderboard(Long companyId) {
+        return xpRepo.findByCompanyIdOrderByTotalXpDesc(companyId, PageRequest.of(0, 5))
                 .stream()
-                .map(x -> new LeaderboardEntry(x.getEmployeeId(), x.getTotalXp(),
+                .map(x -> new LeaderboardEntry(x.getEmail(), x.getTotalXp(),
                         x.getLevel(), x.getCurrentStreak()))
                 .collect(Collectors.toList());
     }
 
-    public List<TeamMemberEngagement> getTeamEngagement() {
-        return xpRepo.findAll().stream()
+    public List<TeamMemberEngagement> getTeamEngagement(Long companyId) {
+        return xpRepo.findByCompanyId(companyId).stream()
                 .map(x -> {
-                    List<String> badges = badgeRepo.findByEmployeeId(x.getEmployeeId())
+                    List<String> badges = badgeRepo.findByCompanyIdAndEmail(companyId, x.getEmail())
                             .stream().map(Badge::getBadgeType).collect(Collectors.toList());
                     String status = x.getCurrentStreak() >= 3 ? "ON_FIRE"
                             : x.getCurrentStreak() > 0 ? "ACTIVE"
                             : "AT_RISK";
                     return new TeamMemberEngagement(
-                            x.getEmployeeId(), x.getTotalXp(), x.getLevel(),
+                            x.getEmail(), x.getTotalXp(), x.getLevel(),
                             x.getCurrentStreak(), x.getLongestStreak(), badges, status);
                 })
                 .sorted((a, b) -> b.getCurrentStreak() - a.getCurrentStreak())
                 .collect(Collectors.toList());
     }
 
-    public void sendNudge(Long employeeId, String employeeName) {
+    public void sendNudge(Long companyId, String email, String employeeName) {
         try {
             Map<String, Object> payload = new HashMap<>();
-            payload.put("employeeId", employeeId);
+            payload.put("companyId", companyId);
+            payload.put("email", email);
             payload.put("employeeName", employeeName);
             payload.put("message", "Your manager recognized your work — keep it up!");
             kafkaTemplate.send("employee-nudge", objectMapper.writeValueAsString(payload));
-            log.info("Nudge sent → employeeId={}", employeeId);
+            log.info("Nudge sent → company={} email={}", companyId, email);
         } catch (Exception e) {
             log.error("Failed to send nudge: {}", e.getMessage());
         }

@@ -8,7 +8,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 public class TeamMemberEngagement {
-    private Long employeeId;
+    private String email;
     private int totalXp;
     private String level;
     private int currentStreak;

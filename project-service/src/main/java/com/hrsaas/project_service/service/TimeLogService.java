@@ -23,7 +23,7 @@ public class TimeLogService {
     private final TaskRepository taskRepository;
     private final KafkaTemplate<String, String> kafkaTemplate;
 
-    public TimeLogResponse logTime(Long companyId, TimeLogRequest request) {
+    public TimeLogResponse logTime(Long companyId, String email, TimeLogRequest request) {
         Task task = taskRepository.findById(request.getTaskId())
             .filter(t -> t.getCompanyId().equals(companyId))
             .orElseThrow(() -> new ResourceNotFoundException("Task not found: " + request.getTaskId()));
@@ -37,11 +37,12 @@ public class TimeLogService {
         entry.setNotes(request.getNotes());
         TimeLog saved = timeLogRepository.save(entry);
 
-        // Kafka event → gamification-service XP calculate karega
+        // Kafka event → gamification-service XP calculate karega.
+        // Ab companyId + email carry karta hai (identity verified token se, employeeId=1 hardcode nahi).
         try {
             String event = String.format(
-                "{\"employeeId\":%d,\"logDate\":\"%s\",\"hoursLogged\":%.1f}",
-                saved.getEmployeeId(), saved.getLogDate(), saved.getHoursLogged()
+                "{\"companyId\":%d,\"email\":\"%s\",\"logDate\":\"%s\",\"hoursLogged\":%.1f}",
+                companyId, email, saved.getLogDate(), saved.getHoursLogged()
             );
             kafkaTemplate.send("timelog-submitted", event);
         } catch (Exception e) {

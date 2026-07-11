@@ -6,5 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface XPHistoryRepository extends JpaRepository<XPHistory, Long> {
-    List<XPHistory> findByEmployeeIdOrderByLogDateDesc(Long employeeId);
+    List<XPHistory> findByCompanyIdAndEmailOrderByLogDateDesc(Long companyId, String email);
 }

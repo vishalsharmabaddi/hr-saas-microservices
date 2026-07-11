@@ -19,36 +19,44 @@ public class GamificationController {
 
     private final GamificationService gamificationService;
 
-    // Employee ka XP, level, streak, badges summary
-    @GetMapping("/{employeeId}/summary")
-    public ResponseEntity<GamificationSummary> getSummary(@PathVariable Long employeeId) {
-        return ResponseEntity.ok(gamificationService.getSummary(employeeId));
+    // "Mera" XP summary — identity token se (X-Company-Id + X-User-Email), path se nahi
+    @GetMapping("/summary")
+    public ResponseEntity<GamificationSummary> getSummary(
+            @RequestHeader("X-Company-Id") Long companyId,
+            @RequestHeader("X-User-Email") String email) {
+        return ResponseEntity.ok(gamificationService.getSummary(companyId, email));
     }
 
-    // Employee ki XP history (har din kitna mila)
-    @GetMapping("/{employeeId}/history")
-    public ResponseEntity<List<XPHistory>> getHistory(@PathVariable Long employeeId) {
-        return ResponseEntity.ok(gamificationService.getHistory(employeeId));
+    // "Meri" XP history (har din kitna mila)
+    @GetMapping("/history")
+    public ResponseEntity<List<XPHistory>> getHistory(
+            @RequestHeader("X-Company-Id") Long companyId,
+            @RequestHeader("X-User-Email") String email) {
+        return ResponseEntity.ok(gamificationService.getHistory(companyId, email));
     }
 
-    // Top 5 leaderboard
+    // Top 5 leaderboard — SIRF meri company ka (tenant isolation)
     @GetMapping("/leaderboard")
-    public ResponseEntity<List<LeaderboardEntry>> getLeaderboard() {
-        return ResponseEntity.ok(gamificationService.getLeaderboard());
+    public ResponseEntity<List<LeaderboardEntry>> getLeaderboard(
+            @RequestHeader("X-Company-Id") Long companyId) {
+        return ResponseEntity.ok(gamificationService.getLeaderboard(companyId));
     }
 
-    // Full team engagement — manager view
+    // Full team engagement — SIRF meri company ka (manager view)
     @GetMapping("/team")
-    public ResponseEntity<List<TeamMemberEngagement>> getTeamEngagement() {
-        return ResponseEntity.ok(gamificationService.getTeamEngagement());
+    public ResponseEntity<List<TeamMemberEngagement>> getTeamEngagement(
+            @RequestHeader("X-Company-Id") Long companyId) {
+        return ResponseEntity.ok(gamificationService.getTeamEngagement(companyId));
     }
 
-    // Send appreciation nudge to employee via Kafka
-    @PostMapping("/{employeeId}/nudge")
+    // Appreciation nudge — target email body me
+    @PostMapping("/nudge")
     public ResponseEntity<Void> sendNudge(
-            @PathVariable Long employeeId,
+            @RequestHeader("X-Company-Id") Long companyId,
             @RequestBody Map<String, String> body) {
-        gamificationService.sendNudge(employeeId, body.getOrDefault("employeeName", "Employee"));
+        gamificationService.sendNudge(companyId,
+                body.getOrDefault("email", ""),
+                body.getOrDefault("employeeName", "Employee"));
         return ResponseEntity.ok().build();
     }
 }

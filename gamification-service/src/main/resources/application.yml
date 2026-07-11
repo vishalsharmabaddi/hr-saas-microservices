@@ -26,6 +26,10 @@ spring:
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
 
+app:
+  jwt:
+    secret: worktrack-dev-secret-key-please-change-in-production-0123456789
+
 eureka:
   client:
     service-url:

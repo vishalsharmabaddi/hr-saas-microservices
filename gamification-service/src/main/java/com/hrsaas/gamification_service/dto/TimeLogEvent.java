@@ -8,7 +8,8 @@ import java.time.LocalDate;
 @Data
 @NoArgsConstructor
 public class TimeLogEvent {
-    private Long employeeId;
+    private Long companyId;         // kaunsi company (tenant isolation)
+    private String email;           // kisne log kiya (verified token wala)
     private LocalDate logDate;
     private double hoursLogged;
 }

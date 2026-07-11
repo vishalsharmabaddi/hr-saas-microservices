@@ -6,6 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface BadgeRepository extends JpaRepository<Badge, Long> {
-    List<Badge> findByEmployeeId(Long employeeId);
-    boolean existsByEmployeeIdAndBadgeType(Long employeeId, String badgeType);
+    List<Badge> findByCompanyIdAndEmail(Long companyId, String email);
+    boolean existsByCompanyIdAndEmailAndBadgeType(Long companyId, String email, String badgeType);
 }

@@ -8,7 +8,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 public class GamificationSummary {
-    private Long employeeId;
+    private String email;
     private int totalXp;
     private String level;
     private int currentStreak;

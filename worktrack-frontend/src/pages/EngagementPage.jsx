@@ -24,16 +24,17 @@ export default function EngagementPage() {
     queryFn: () => api.get('/employees').then(r => Array.isArray(r.data) ? r.data : []),
   })
 
+  // Team ab email se aata hai — naam employee ke email se resolve karo
   const nameMap = Object.fromEntries(
-    employees.map(e => [e.id, e.fullName || `${e.firstName} ${e.lastName}`.trim()])
+    employees.map(e => [e.email?.toLowerCase(), e.fullName || `${e.firstName} ${e.lastName}`.trim()])
   )
-  const getName = id => nameMap[id] || `Employee #${id}`
-  const getInitial = id => (nameMap[id] || 'E')[0].toUpperCase()
+  const getName = email => nameMap[email?.toLowerCase()] || (email ? email.split('@')[0] : 'Unknown')
+  const getInitial = email => (getName(email) || 'E')[0].toUpperCase()
 
   const nudgeMutation = useMutation({
-    mutationFn: ({ employeeId, employeeName }) =>
-      api.post(`/gamification/${employeeId}/nudge`, { employeeName }),
-    onSuccess: (_, vars) => setNudgedIds(s => new Set([...s, vars.employeeId])),
+    mutationFn: ({ email, employeeName }) =>
+      api.post('/gamification/nudge', { email, employeeName }),
+    onSuccess: (_, vars) => setNudgedIds(s => new Set([...s, vars.email])),
   })
 
   if (isLoading) return (
@@ -91,7 +92,7 @@ export default function EngagementPage() {
               <div>
                 <div style={{ fontSize: 11, fontWeight: 700, color: '#92400e', letterSpacing: '0.5px' }}>TOP XP EARNER</div>
                 <div style={{ fontSize: 15, fontWeight: 700, color: '#0f172a', marginTop: 2 }}>
-                  {getName(topXP.employeeId)}
+                  {getName(topXP.email)}
                 </div>
                 <div style={{ fontSize: 13, color: '#d97706', fontWeight: 600, marginTop: 2 }}>{topXP.totalXp} XP · {topXP.level}</div>
               </div>
@@ -109,7 +110,7 @@ export default function EngagementPage() {
               <div>
                 <div style={{ fontSize: 11, fontWeight: 700, color: '#9a3412', letterSpacing: '0.5px' }}>LONGEST STREAK</div>
                 <div style={{ fontSize: 15, fontWeight: 700, color: '#0f172a', marginTop: 2 }}>
-                  {getName(topStreak.employeeId)}
+                  {getName(topStreak.email)}
                 </div>
                 <div style={{ fontSize: 13, color: '#f97316', fontWeight: 600, marginTop: 2 }}>{topStreak.currentStreak} days in a row</div>
               </div>
@@ -148,9 +149,9 @@ export default function EngagementPage() {
 
             {team.map((member, i) => {
               const sc = statusConfig[member.status] || statusConfig.AT_RISK
-              const nudged = nudgedIds.has(member.employeeId)
+              const nudged = nudgedIds.has(member.email)
               return (
-                <div key={member.employeeId} style={{
+                <div key={member.email} style={{
                   display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr 1fr 120px',
                   padding: '12px 20px', alignItems: 'center',
                   borderBottom: i < team.length - 1 ? '1px solid #f8fafc' : 'none',
@@ -164,10 +165,10 @@ export default function EngagementPage() {
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
                       fontSize: 12, fontWeight: 700, color: levelColors[member.level],
                     }}>
-                      {getInitial(member.employeeId)}
+                      {getInitial(member.email)}
                     </div>
                     <div>
-                      <div style={{ fontSize: 13, fontWeight: 600, color: '#0f172a' }}>{getName(member.employeeId)}</div>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: '#0f172a' }}>{getName(member.email)}</div>
                       <div style={{ fontSize: 10, color: levelColors[member.level], fontWeight: 600 }}>{member.level}</div>
                     </div>
                   </div>
@@ -214,7 +215,7 @@ export default function EngagementPage() {
                   {/* Nudge button */}
                   <div>
                     <button
-                      onClick={() => nudgeMutation.mutate({ employeeId: member.employeeId, employeeName: getName(member.employeeId) })}
+                      onClick={() => nudgeMutation.mutate({ email: member.email, employeeName: getName(member.email) })}
                       disabled={nudged || nudgeMutation.isPending}
                       style={{
                         display: 'flex', alignItems: 'center', gap: 5,

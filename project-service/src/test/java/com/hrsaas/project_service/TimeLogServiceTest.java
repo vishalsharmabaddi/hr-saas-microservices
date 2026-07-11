@@ -68,7 +68,7 @@ class TimeLogServiceTest {
         when(timeLogRepository.save(any(TimeLog.class))).thenReturn(saved);
 
         // ACT
-        TimeLogResponse response = timeLogService.logTime(companyId, request);
+        TimeLogResponse response = timeLogService.logTime(companyId, "amit@acme.com", request);
 
         // ASSERT
         assertThat(response).isNotNull();

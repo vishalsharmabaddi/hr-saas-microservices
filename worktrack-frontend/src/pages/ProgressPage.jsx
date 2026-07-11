@@ -15,13 +15,13 @@ const badgeInfo = {
 
 export default function ProgressPage() {
   const { data: xp, isLoading } = useQuery({
-    queryKey: ['gamification', 1],
-    queryFn: () => api.get('/gamification/1/summary').then(r => r.data),
+    queryKey: ['gamification', 'me'],
+    queryFn: () => api.get('/gamification/summary').then(r => r.data),
   })
 
   const { data: history = [] } = useQuery({
-    queryKey: ['gamification-history', 1],
-    queryFn: () => api.get('/gamification/1/history').then(r => Array.isArray(r.data) ? r.data : []),
+    queryKey: ['gamification-history', 'me'],
+    queryFn: () => api.get('/gamification/history').then(r => Array.isArray(r.data) ? r.data : []),
   })
 
   const { data: leaderboard = [] } = useQuery({
@@ -34,10 +34,11 @@ export default function ProgressPage() {
     queryFn: () => api.get('/employees').then(r => Array.isArray(r.data) ? r.data : []),
   })
 
+  // Leaderboard ab email se aata hai — naam employee ke email se resolve karo
   const nameMap = Object.fromEntries(
-    employees.map(e => [e.id, e.fullName || `${e.firstName} ${e.lastName}`.trim()])
+    employees.map(e => [e.email?.toLowerCase(), e.fullName || `${e.firstName} ${e.lastName}`.trim()])
   )
-  const getName = id => nameMap[id] || `Employee #${id}`
+  const getName = email => nameMap[email?.toLowerCase()] || (email ? email.split('@')[0] : 'Unknown')
 
   const currentLevel = xp?.level || 'ROOKIE'
   const xpProgress = xp
@@ -231,7 +232,7 @@ export default function ProgressPage() {
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {leaderboard.map((entry, i) => (
-                <div key={entry.employeeId} style={{
+                <div key={entry.email} style={{
                   display: 'flex', alignItems: 'center', gap: 10,
                   padding: '8px 10px', borderRadius: 8,
                   background: i === 0 ? '#fffbeb' : '#f8fafc',
@@ -244,7 +245,7 @@ export default function ProgressPage() {
                   }}>{i + 1}</div>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontSize: 12, fontWeight: 600, color: '#0f172a', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                      {getName(entry.employeeId)}
+                      {getName(entry.email)}
                     </div>
                     <div style={{ fontSize: 10, color: levelColors[entry.level] || '#64748b', fontWeight: 600 }}>{entry.level}</div>
                   </div>

@@ -16,7 +16,8 @@ public class Badge {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long employeeId;
+    private Long companyId;             // tenant isolation
+    private String email;               // person ki identity
     private String badgeType;           // HOT_STREAK, IRON_STREAK
     private LocalDateTime earnedAt;
 }

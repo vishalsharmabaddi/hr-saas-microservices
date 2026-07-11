@@ -23,9 +23,10 @@ public class TimeLogController {
     @PostMapping
     public ResponseEntity<TimeLogResponse> logTime(
             @RequestHeader("X-Company-Id") Long companyId,
+            @RequestHeader(value = "X-User-Email", required = false) String email,
             @RequestBody TimeLogRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED)
-            .body(timeLogService.logTime(companyId, request));
+            .body(timeLogService.logTime(companyId, email, request));
     }
 
     @GetMapping("/task/{taskId}")

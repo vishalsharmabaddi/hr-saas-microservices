@@ -16,7 +16,8 @@ public class XPHistory {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long employeeId;
+    private Long companyId;         // tenant isolation
+    private String email;           // person ki identity
     private LocalDate logDate;      // kis din ka timelog
     private int xpGained;          // 10 ya 5
     private String reason;         // ON_TIME_SUBMIT ya LATE_SUBMIT

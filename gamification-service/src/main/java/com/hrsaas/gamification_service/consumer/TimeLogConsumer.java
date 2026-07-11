@@ -23,7 +23,8 @@ public class TimeLogConsumer {
         try {
             objectMapper.registerModule(new JavaTimeModule());
             TimeLogEvent event = objectMapper.readValue(message, TimeLogEvent.class);
-            gamificationService.processTimeLog(event.getEmployeeId(), event.getLogDate(), event.getHoursLogged());
+            gamificationService.processTimeLog(event.getCompanyId(), event.getEmail(),
+                    event.getLogDate(), event.getHoursLogged());
         } catch (Exception e) {
             log.error("Failed to process timelog event: {}", e.getMessage());
         }

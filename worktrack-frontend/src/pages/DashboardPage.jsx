@@ -90,7 +90,7 @@ export default function DashboardPage() {
 
   const { data: xp } = useQuery({
     queryKey: ['gamification', 1],
-    queryFn: () => api.get('/gamification/1/summary').then(r => r.data),
+    queryFn: () => api.get('/gamification/summary').then(r => r.data),
   })
 
   const levelColors = { ROOKIE: '#64748b', REGULAR: '#2563eb', PRO: '#7c3aed', LEGEND: '#d97706' }

@@ -6,7 +6,7 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class LeaderboardEntry {
-    private Long employeeId;
+    private String email;
     private int totalXp;
     private String level;
     private int currentStreak;

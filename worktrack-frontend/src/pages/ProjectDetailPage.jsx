@@ -125,7 +125,7 @@ export default function ProjectDetailPage() {
       // Wait 600ms for Kafka → gamification to process, then fetch XP
       setTimeout(async () => {
         try {
-          const res = await api.get('/gamification/1/summary')
+          const res = await api.get('/gamification/summary')
           const { currentStreak, level } = res.data
           setXpToast({ show: true, xp: 10, streak: currentStreak, level })
           setTimeout(() => setXpToast(t => ({ ...t, show: false })), 3500)
