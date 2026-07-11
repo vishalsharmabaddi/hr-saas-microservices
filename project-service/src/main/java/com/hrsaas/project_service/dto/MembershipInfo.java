@@ -10,5 +10,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class MembershipInfo {
     private Long companyId;
+    private String companyName;   // picker/switcher me naam dikhane ke liye
     private String role;
 }

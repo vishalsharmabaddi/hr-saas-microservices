@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { Outlet, NavLink, useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { LayoutDashboard, FolderKanban, Clock, Users, UserSquare2, CalendarCheck, CalendarOff, Bell, Settings, Menu, X, Check, CheckCheck, TrendingUp, LogOut, ChevronUp, Sparkles, BarChart3, Compass, HelpCircle, ShieldCheck } from 'lucide-react'
+import { LayoutDashboard, FolderKanban, Clock, Users, UserSquare2, CalendarCheck, CalendarOff, Bell, Settings, Menu, X, Check, CheckCheck, TrendingUp, LogOut, ChevronUp, ChevronDown, Sparkles, BarChart3, Compass, HelpCircle, ShieldCheck } from 'lucide-react'
 import api from '../api/axios'
 import { ROLE_NAV, ROLE_STYLE, isPlatformOwner } from '../auth/roles'
 import { startTour, maybeStartTourForNewUser } from '../tour/appTour'
@@ -122,7 +122,9 @@ export default function Layout() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [bellOpen, setBellOpen] = useState(false)
   const [userMenuOpen, setUserMenuOpen] = useState(false)
+  const [companyMenuOpen, setCompanyMenuOpen] = useState(false)
   const bellRef = useRef(null)
+  const companyMenuRef = useRef(null)
   const userMenuRef = useRef(null)
   const navigate = useNavigate()
 
@@ -137,6 +139,25 @@ export default function Layout() {
     navigate('/login')
   }
 
+  // Multi-company: current company + switch handler
+  const memberships = user.memberships || []
+  const currentCompanyName = memberships.find(m => m.companyId === user.companyId)?.companyName || 'WorkTrack'
+
+  async function switchCompany(companyId) {
+    if (companyId === user.companyId) { setCompanyMenuOpen(false); return }
+    try {
+      const { data } = await api.post('/auth/switch-company', { companyId })
+      const primary = (data.memberships || []).find(x => x.companyId === companyId) || null
+      localStorage.setItem('wt_token', data.token)
+      localStorage.setItem('wt_user', JSON.stringify({
+        ...user, role: primary?.role || user.role, companyId, memberships: data.memberships || memberships,
+      }))
+      window.location.href = '/dashboard'   // poora refresh — saara data nayi company ka aaye
+    } catch {
+      setCompanyMenuOpen(false)
+    }
+  }
+
   const { data: notifications = [] } = useQuery({
     queryKey: ['notifications'],
     queryFn: () => api.get('/notifications').then(r => Array.isArray(r.data) ? r.data : []),
@@ -148,6 +169,7 @@ export default function Layout() {
     function handleClick(e) {
       if (bellRef.current && !bellRef.current.contains(e.target)) setBellOpen(false)
       if (userMenuRef.current && !userMenuRef.current.contains(e.target)) setUserMenuOpen(false)
+      if (companyMenuRef.current && !companyMenuRef.current.contains(e.target)) setCompanyMenuOpen(false)
     }
     document.addEventListener('mousedown', handleClick)
     return () => document.removeEventListener('mousedown', handleClick)
@@ -259,7 +281,34 @@ export default function Layout() {
             <button className="hamburger-btn" onClick={() => setSidebarOpen(true)} style={{ display: 'none', background: 'none', border: 'none', cursor: 'pointer', padding: 4, color: '#0f172a' }}>
               <Menu size={20} />
             </button>
-            <span style={{ fontSize: 13, fontWeight: 500, color: '#0f172a' }}>WorkTrack Inc.</span>
+            <div ref={companyMenuRef} style={{ position: 'relative' }}>
+              <button onClick={() => memberships.length > 1 && setCompanyMenuOpen(o => !o)}
+                style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'none', border: 'none',
+                         cursor: memberships.length > 1 ? 'pointer' : 'default', padding: 0,
+                         fontSize: 13, fontWeight: 500, color: '#0f172a', maxWidth: 200 }}>
+                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{currentCompanyName}</span>
+                {memberships.length > 1 && <ChevronDown size={14} color="#94a3b8" style={{ flexShrink: 0 }} />}
+              </button>
+              {companyMenuOpen && memberships.length > 1 && (
+                <div style={{ position: 'absolute', top: 'calc(100% + 8px)', left: 0, background: '#fff',
+                              border: '1px solid #e2e8f0', borderRadius: 10, boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
+                              minWidth: 220, zIndex: 50, overflow: 'hidden' }}>
+                  <div style={{ padding: '8px 12px', fontSize: 11, fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Switch workspace</div>
+                  {memberships.map(m => {
+                    const active = m.companyId === user.companyId
+                    return (
+                      <button key={m.companyId} onClick={() => switchCompany(m.companyId)}
+                        style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, width: '100%',
+                                 background: active ? '#f8fafc' : '#fff', border: 'none', cursor: 'pointer',
+                                 padding: '9px 12px', fontSize: 13, color: '#0f172a', textAlign: 'left' }}>
+                        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{m.companyName || `Company #${m.companyId}`}</span>
+                        {active && <Check size={14} color="#4f46e5" style={{ flexShrink: 0 }} />}
+                      </button>
+                    )
+                  })}
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Prominent centered search — outer div spacer rahe, inner phone pe hide */}

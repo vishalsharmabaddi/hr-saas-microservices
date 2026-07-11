@@ -17,6 +17,7 @@ import AnalyticsPage from './pages/AnalyticsPage'
 import SettingsPage from './pages/SettingsPage'
 import OnboardingPage from './pages/OnboardingPage'
 import AcceptInvitePage from './pages/AcceptInvitePage'
+import SelectCompanyPage from './pages/SelectCompanyPage'
 import PlatformAdminPage from './pages/PlatformAdminPage'
 import AccessDeniedPage from './pages/AccessDeniedPage'
 import { isPlatformOwner } from './auth/roles'
@@ -71,6 +72,8 @@ function App() {
         <Route element={<PrivateRoute />}>
           {/* Onboarding — full page, no sidebar */}
           <Route path="/onboarding" element={<OnboardingPage />} />
+          {/* Multi-company chooser — full page, no sidebar */}
+          <Route path="/select-company" element={<SelectCompanyPage />} />
 
           {/* Platform Console — sirf owner, apna alag full-page layout */}
           <Route element={<PlatformGate />}>

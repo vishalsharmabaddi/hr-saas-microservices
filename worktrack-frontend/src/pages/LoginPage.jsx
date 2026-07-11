@@ -24,12 +24,14 @@ function LoginPage() {
       const isNewUser = !data.memberships || data.memberships.length === 0
       const pendingInvite = data.pendingInvites?.[0] || null   // koi invite jo accept hona baaki hai
       localStorage.setItem('wt_token', data.token)     // humara backend JWT (wristband)
-      // Naya user: pending invite hai → accept karo; warna apni company banao (M5)
-      const dest = !isNewUser
-        ? '/dashboard'
-        : pendingInvite
-          ? `/accept-invite?token=${pendingInvite.inviteToken}`
-          : '/onboarding'
+      const manyCompanies = (data.memberships?.length || 0) > 1
+      // Naya user: pending invite → accept; warna company banao (M5).
+      // Purana user: 2+ companies → picker; warna dashboard.
+      const dest = isNewUser
+        ? (pendingInvite ? `/accept-invite?token=${pendingInvite.inviteToken}` : '/onboarding')
+        : manyCompanies
+          ? '/select-company'
+          : '/dashboard'
       saveAndGo({
         name: data.name,
         email: data.email,

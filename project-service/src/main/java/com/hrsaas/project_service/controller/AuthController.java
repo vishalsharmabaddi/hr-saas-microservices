@@ -4,6 +4,7 @@ import com.hrsaas.project_service.dto.AcceptInviteRequest;
 import com.hrsaas.project_service.dto.AuthResponse;
 import com.hrsaas.project_service.dto.GoogleAuthRequest;
 import com.hrsaas.project_service.dto.RegisterCompanyRequest;
+import com.hrsaas.project_service.dto.SwitchCompanyRequest;
 import com.hrsaas.project_service.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -34,5 +35,13 @@ public class AuthController {
     public ResponseEntity<AuthResponse> acceptInvite(@RequestBody AcceptInviteRequest request) {
         return ResponseEntity.ok(
                 authService.acceptInvite(request.getGoogleToken(), request.getInviteToken()));
+    }
+
+    // Multi-company: doosri company me switch → us company ka naya token
+    @PostMapping("/switch-company")
+    public ResponseEntity<AuthResponse> switchCompany(
+            @RequestHeader(value = "Authorization", required = false) String authHeader,
+            @RequestBody SwitchCompanyRequest request) {
+        return ResponseEntity.ok(authService.switchCompany(authHeader, request.getCompanyId()));
     }
 }

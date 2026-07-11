@@ -72,10 +72,7 @@ public class AuthService {
         String name = (String) payload.get("name");
         String picture = (String) payload.get("picture");
 
-        List<MembershipInfo> memberships = membershipRepository.findByEmail(email)
-                .stream()
-                .map(m -> new MembershipInfo(m.getCompanyId(), m.getRole()))
-                .toList();
+        List<MembershipInfo> memberships = enrichedMemberships(email);
 
         MembershipInfo primary = memberships.isEmpty() ? null : memberships.get(0);
         Long companyId = primary != null ? primary.getCompanyId() : null;
@@ -127,7 +124,7 @@ public class AuthService {
         membershipRepository.save(membership);
 
         String token = jwtService.generateToken(email, company.getId(), "ADMIN");
-        List<MembershipInfo> memberships = List.of(new MembershipInfo(company.getId(), "ADMIN"));
+        List<MembershipInfo> memberships = List.of(new MembershipInfo(company.getId(), cleanName, "ADMIN"));
         return new AuthResponse(email, name, picture, memberships, token, List.of());
     }
 
@@ -166,10 +163,38 @@ public class AuthService {
         inviteRepository.save(inv);
 
         String token = jwtService.generateToken(email, inv.getCompanyId(), inv.getRole());
-        List<MembershipInfo> memberships = membershipRepository.findByEmail(email)
-                .stream()
-                .map(m -> new MembershipInfo(m.getCompanyId(), m.getRole()))
-                .toList();
+        List<MembershipInfo> memberships = enrichedMemberships(email);
         return new AuthResponse(email, name, picture, memberships, token, List.of());
+    }
+
+    // ── Multi-company: doosri company me switch — us company ka naya token ──
+    public AuthResponse switchCompany(String authHeader, Long companyId) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Missing token");
+        }
+        String email;
+        try {
+            email = jwtService.parse(authHeader.substring(7)).getSubject();   // token se identity
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid token");
+        }
+        // Sirf usi company me switch jahan membership ho
+        Membership m = membershipRepository.findByEmailAndCompanyId(email, companyId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not a member of this company"));
+
+        String token = jwtService.generateToken(email, companyId, m.getRole());
+        // name/picture yahan nahi (frontend ke paas pehle se hai) — sirf memberships + naya token
+        return new AuthResponse(email, null, null, enrichedMemberships(email), token, List.of());
+    }
+
+    // Ek email ki saari companies — naam ke saath (picker/switcher ke liye)
+    private List<MembershipInfo> enrichedMemberships(String email) {
+        return membershipRepository.findByEmail(email).stream()
+                .map(m -> new MembershipInfo(m.getCompanyId(), companyName(m.getCompanyId()), m.getRole()))
+                .toList();
+    }
+
+    private String companyName(Long companyId) {
+        return companyRepository.findById(companyId).map(Company::getName).orElse("Company #" + companyId);
     }
 }
