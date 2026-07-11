@@ -2,8 +2,11 @@ package com.hrsaas.project_service.service;
 
 import com.hrsaas.project_service.dto.InviteDto;
 import com.hrsaas.project_service.dto.MemberDto;
+import com.hrsaas.project_service.model.Company;
 import com.hrsaas.project_service.model.Invite;
 import com.hrsaas.project_service.model.Membership;
+import com.hrsaas.project_service.producer.InviteEventProducer;
+import com.hrsaas.project_service.repository.CompanyRepository;
 import com.hrsaas.project_service.repository.InviteRepository;
 import com.hrsaas.project_service.repository.MembershipRepository;
 import org.springframework.http.HttpStatus;
@@ -24,10 +27,15 @@ public class MembershipService {
 
     private final MembershipRepository repo;
     private final InviteRepository inviteRepo;
+    private final CompanyRepository companyRepo;
+    private final InviteEventProducer inviteEventProducer;
 
-    public MembershipService(MembershipRepository repo, InviteRepository inviteRepo) {
+    public MembershipService(MembershipRepository repo, InviteRepository inviteRepo,
+                             CompanyRepository companyRepo, InviteEventProducer inviteEventProducer) {
         this.repo = repo;
         this.inviteRepo = inviteRepo;
+        this.companyRepo = companyRepo;
+        this.inviteEventProducer = inviteEventProducer;
     }
 
     // ── Active members (accept ho chuke) ──
@@ -46,21 +54,26 @@ public class MembershipService {
         if (repo.existsByEmailAndCompanyId(cleanEmail, companyId)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "This email is already a member");
         }
-        // Pending invite already hai? → wahi wapas do (admin dobara link copy kar le)
-        Optional<Invite> existing = inviteRepo.findByEmailAndCompanyIdAndStatus(cleanEmail, companyId, PENDING);
-        if (existing.isPresent()) {
-            return toInviteDto(existing.get());
+        // Pending invite already hai? → wahi reuse karo (naya nahi banao), warna naya
+        Invite inv = inviteRepo.findByEmailAndCompanyIdAndStatus(cleanEmail, companyId, PENDING).orElse(null);
+        if (inv == null) {
+            inv = new Invite();
+            inv.setEmail(cleanEmail);
+            inv.setCompanyId(companyId);
+            inv.setRole(cleanRole);
+            inv.setName(name != null && !name.isBlank() ? name.trim() : null);
+            inv.setToken(UUID.randomUUID().toString());   // secret — link me jaata hai
+            inv.setStatus(PENDING);
+            inv.setInvitedBy(invitedBy);
+            inv.setExpiresAt(LocalDateTime.now().plusDays(7));   // 7 din valid
+            inv = inviteRepo.save(inv);
         }
-        Invite inv = new Invite();
-        inv.setEmail(cleanEmail);
-        inv.setCompanyId(companyId);
-        inv.setRole(cleanRole);
-        inv.setName(name != null && !name.isBlank() ? name.trim() : null);
-        inv.setToken(UUID.randomUUID().toString());   // secret — link me jaata hai
-        inv.setStatus(PENDING);
-        inv.setInvitedBy(invitedBy);
-        inv.setExpiresAt(LocalDateTime.now().plusDays(7));   // 7 din valid
-        return toInviteDto(inviteRepo.save(inv));
+
+        // Phase 2: notification-service ko email bhejne ke liye event (naya ya reuse — dono pe)
+        String companyName = companyRepo.findById(companyId).map(Company::getName).orElse("your company");
+        inviteEventProducer.sendInviteCreated(inv.getEmail(), inv.getName(), companyName, inv.getRole(), inv.getToken());
+
+        return toInviteDto(inv);
     }
 
     // ── Admin ke liye: company ke pending invites ──

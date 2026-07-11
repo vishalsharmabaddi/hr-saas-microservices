@@ -74,6 +74,12 @@
 			<scope>test</scope>
 		</dependency>
 
+		<!-- Phase 2: invite emails bhejne ke liye -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-mail</artifactId>
+		</dependency>
+
 		<!-- M4b: humara apna JWT verify karne ke liye (token banata nahi, sirf parse) -->
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>

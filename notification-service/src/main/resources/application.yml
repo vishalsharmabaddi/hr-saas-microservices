@@ -59,3 +59,39 @@ app:
   # M4b: auth-service jis secret se token sign karti hai, wahi secret yahan verify ke liye
   jwt:
     secret: worktrack-dev-secret-key-please-change-in-production-0123456789
+  # Phase 2: invite email me jo accept-link jaayega uska base (frontend URL)
+  frontend-url: http://localhost:5173
+  mail:
+    from: WorkTrack <no-reply@worktrack.local>
+
+# ── Phase 2 SMTP (real email) ──
+# Neeche wala block UNCOMMENT karke apni creds daalo, tab asli email jaayega.
+# Bina iske: invite link console log me print hota hai (flow phir bhi chalta hai).
+#
+# Mailtrap (dev sandbox — recommended, koi real inbox pe spam nahi):
+# spring:
+#   mail:
+#     host: sandbox.smtp.mailtrap.io
+#     port: 2525
+#     username: <mailtrap-username>
+#     password: <mailtrap-password>
+#     properties:
+#       mail:
+#         smtp:
+#           auth: true
+#           starttls:
+#             enable: true
+#
+# Gmail (real inbox — Google account me "App Password" banao):
+# spring:
+#   mail:
+#     host: smtp.gmail.com
+#     port: 587
+#     username: youremail@gmail.com
+#     password: <16-char-app-password>
+#     properties:
+#       mail:
+#         smtp:
+#           auth: true
+#           starttls:
+#             enable: true
