@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { Users, Plus, Trash2, Shield, Mail, Link2, Copy, Check } from 'lucide-react'
 import api from '../api/axios'
+import { canManage } from '../auth/roles'
 
 const PROJECT_ROLES = ['PROJECT_MANAGER', 'TEAM_MEMBER', 'CLIENT']
 const APP_ROLES     = ['ADMIN', 'MANAGER', 'EMPLOYEE']
@@ -22,6 +23,7 @@ const appRoleStyle = {
 export default function MembersPage() {
   const currentUser = JSON.parse(localStorage.getItem('wt_user') || '{}')
   const isAdmin = currentUser.role === 'ADMIN'
+  const canManageMembers = canManage(currentUser.role)   // ADMIN|MANAGER — remove allowed
 
   const [activeTab, setActiveTab]         = useState('project')
   const [selectedProjectId, setSelectedProjectId] = useState(null)
@@ -248,9 +250,11 @@ export default function MembersPage() {
                 <span style={{ display: 'inline-block', padding: '3px 10px', borderRadius: 6, fontSize: 11, fontWeight: 600, ...(projRoleStyle[m.role] || { background: '#f1f5f9', color: '#64748b' }) }}>
                   {projRoleLabel[m.role] || m.role}
                 </span>
+                {canManageMembers && (
                 <button onClick={() => removeMutation.mutate(m.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#cbd5e1', padding: 4 }} title="Remove">
                   <Trash2 size={14} />
                 </button>
+                )}
               </div>
             ))}
           </div>

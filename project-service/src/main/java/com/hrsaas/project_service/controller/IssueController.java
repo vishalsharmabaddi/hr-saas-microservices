@@ -7,6 +7,7 @@ import com.hrsaas.project_service.service.IssueService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.http.HttpStatus;
+import com.hrsaas.project_service.security.RoleGuard;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -57,8 +58,10 @@ public class IssueController {
     @DeleteMapping("/{issueId}")
     public ResponseEntity<Void> deleteIssue(
             @RequestHeader("X-Company-Id") Long companyId,
+            @RequestHeader(value = "X-User-Role", required = false) String role,
             @PathVariable Long projectId,
             @PathVariable Long issueId) {
+        RoleGuard.requireManager(role);
         issueService.deleteIssue(companyId, issueId);
         return ResponseEntity.noContent().build();
     }

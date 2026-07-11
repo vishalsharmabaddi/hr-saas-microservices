@@ -6,6 +6,7 @@ import com.hrsaas.project_service.service.ProjectMemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.http.HttpStatus;
+import com.hrsaas.project_service.security.RoleGuard;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -40,8 +41,10 @@ public class ProjectMemberController {
     @DeleteMapping("/{memberId}")
     public ResponseEntity<Void> removeMember(
             @RequestHeader("X-Company-Id") Long companyId,
+            @RequestHeader(value = "X-User-Role", required = false) String role,
             @PathVariable Long projectId,
             @PathVariable Long memberId) {
+        RoleGuard.requireManager(role);
         projectMemberService.removeMember(companyId, memberId);
         return ResponseEntity.noContent().build();
     }

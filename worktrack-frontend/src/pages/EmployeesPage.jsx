@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Plus, Search, Users, X, Mail, Phone, Briefcase, Calendar } from 'lucide-react'
 import api from '../api/axios'
+import { canAdmin } from '../auth/roles'
 
 const EMPLOYMENT_TYPES = ['FULL_TIME', 'PART_TIME', 'CONTRACT', 'INTERN']
 const typeLabel = { FULL_TIME: 'Full Time', PART_TIME: 'Part Time', CONTRACT: 'Contract', INTERN: 'Intern' }
@@ -20,6 +21,7 @@ export default function EmployeesPage() {
   const [showForm, setShowForm] = useState(false)
   const [editingId, setEditingId] = useState(null)
   const [form, setForm] = useState(emptyForm)
+  const isAdmin = canAdmin(JSON.parse(localStorage.getItem('wt_user') || '{}').role)
 
   const { data: employees = [], isLoading } = useQuery({
     queryKey: ['employees'],
@@ -98,6 +100,7 @@ export default function EmployeesPage() {
             {activeCount} Active {activeCount === 1 ? 'Employee' : 'Employees'}{inactiveCount > 0 ? ` · ${inactiveCount} Inactive` : ''}
           </p>
         </div>
+        {isAdmin && (
         <button onClick={() => { setShowForm(true); setEditingId(null); setForm(emptyForm) }} style={{
           display: 'flex', alignItems: 'center', gap: 6,
           background: '#4f46e5', color: '#fff', border: 'none',
@@ -106,6 +109,7 @@ export default function EmployeesPage() {
         }}>
           <Plus size={14} /> Add Employee
         </button>
+        )}
       </div>
 
       {/* Search */}
@@ -271,7 +275,8 @@ export default function EmployeesPage() {
                   )}
                 </div>
 
-                {/* Actions */}
+                {/* Actions — sirf ADMIN */}
+                {isAdmin && (
                 <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
                   <button onClick={() => startEdit(emp)} style={{
                     fontSize: 12, padding: '5px 12px', borderRadius: 6,
@@ -304,6 +309,7 @@ export default function EmployeesPage() {
                     </button>
                   )}
                 </div>
+                )}
               </div>
             )
           })}

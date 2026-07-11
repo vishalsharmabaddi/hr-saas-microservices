@@ -6,6 +6,7 @@ import com.hrsaas.employee_service.service.EmployeeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.http.HttpStatus;
+import com.hrsaas.employee_service.security.RoleGuard;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -21,7 +22,9 @@ public class EmployeeController {
     @PostMapping
     public ResponseEntity<EmployeeResponse> createEmployee(
             @RequestHeader("X-Company-Id") Long companyId,
+            @RequestHeader(value = "X-User-Role", required = false) String role,
             @RequestBody EmployeeRequest request) {
+        RoleGuard.requireAdmin(role);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(employeeService.createEmployee(companyId, request));
     }
@@ -42,15 +45,19 @@ public class EmployeeController {
     @PutMapping("/{id}")
     public ResponseEntity<EmployeeResponse> updateEmployee(
             @RequestHeader("X-Company-Id") Long companyId,
+            @RequestHeader(value = "X-User-Role", required = false) String role,
             @PathVariable Long id,
             @RequestBody EmployeeRequest request) {
+        RoleGuard.requireAdmin(role);
         return ResponseEntity.ok(employeeService.updateEmployee(companyId, id, request));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deactivateEmployee(
             @RequestHeader("X-Company-Id") Long companyId,
+            @RequestHeader(value = "X-User-Role", required = false) String role,
             @PathVariable Long id) {
+        RoleGuard.requireAdmin(role);
         employeeService.deactivateEmployee(companyId, id);
         return ResponseEntity.noContent().build();
     }
@@ -58,7 +65,9 @@ public class EmployeeController {
     @PatchMapping("/{id}/activate")
     public ResponseEntity<Void> activateEmployee(
             @RequestHeader("X-Company-Id") Long companyId,
+            @RequestHeader(value = "X-User-Role", required = false) String role,
             @PathVariable Long id) {
+        RoleGuard.requireAdmin(role);
         employeeService.activateEmployee(companyId, id);
         return ResponseEntity.noContent().build();
     }

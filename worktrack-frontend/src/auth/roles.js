@@ -6,6 +6,10 @@ export function isPlatformOwner(email) {
   return SUPER_ADMINS.includes(email?.toLowerCase())
 }
 
+// RBAC UI helpers — backend RoleGuard ke saath match karte hain
+export function canManage(role) { return role === 'ADMIN' || role === 'MANAGER' }  // deletes, leave approve
+export function canAdmin(role)  { return role === 'ADMIN' }                          // employee CRUD, team manage
+
 export function getRoleForEmail(email) {
   const normalized = email?.toLowerCase()
   if (SUPER_ADMINS.includes(normalized)) return 'ADMIN'

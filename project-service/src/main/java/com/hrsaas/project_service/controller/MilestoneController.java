@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
+import com.hrsaas.project_service.security.RoleGuard;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
@@ -55,8 +56,10 @@ public class MilestoneController {
     @DeleteMapping("/{milestoneId}")
     public ResponseEntity<Void> deleteMilestone(
             @RequestHeader("X-Company-Id") Long companyId,
+            @RequestHeader(value = "X-User-Role", required = false) String role,
             @PathVariable Long projectId,
             @PathVariable Long milestoneId) {
+        RoleGuard.requireManager(role);
         milestoneService.deleteMilestone(companyId, milestoneId);
         return ResponseEntity.noContent().build();
     }

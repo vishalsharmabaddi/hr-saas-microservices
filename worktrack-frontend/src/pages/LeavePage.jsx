@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Plus, Check, X, Clock, Calendar } from 'lucide-react'
 import api from '../api/axios'
+import { canManage } from '../auth/roles'
 
 const LEAVE_TYPES = ['SICK', 'CASUAL', 'EARNED', 'UNPAID', 'EMERGENCY']
 const typeLabel   = { SICK: 'Sick Leave', CASUAL: 'Casual Leave', EARNED: 'Earned Leave', UNPAID: 'Unpaid Leave', EMERGENCY: 'Emergency Leave' }
@@ -30,6 +31,7 @@ export default function LeavePage() {
   const [form, setForm]                 = useState(emptyForm)
   const [approvingId, setApprovingId]   = useState(null)
   const [comment, setComment]           = useState('')
+  const canApprove = canManage(JSON.parse(localStorage.getItem('wt_user') || '{}').role)
 
   const { data: employees = [] } = useQuery({
     queryKey: ['employees'],
@@ -248,7 +250,7 @@ export default function LeavePage() {
 
                   {/* Actions */}
                   <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-                    {l.status === 'PENDING' && (
+                    {l.status === 'PENDING' && canApprove && (
                       <>
                         <button
                           onClick={() => setApprovingId(isActing ? null : l.id)}

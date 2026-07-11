@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { ArrowLeft, Plus, Calendar, Users, CheckSquare, Circle, CheckCircle2, Pencil, Trash2, X, Timer } from 'lucide-react'
+import { canManage } from '../auth/roles'
 import api from '../api/axios'
 
 const priorityColors = {
@@ -29,6 +30,7 @@ export default function ProjectDetailPage() {
   const [editingTaskId, setEditingTaskId] = useState(null)
   const [editForm, setEditForm] = useState({ title: '', description: '', priority: 'MEDIUM', dueDate: '' })
   const [showStatusMenu, setShowStatusMenu] = useState(false)
+  const canManageProject = canManage(JSON.parse(localStorage.getItem('wt_user') || '{}').role)
   const [loggingTaskId, setLoggingTaskId] = useState(null)
   const [logForm, setLogForm] = useState({ logDate: new Date().toISOString().slice(0, 10), hoursLogged: '', notes: '' })
   const [xpToast, setXpToast] = useState({ show: false, xp: 0, streak: 0, level: '' })
@@ -547,6 +549,7 @@ export default function ProjectDetailPage() {
                         >
                           <Pencil size={14} />
                         </button>
+                        {canManageProject && (
                         <button
                           onClick={() => { if (window.confirm(`Delete "${task.title}"?`)) deleteTask.mutate(task.id) }}
                           style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#fca5a5', padding: 4, display: 'flex' }}
@@ -554,6 +557,7 @@ export default function ProjectDetailPage() {
                         >
                           <Trash2 size={14} />
                         </button>
+                        )}
                       </>)}
                     </div>
                   </div>
@@ -666,7 +670,7 @@ export default function ProjectDetailPage() {
                   }}>
                     {m.role?.replace('_', ' ')}
                   </span>
-                  {isEditable && (
+                  {isEditable && canManageProject && (
                     <div className="member-actions" style={{ opacity: 0, transition: 'opacity 0.15s', flexShrink: 0 }}>
                       <button
                         onClick={() => { if (window.confirm(`Remove Employee #${m.employeeId} from this project?`)) removeMember.mutate(m.id) }}

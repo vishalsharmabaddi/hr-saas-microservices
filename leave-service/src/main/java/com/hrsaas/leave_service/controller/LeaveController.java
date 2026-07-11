@@ -6,6 +6,7 @@ import com.hrsaas.leave_service.dto.LeaveResponseDTO;
 import com.hrsaas.leave_service.service.LeaveService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import com.hrsaas.leave_service.security.RoleGuard;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -47,8 +48,10 @@ public class LeaveController {
     @PutMapping("/{id}/approve")
     public ResponseEntity<LeaveResponseDTO> approveLeave(
             @RequestHeader("X-Company-Id") Long companyId,
+            @RequestHeader(value = "X-User-Role", required = false) String role,
             @PathVariable Long id,
             @RequestBody(required = false) ApprovalRequest approval) {
+        RoleGuard.requireManager(role);
         return ResponseEntity.ok(leaveService.approveLeave(companyId, id, approval));
     }
 
@@ -56,8 +59,10 @@ public class LeaveController {
     @PutMapping("/{id}/reject")
     public ResponseEntity<LeaveResponseDTO> rejectLeave(
             @RequestHeader("X-Company-Id") Long companyId,
+            @RequestHeader(value = "X-User-Role", required = false) String role,
             @PathVariable Long id,
             @RequestBody(required = false) ApprovalRequest approval) {
+        RoleGuard.requireManager(role);
         return ResponseEntity.ok(leaveService.rejectLeave(companyId, id, approval));
     }
 }

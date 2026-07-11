@@ -5,6 +5,7 @@ import com.hrsaas.project_service.service.TaskListService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.http.HttpStatus;
+import com.hrsaas.project_service.security.RoleGuard;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -40,8 +41,10 @@ public class TaskListController {
     @DeleteMapping("/{taskListId}")
     public ResponseEntity<Void> deleteTaskList(
             @RequestHeader("X-Company-Id") Long companyId,
+            @RequestHeader(value = "X-User-Role", required = false) String role,
             @PathVariable Long projectId,
             @PathVariable Long taskListId) {
+        RoleGuard.requireManager(role);
         taskListService.deleteTaskList(companyId, taskListId);
         return ResponseEntity.noContent().build();
     }
