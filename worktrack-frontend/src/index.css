@@ -221,3 +221,8 @@ body {
   .lp-section-pad    { padding-left: 20px !important; padding-right: 20px !important; }
   .lp-nav-inner      { padding-left: 20px !important; padding-right: 20px !important; }
 }
+
+@keyframes tg-toast-in {
+  from { opacity: 0; transform: translateY(-10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}

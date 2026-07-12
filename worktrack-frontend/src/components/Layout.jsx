@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { LayoutDashboard, FolderKanban, Clock, Users, UserSquare2, CalendarCheck, CalendarOff, Bell, Settings, Menu, X, Check, CheckCheck, TrendingUp, LogOut, ChevronUp, ChevronDown, ChevronLeft, Sparkles, BarChart3, Compass, HelpCircle, ShieldCheck, FileText, Wallet, Receipt } from 'lucide-react'
 import api from '../api/axios'
 import { ROLE_NAV, ROLE_STYLE, isPlatformOwner } from '../auth/roles'
+import notificationSound from '../assets/notification.mp3'
 import { startTour, maybeStartTourForNewUser } from '../tour/appTour'
 import GlobalSearch from './GlobalSearch'
 import taurusMark from '../assets/Taurus-Logo.png'
@@ -31,9 +32,10 @@ function timeAgo(dt) {
 }
 
 const typeStyle = {
-  LEAVE_APPROVED: { color: '#16a34a', label: 'Leave Approved' },
-  LEAVE_REJECTED: { color: '#dc2626', label: 'Leave Rejected' },
-  MANAGER_NUDGE:  { color: '#7c3aed', label: 'Manager Appreciation' },
+  LEAVE_APPROVED:    { color: '#16a34a', label: 'Leave Approved' },
+  LEAVE_REJECTED:    { color: '#dc2626', label: 'Leave Rejected' },
+  MANAGER_NUDGE:     { color: '#7c3aed', label: 'Manager Appreciation' },
+  PAYSLIP_GENERATED: { color: '#15803d', label: 'Payslip Ready' },
 }
 
 function NotificationDropdown({ onClose }) {
@@ -58,6 +60,15 @@ function NotificationDropdown({ onClose }) {
 
   const unread = notifications.filter(n => !n.isRead).length
   const recent = notifications.slice(0, 5)
+
+  // Click → read + related page khol do
+  const openNotif = (n) => {
+    if (!n.isRead) markReadMutation.mutate(n.id)
+    const dest = n.type === 'PAYSLIP_GENERATED' ? '/my-payslips'
+      : (n.type || '').startsWith('LEAVE') ? '/leaves' : null
+    onClose()
+    if (dest) navigate(dest)
+  }
 
   return (
     <div style={{
@@ -87,12 +98,15 @@ function NotificationDropdown({ onClose }) {
           recent.map((n, i) => {
             const ts = typeStyle[n.type] || { color: '#64748b', label: n.type }
             return (
-              <div key={n.id} style={{
+              <div key={n.id} onClick={() => openNotif(n)} style={{
                 display: 'flex', alignItems: 'flex-start', gap: 10,
-                padding: '12px 16px',
+                padding: '12px 16px', cursor: 'pointer',
                 borderBottom: i < recent.length - 1 ? '1px solid #f8fafc' : 'none',
                 background: n.isRead ? '#fff' : '#fafbff',
-              }}>
+              }}
+                onMouseEnter={e => e.currentTarget.style.background = '#f1f5f9'}
+                onMouseLeave={e => e.currentTarget.style.background = n.isRead ? '#fff' : '#fafbff'}
+              >
                 <div style={{ width: 7, height: 7, borderRadius: '50%', marginTop: 5, flexShrink: 0, background: n.isRead ? '#e2e8f0' : 'var(--tg-green-600)' }} />
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 2 }}>
@@ -134,6 +148,7 @@ export default function Layout() {
   const companyMenuRef = useRef(null)
   const userMenuRef = useRef(null)
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
 
   const user = JSON.parse(localStorage.getItem('wt_user') || '{}')
   const allowedPaths = ROLE_NAV[user.role] || ROLE_NAV.EMPLOYEE
@@ -172,6 +187,23 @@ export default function Layout() {
   })
   const unread = notifications.filter(n => !n.isRead).length
 
+  // Nayi notification aane pe: sound + toast popup (bina bell khole pata chale).
+  const [toast, setToast] = useState(null)
+  const prevUnread = useRef(null)
+  const toastTimer = useRef(null)
+  useEffect(() => {
+    if (prevUnread.current !== null && unread > prevUnread.current) {
+      new Audio(notificationSound).play().catch(() => {})   // autoplay block → chup, koi crash nahi
+      const latest = notifications.find(n => !n.isRead) || notifications[0]
+      if (latest) {
+        setToast(latest)
+        clearTimeout(toastTimer.current)
+        toastTimer.current = setTimeout(() => setToast(null), 6000)   // 6s baad khud gayab
+      }
+    }
+    prevUnread.current = unread
+  }, [unread])                                              // eslint-disable-line react-hooks/exhaustive-deps
+
   useEffect(() => {
     function handleClick(e) {
       if (bellRef.current && !bellRef.current.contains(e.target)) setBellOpen(false)
@@ -187,8 +219,34 @@ export default function Layout() {
     maybeStartTourForNewUser()
   }, [])
 
+  const openToast = (n) => {
+    if (n && !n.isRead) api.put(`/notifications/${n.id}/read`).then(() => queryClient.invalidateQueries({ queryKey: ['notifications'] }))
+    setToast(null)
+    const dest = n?.type === 'PAYSLIP_GENERATED' ? '/my-payslips'
+      : (n?.type || '').startsWith('LEAVE') ? '/leaves' : null
+    if (dest) navigate(dest)
+  }
+
   return (
     <div style={{ display: 'flex', height: '100vh', width: '100vw', overflow: 'hidden', background: 'var(--tg-bg)', position: 'fixed', top: 0, left: 0 }}>
+
+      {/* Proactive toast — naya notification aate hi (bina bell khole) */}
+      {toast && (
+        <div onClick={() => openToast(toast)} style={{
+          position: 'fixed', top: 20, right: 20, zIndex: 200, width: 320, cursor: 'pointer',
+          background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12,
+          boxShadow: '0 10px 40px rgba(0,0,0,0.16)', padding: '14px 16px',
+          animation: 'tg-toast-in 0.25s ease',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+            <span style={{ fontSize: 12, fontWeight: 700, color: (typeStyle[toast.type]?.color) || '#16A34A' }}>
+              {typeStyle[toast.type]?.label || 'Notification'}
+            </span>
+            <X size={14} color="#94a3b8" onClick={(e) => { e.stopPropagation(); setToast(null) }} />
+          </div>
+          <p style={{ fontSize: 13.5, color: '#1e293b', margin: 0, lineHeight: 1.4 }}>{toast.message}</p>
+        </div>
+      )}
 
       {sidebarOpen && (
         <div onClick={() => setSidebarOpen(false)} className="sidebar-overlay" style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', zIndex: 40 }} />

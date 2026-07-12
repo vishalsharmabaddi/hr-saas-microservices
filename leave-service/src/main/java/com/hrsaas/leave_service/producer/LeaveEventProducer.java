@@ -16,7 +16,8 @@ public class LeaveEventProducer {
     private final KafkaTemplate<String, String> kafkaTemplate;
     private final ObjectMapper objectMapper;
 
-    public void sendLeaveApprovedEvent(Long employeeId, Long companyId, String employeeName, Long leaveId, Integer totalDays) {
+    public void sendLeaveApprovedEvent(Long employeeId, Long companyId, String employeeName,
+                                       String recipientEmail, Long leaveId, Integer totalDays) {
         // Background thread mein bhejo — Kafka down ho toh HTTP response block na ho
         CompletableFuture.runAsync(() -> {
             try {
@@ -24,6 +25,7 @@ public class LeaveEventProducer {
                         employeeId,
                         companyId,
                         employeeName,
+                        recipientEmail,
                         "Leave approved for " + totalDays + " day(s). Leave ID: " + leaveId
                 );
                 String json = objectMapper.writeValueAsString(event);

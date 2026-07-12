@@ -18,14 +18,16 @@ public class NotificationController {
 
     @GetMapping
     public ResponseEntity<List<NotificationResponse>> getAll(
-            @RequestHeader("X-Company-Id") Long companyId) {
-        return ResponseEntity.ok(notificationService.getAll(companyId));
+            @RequestHeader("X-Company-Id") Long companyId,
+            @RequestHeader("X-User-Email") String email) {
+        return ResponseEntity.ok(notificationService.getForUser(companyId, email));
     }
 
     @GetMapping("/unread/count")
     public ResponseEntity<Map<String, Long>> getUnreadCount(
-            @RequestHeader("X-Company-Id") Long companyId) {
-        return ResponseEntity.ok(Map.of("count", notificationService.getUnreadCount(companyId)));
+            @RequestHeader("X-Company-Id") Long companyId,
+            @RequestHeader("X-User-Email") String email) {
+        return ResponseEntity.ok(Map.of("count", notificationService.getUnreadCount(companyId, email)));
     }
 
     @PutMapping("/{id}/read")
@@ -38,8 +40,9 @@ public class NotificationController {
 
     @PutMapping("/read-all")
     public ResponseEntity<Void> markAllRead(
-            @RequestHeader("X-Company-Id") Long companyId) {
-        notificationService.markAllRead(companyId);
+            @RequestHeader("X-Company-Id") Long companyId,
+            @RequestHeader("X-User-Email") String email) {
+        notificationService.markAllRead(companyId, email);
         return ResponseEntity.noContent().build();
     }
 }

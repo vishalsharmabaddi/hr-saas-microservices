@@ -26,8 +26,9 @@ public class NudgeEventConsumer {
             Long employeeId   = Long.valueOf(payload.get("employeeId").toString());
             String name       = (String) payload.getOrDefault("employeeName", "Employee");
             String msg        = (String) payload.getOrDefault("message", "Your manager sent you an appreciation!");
+            String email      = (String) payload.get("recipientEmail");   // ho to targeted, warna broadcast
 
-            notificationService.saveNotification(1L, employeeId, name, "MANAGER_NUDGE", msg);
+            notificationService.saveNotification(1L, employeeId, name, email, "MANAGER_NUDGE", msg);
             log.info("Nudge notification saved for employee: {}", name);
         } catch (Exception e) {
             log.error("Failed to process nudge event: {}", e.getMessage());

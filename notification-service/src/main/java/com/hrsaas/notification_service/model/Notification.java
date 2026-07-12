@@ -17,7 +17,10 @@ public class Notification {
     private Long employeeId;
     private String employeeName;
 
-    // LEAVE_APPROVED, LEAVE_REJECTED, etc.
+    // Kiske bell me dikhe. null = broadcast (poori company ko dikhe).
+    private String recipientEmail;
+
+    // LEAVE_APPROVED, LEAVE_REJECTED, PAYSLIP_GENERATED, etc.
     private String type;
 
     @Column(length = 500)

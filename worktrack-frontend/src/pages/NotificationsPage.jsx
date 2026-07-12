@@ -3,8 +3,10 @@ import { Bell, CheckCheck, Check } from 'lucide-react'
 import api from '../api/axios'
 
 const typeStyle = {
-  LEAVE_APPROVED: { background: '#f0fdf4', color: '#16a34a', label: 'Leave Approved' },
-  LEAVE_REJECTED: { background: '#fef2f2', color: '#dc2626', label: 'Leave Rejected' },
+  LEAVE_APPROVED:    { background: '#f0fdf4', color: '#16a34a', label: 'Leave Approved' },
+  LEAVE_REJECTED:    { background: '#fef2f2', color: '#dc2626', label: 'Leave Rejected' },
+  PAYSLIP_GENERATED: { background: '#EAF7EE', color: '#15803d', label: 'Payslip Ready' },
+  MANAGER_NUDGE:     { background: '#fefce8', color: '#a16207', label: 'Appreciation' },
 }
 
 function timeAgo(dt) {

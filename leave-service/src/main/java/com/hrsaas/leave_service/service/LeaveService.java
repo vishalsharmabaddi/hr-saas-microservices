@@ -76,18 +76,20 @@ public class LeaveService {
         LeaveRequest saved = leaveRepository.save(leave);
 
         String employeeName = "Employee #" + saved.getEmployeeId();
+        String recipientEmail = null;
         try {
             EmployeeDTO emp = employeeClient.getEmployeeById(companyId, saved.getEmployeeId());
-            if (emp != null && emp.getFullName() != null) {
-                employeeName = emp.getFullName();
+            if (emp != null) {
+                if (emp.getFullName() != null) employeeName = emp.getFullName();
+                recipientEmail = emp.getEmail();   // notification isi applicant ko jaaye
             }
         } catch (Exception e) {
-            log.warn("Could not fetch employee name for Kafka event: {}", e.getMessage());
+            log.warn("Could not fetch employee for Kafka event: {}", e.getMessage());
         }
 
         leaveEventProducer.sendLeaveApprovedEvent(
                 saved.getEmployeeId(), saved.getCompanyId(),
-                employeeName,
+                employeeName, recipientEmail,
                 saved.getId(), saved.getTotalDays());
 
         return toResponse(saved, null);

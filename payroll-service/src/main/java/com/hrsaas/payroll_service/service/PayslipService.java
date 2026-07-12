@@ -27,6 +27,7 @@ public class PayslipService {
     private final EmployeeClient employeeClient;
     private final AttendanceClient attendanceClient;
     private final LeaveClient leaveClient;
+    private final com.hrsaas.payroll_service.producer.PayslipEventProducer payslipEventProducer;
 
     private static final BigDecimal PF_RATE = new BigDecimal("0.12");
     private static final BigDecimal DAYS_IN_MONTH = new BigDecimal("30");   // LOP divisor (fixed)
@@ -96,10 +97,11 @@ public class PayslipService {
         BigDecimal totalDeductions = pf.add(profTax).add(lopAmount);
         BigDecimal netPay = gross.subtract(totalDeductions);
 
-        // Employee ka naam (best-effort)
+        // Employee ka naam + email (best-effort) — email notification targeting ke liye
         String name = null;
+        String email = null;
         EmployeeClient.EmployeeInfo info = employeeClient.getEmployee(companyId, employeeId);
-        if (info != null) name = info.getFullName();
+        if (info != null) { name = info.getFullName(); email = info.getEmail(); }
 
         // Upsert — is month ki payslip pehle se ho to overwrite
         Payslip p = payslipRepo
@@ -124,7 +126,11 @@ public class PayslipService {
         p.setLopAmount(lopAmount);
         p.setTotalDeductions(totalDeductions);
         p.setNetPay(netPay);
-        return payslipRepo.save(p);
+        Payslip saved = payslipRepo.save(p);
+
+        // Employee ko notify karo ki payslip ready hai (Kafka → notification-service)
+        payslipEventProducer.sendPayslipGenerated(saved, email);
+        return saved;
     }
 
     private int countAbsentDays(Long companyId, Long employeeId, LocalDate start, LocalDate end) {

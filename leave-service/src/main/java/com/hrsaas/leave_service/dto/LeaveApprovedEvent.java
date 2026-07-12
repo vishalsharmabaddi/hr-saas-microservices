@@ -11,5 +11,6 @@ public class LeaveApprovedEvent {
     private Long employeeId;
     private Long companyId;
     private String employeeName;
+    private String recipientEmail;   // applicant ka email (notification targeting); null → broadcast
     private String message;
 }

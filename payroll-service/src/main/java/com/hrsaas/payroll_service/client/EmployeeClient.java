@@ -76,6 +76,7 @@ public class EmployeeClient {
     public static class EmployeeInfo {
         private Long id;
         private String fullName;
+        private String email;
         private Boolean isActive;
     }
 }

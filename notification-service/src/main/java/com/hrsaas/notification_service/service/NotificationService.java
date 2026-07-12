@@ -16,26 +16,31 @@ public class NotificationService {
 
     private final NotificationRepository notificationRepository;
 
-    public Notification saveNotification(Long companyId, Long employeeId, String employeeName, String type, String message) {
+    // recipientEmail = null → broadcast (poori company). Warna sirf usi banda ko.
+    public Notification saveNotification(Long companyId, Long employeeId, String employeeName,
+                                         String recipientEmail, String type, String message) {
         Notification n = new Notification();
         n.setCompanyId(companyId);
         n.setEmployeeId(employeeId);
         n.setEmployeeName(employeeName);
+        n.setRecipientEmail(recipientEmail);
         n.setType(type);
         n.setMessage(message);
         Notification saved = notificationRepository.save(n);
-        log.info("Notification saved → id:{} type:{} employee:{}", saved.getId(), type, employeeName);
+        log.info("Notification saved → id:{} type:{} to:{}", saved.getId(), type,
+                recipientEmail != null ? recipientEmail : "(broadcast)");
         return saved;
     }
 
-    public List<NotificationResponse> getAll(Long companyId) {
+    // Sirf is user ki + broadcast notifications
+    public List<NotificationResponse> getForUser(Long companyId, String email) {
         return notificationRepository
-                .findByCompanyIdOrderByCreatedAtDesc(companyId)
+                .findForUser(companyId, email)
                 .stream().map(this::toResponse).toList();
     }
 
-    public long getUnreadCount(Long companyId) {
-        return notificationRepository.countByCompanyIdAndIsRead(companyId, false);
+    public long getUnreadCount(Long companyId, String email) {
+        return notificationRepository.countUnreadForUser(companyId, email);
     }
 
     public void markAsRead(Long companyId, Long id) {
@@ -47,8 +52,8 @@ public class NotificationService {
         });
     }
 
-    public void markAllRead(Long companyId) {
-        notificationRepository.findByCompanyIdOrderByCreatedAtDesc(companyId)
+    public void markAllRead(Long companyId, String email) {
+        notificationRepository.findForUser(companyId, email)
                 .forEach(n -> { n.setIsRead(true); notificationRepository.save(n); });
     }
 
