@@ -14,6 +14,7 @@ import NotificationsPage from './pages/NotificationsPage'
 import ProgressPage from './pages/ProgressPage'
 import EngagementPage from './pages/EngagementPage'
 import AnalyticsPage from './pages/AnalyticsPage'
+import ReportsPage from './pages/ReportsPage'
 import SettingsPage from './pages/SettingsPage'
 import OnboardingPage from './pages/OnboardingPage'
 import AcceptInvitePage from './pages/AcceptInvitePage'
@@ -100,6 +101,7 @@ function App() {
               <Route path="/members"     element={<MembersPage />} />
               <Route path="/engagement"  element={<EngagementPage />} />
               <Route path="/analytics"   element={<AnalyticsPage />} />
+              <Route path="/reports"     element={<ReportsPage />} />
             </Route>
 
             {/* Admin only */}
