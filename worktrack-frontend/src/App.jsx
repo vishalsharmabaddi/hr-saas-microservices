@@ -15,6 +15,8 @@ import ProgressPage from './pages/ProgressPage'
 import EngagementPage from './pages/EngagementPage'
 import AnalyticsPage from './pages/AnalyticsPage'
 import ReportsPage from './pages/ReportsPage'
+import PayrollPage from './pages/PayrollPage'
+import MyPayslipsPage from './pages/MyPayslipsPage'
 import SettingsPage from './pages/SettingsPage'
 import OnboardingPage from './pages/OnboardingPage'
 import AcceptInvitePage from './pages/AcceptInvitePage'
@@ -94,6 +96,7 @@ function App() {
             <Route path="/leaves"           element={<LeavePage />} />
             <Route path="/notifications"    element={<NotificationsPage />} />
             <Route path="/progress"         element={<ProgressPage />} />
+            <Route path="/my-payslips"      element={<MyPayslipsPage />} />
             <Route path="/access-denied"    element={<AccessDeniedPage />} />
 
             {/* Admin + Manager only */}
@@ -102,6 +105,7 @@ function App() {
               <Route path="/engagement"  element={<EngagementPage />} />
               <Route path="/analytics"   element={<AnalyticsPage />} />
               <Route path="/reports"     element={<ReportsPage />} />
+              <Route path="/payroll"     element={<PayrollPage />} />
             </Route>
 
             {/* Admin only */}

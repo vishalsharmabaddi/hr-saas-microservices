@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { Outlet, NavLink, useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { LayoutDashboard, FolderKanban, Clock, Users, UserSquare2, CalendarCheck, CalendarOff, Bell, Settings, Menu, X, Check, CheckCheck, TrendingUp, LogOut, ChevronUp, ChevronDown, ChevronLeft, Sparkles, BarChart3, Compass, HelpCircle, ShieldCheck, FileText } from 'lucide-react'
+import { LayoutDashboard, FolderKanban, Clock, Users, UserSquare2, CalendarCheck, CalendarOff, Bell, Settings, Menu, X, Check, CheckCheck, TrendingUp, LogOut, ChevronUp, ChevronDown, ChevronLeft, Sparkles, BarChart3, Compass, HelpCircle, ShieldCheck, FileText, Wallet, Receipt } from 'lucide-react'
 import api from '../api/axios'
 import { ROLE_NAV, ROLE_STYLE, isPlatformOwner } from '../auth/roles'
 import { startTour, maybeStartTourForNewUser } from '../tour/appTour'
@@ -250,7 +250,9 @@ export default function Layout() {
               {[
                 ...(isPlatformOwner(user.email) ? [{ icon: ShieldCheck, label: 'Platform Console', action: () => { navigate('/platform'); setUserMenuOpen(false) }, accent: true }] : []),
                 ...(user.role === 'ADMIN' ? [{ icon: Settings, label: 'Settings', action: () => { navigate('/settings'); setUserMenuOpen(false) } }] : []),
+                ...((user.role === 'ADMIN' || user.role === 'MANAGER') ? [{ icon: Wallet, label: 'Payroll', action: () => { navigate('/payroll'); setUserMenuOpen(false) } }] : []),
                 { icon: TrendingUp, label: 'My Progress', action: () => { navigate('/progress'); setUserMenuOpen(false) } },
+                { icon: Receipt, label: 'My Payslips', action: () => { navigate('/my-payslips'); setUserMenuOpen(false) } },
                 { icon: Compass,    label: 'Take a tour', action: () => { setUserMenuOpen(false); startTour() } },
                 { icon: LogOut,     label: 'Log out',     action: handleLogout, danger: true },
               ].map(({ icon: Icon, label, action, danger, accent }) => (

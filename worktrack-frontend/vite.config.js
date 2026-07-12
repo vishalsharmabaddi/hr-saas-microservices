@@ -31,6 +31,11 @@ export default defineConfig({
         target: 'http://localhost:8086',
         changeOrigin: true,
       },
+      // payroll-service (8087)
+      '/api/payroll': {
+        target: 'http://localhost:8087',
+        changeOrigin: true,
+      },
       // project-service (8085) — everything else under /api
       '/api': {
         target: 'http://localhost:8085',

@@ -50,16 +50,10 @@ export function loadImageAsset(url, maxH = 160) {
   })
 }
 
-// brand = { dataUrl, w, h } (logo) | null. CSV stays unbranded — branding sirf PDF me.
-export function downloadPDF(filename, title, headers, rows, brand) {
-  // 6+ columns → landscape (warna table kat-ti hai)
-  const doc = new jsPDF({ orientation: headers.length > 6 ? 'landscape' : 'portrait' })
-  const pageW = doc.internal.pageSize.getWidth()
-  const pageH = doc.internal.pageSize.getHeight()
-  const M = 14
-  let y = 13
-
-  // ── Letterhead: logo mark + wordmark + tagline ──
+// Shared Taurus Go letterhead (logo mark + wordmark + tagline + green rule).
+// startY se shuru; rule ke neeche ki y laut-ta hai (content wahin se aage).
+function drawLetterhead(doc, brand, M, pageW, startY = 13) {
+  let y = startY
   let textX = M
   if (brand?.dataUrl) {
     const logoH = 13
@@ -83,7 +77,17 @@ export function downloadPDF(filename, title, headers, rows, brand) {
   doc.setDrawColor(22, 163, 74)                 // green rule
   doc.setLineWidth(0.6)
   doc.line(M, y, pageW - M, y)
-  y += 8
+  return y + 8
+}
+
+// brand = { dataUrl, w, h } (logo) | null. CSV stays unbranded — branding sirf PDF me.
+export function downloadPDF(filename, title, headers, rows, brand) {
+  // 6+ columns → landscape (warna table kat-ti hai)
+  const doc = new jsPDF({ orientation: headers.length > 6 ? 'landscape' : 'portrait' })
+  const pageW = doc.internal.pageSize.getWidth()
+  const pageH = doc.internal.pageSize.getHeight()
+  const M = 14
+  let y = drawLetterhead(doc, brand, M, pageW)
 
   // ── Report title + meta ──
   doc.setFont('helvetica', 'bold')
@@ -115,4 +119,95 @@ export function downloadPDF(filename, title, headers, rows, brand) {
   })
 
   doc.save(filename)
+}
+
+const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December']
+const inr = n => 'Rs. ' + Number(n || 0).toLocaleString('en-IN', { maximumFractionDigits: 2 })
+
+// Ek payslip ka branded PDF (letterhead + earnings/deductions + net pay highlight).
+// p = payslip object (backend jaisa), brand = { dataUrl, w, h } | null.
+export function downloadPayslipPDF(p, brand) {
+  const doc = new jsPDF({ orientation: 'portrait' })
+  const pageW = doc.internal.pageSize.getWidth()
+  const pageH = doc.internal.pageSize.getHeight()
+  const M = 14
+  let y = drawLetterhead(doc, brand, M, pageW)
+
+  // Title
+  doc.setFont('helvetica', 'bold')
+  doc.setFontSize(15)
+  doc.setTextColor(20, 37, 26)
+  doc.text('Payslip', M, y)
+  doc.setFont('helvetica', 'normal')
+  doc.setFontSize(11)
+  doc.setTextColor(90, 107, 96)
+  doc.text(`${MONTH_NAMES[p.month - 1]} ${p.year}`, pageW - M, y, { align: 'right' })
+  y += 7
+
+  // Employee + attendance summary
+  doc.setFontSize(10)
+  doc.setTextColor(60, 60, 60)
+  doc.text(`Employee: ${p.employeeName || '#' + p.employeeId}`, M, y)
+  y += 5
+  doc.setTextColor(120, 120, 120)
+  doc.setFontSize(9)
+  doc.text(
+    `Absent: ${p.absentDays}   |   Approved leave: ${p.approvedLeaveDays} (paid ${p.paidLeaveDays}, unpaid ${p.unpaidLeaveDays})   |   LOP days: ${p.lopDays}`,
+    M, y)
+  y += 4
+
+  // Earnings table
+  autoTable(doc, {
+    startY: y + 2,
+    head: [['Earnings', 'Amount']],
+    body: [
+      ['Basic', inr(p.basic)],
+      ['HRA', inr(p.hra)],
+      ['Special Allowance', inr(p.specialAllowance)],
+      [{ content: 'Gross Pay', styles: { fontStyle: 'bold' } }, { content: inr(p.grossPay), styles: { fontStyle: 'bold' } }],
+    ],
+    styles: { fontSize: 10, cellPadding: 3 },
+    headStyles: { fillColor: [22, 163, 74], textColor: 255, fontStyle: 'bold' },
+    columnStyles: { 1: { halign: 'right' } },
+    margin: { left: M, right: M },
+  })
+
+  // Deductions table
+  autoTable(doc, {
+    startY: doc.lastAutoTable.finalY + 4,
+    head: [['Deductions', 'Amount']],
+    body: [
+      ['Provident Fund (PF)', inr(p.pf)],
+      ['Professional Tax', inr(p.professionalTax)],
+      [`Loss of Pay (${p.lopDays} day${p.lopDays === 1 ? '' : 's'})`, inr(p.lopAmount)],
+      [{ content: 'Total Deductions', styles: { fontStyle: 'bold' } }, { content: inr(p.totalDeductions), styles: { fontStyle: 'bold' } }],
+    ],
+    styles: { fontSize: 10, cellPadding: 3 },
+    headStyles: { fillColor: [100, 116, 139], textColor: 255, fontStyle: 'bold' },
+    columnStyles: { 1: { halign: 'right' } },
+    margin: { left: M, right: M },
+  })
+
+  // Net Pay highlight box
+  const boxY = doc.lastAutoTable.finalY + 8
+  doc.setFillColor(234, 247, 238)              // light green
+  doc.setDrawColor(22, 163, 74)
+  doc.setLineWidth(0.4)
+  doc.roundedRect(M, boxY, pageW - 2 * M, 16, 2, 2, 'FD')
+  doc.setFont('helvetica', 'bold')
+  doc.setFontSize(12)
+  doc.setTextColor(20, 83, 45)
+  doc.text('Net Pay (Take-home)', M + 5, boxY + 10)
+  doc.setFontSize(14)
+  doc.setTextColor(22, 101, 52)
+  doc.text(inr(p.netPay), pageW - M - 5, boxY + 10, { align: 'right' })
+
+  // Footer
+  doc.setFont('helvetica', 'normal')
+  doc.setFontSize(8)
+  doc.setTextColor(150, 150, 150)
+  doc.text('This is a system-generated payslip.  Generated by Taurus Go.', M, pageH - 8)
+
+  doc.save(`payslip-${p.year}-${String(p.month).padStart(2, '0')}.pdf`)
 }
