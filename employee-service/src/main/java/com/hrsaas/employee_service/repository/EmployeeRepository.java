@@ -15,5 +15,8 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
 
     Optional<Employee> findByEmail(String email);
 
+    // Self-attendance: "yeh email + company ka employee kaun hai?" (tenant-safe lookup)
+    Optional<Employee> findByEmailAndCompanyId(String email, Long companyId);
+
     List<Employee> findByDepartment(String department);
 }

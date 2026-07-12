@@ -36,6 +36,25 @@ public class EmployeeClient {
         }
     }
 
+    // Self-attendance: "yeh token wala banda konsa employee hai?"
+    // employee-service /me token ke email se resolve karta hai — hum bas token forward karte hain.
+    // null = is email ka koi employee record nahi (404) ya service reachable nahi → "not enrolled".
+    public EmployeeInfo getMe() {
+        try {
+            RestClient.RequestHeadersSpec<?> spec = restClient.get()
+                    .uri("/api/employees/me");
+
+            String auth = currentAuthHeader();
+            if (auth != null) {
+                spec = spec.header("Authorization", auth);
+            }
+
+            return spec.retrieve().body(EmployeeInfo.class);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     // Abhi jo request handle ho rahi hai usi ka Authorization header uthao
     private String currentAuthHeader() {
         ServletRequestAttributes attrs =

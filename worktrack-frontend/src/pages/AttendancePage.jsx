@@ -1,6 +1,7 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { Plus, Clock, CheckCircle, AlertCircle, LogOut, Pencil, X } from 'lucide-react'
+import { Plus, Clock, CheckCircle, AlertCircle, LogOut, Pencil, X, LogIn, UserPlus } from 'lucide-react'
 import api from '../api/axios'
 
 const statusStyle = {
@@ -26,6 +27,8 @@ function todayLabel() {
 
 export default function AttendancePage() {
   const queryClient = useQueryClient()
+  const navigate    = useNavigate()
+  const user        = JSON.parse(localStorage.getItem('wt_user') || '{}')
   const [showForm, setShowForm]     = useState(false)
   const [form, setForm]             = useState({ employeeId: '', notes: '' })
   const [editingRecord, setEditingRecord] = useState(null) // { id, checkInTime, checkOutTime, status, notes }
@@ -36,6 +39,29 @@ export default function AttendancePage() {
     queryKey: ['attendance-today'],
     queryFn: () => api.get('/attendance/today').then(r => Array.isArray(r.data) ? r.data : []),
     refetchInterval: 30000,
+  })
+
+  // Self-service: my own attendance today ({ enrolled, employeeName, record })
+  const { data: myStatus = {}, isLoading: myLoading } = useQuery({
+    queryKey: ['my-attendance'],
+    queryFn: () => api.get('/attendance/me/today').then(r => r.data ?? {}),
+    refetchInterval: 30000,
+  })
+
+  // Dono queries refresh — mera card + neeche ki admin table, dono turant update
+  const refreshAll = () => {
+    queryClient.invalidateQueries({ queryKey: ['my-attendance'] })
+    queryClient.invalidateQueries({ queryKey: ['attendance-today'] })
+  }
+
+  const meCheckInMutation = useMutation({
+    mutationFn: () => api.post('/attendance/me/checkin', {}),
+    onSuccess: refreshAll,
+  })
+
+  const meCheckOutMutation = useMutation({
+    mutationFn: () => api.post('/attendance/me/checkout'),
+    onSuccess: refreshAll,
   })
 
   // Fetch employees for dropdown + name lookup
@@ -108,6 +134,19 @@ export default function AttendancePage() {
           <Plus size={14} /> Check In
         </button>
       </div>
+
+      {/* My Attendance — self-service card */}
+      <MyAttendanceCard
+        status={myStatus}
+        loading={myLoading}
+        user={user}
+        onCheckIn={() => meCheckInMutation.mutate()}
+        onCheckOut={() => meCheckOutMutation.mutate()}
+        checkInPending={meCheckInMutation.isPending}
+        checkOutPending={meCheckOutMutation.isPending}
+        error={meCheckInMutation.isError || meCheckOutMutation.isError}
+        onAddSelf={() => navigate('/employees')}
+      />
 
       {/* Stats row */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 12, marginBottom: 20 }}>
@@ -346,6 +385,112 @@ export default function AttendancePage() {
           })
         )}
       </div>
+    </div>
+  )
+}
+
+function MyAttendanceCard({ status, loading, user, onCheckIn, onCheckOut, checkInPending, checkOutPending, error, onAddSelf }) {
+  const card = {
+    background: 'linear-gradient(180deg, #F1FBF4 0%, #ffffff 60%)',
+    border: '1px solid #D6EDDD', borderRadius: 14, padding: '20px 22px', marginBottom: 20,
+  }
+  const eyebrow = { fontSize: 12, fontWeight: 700, letterSpacing: '0.6px', textTransform: 'uppercase', color: '#16A34A', margin: 0 }
+
+  // Loading
+  if (loading) {
+    return <div style={card}><p style={eyebrow}>My Attendance</p><p style={{ fontSize: 14, color: '#64748b', margin: '8px 0 0' }}>Loading your status…</p></div>
+  }
+
+  // State 1 — not enrolled (logged-in email ka koi employee record nahi)
+  if (!status.enrolled) {
+    return (
+      <div style={card}>
+        <p style={eyebrow}>My Attendance</p>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap', marginTop: 10 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div style={{ width: 40, height: 40, borderRadius: 10, background: '#FEF3C7', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <AlertCircle size={20} color="#D97706" />
+            </div>
+            <div>
+              <p style={{ fontSize: 15, fontWeight: 600, color: '#0f172a', margin: 0 }}>You're not in the employee directory yet</p>
+              <p style={{ fontSize: 13, color: '#64748b', margin: '3px 0 0' }}>Add yourself as an employee to track your attendance.</p>
+            </div>
+          </div>
+          <button onClick={onAddSelf} className="btn-primary" style={{ flexShrink: 0 }}>
+            <UserPlus size={16} /> Add me as an employee
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  const record     = status.record
+  const name       = status.employeeName || user.name || user.email || 'You'
+  const initials   = name.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase()
+  const checkedIn  = !!record
+  const checkedOut = !!record?.checkOutTime
+  const st         = record ? (statusStyle[record.status] || { background: '#f1f5f9', color: '#64748b' }) : null
+
+  return (
+    <div style={card}>
+      <p style={eyebrow}>My Attendance — {todayLabel()}</p>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 20, flexWrap: 'wrap', marginTop: 12 }}>
+
+        {/* Identity + status */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+          <div style={{ width: 46, height: 46, borderRadius: '50%', flexShrink: 0, background: '#16A34A', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 700 }}>
+            {initials}
+          </div>
+          <div>
+            <p style={{ fontSize: 16, fontWeight: 700, color: '#0f172a', margin: 0 }}>{name}</p>
+            {checkedIn ? (
+              <span style={{ display: 'inline-block', marginTop: 5, padding: '3px 10px', borderRadius: 6, fontSize: 12, fontWeight: 600, ...st }}>
+                {statusLabel[record.status] || record.status}
+              </span>
+            ) : (
+              <p style={{ fontSize: 13, color: '#64748b', margin: '3px 0 0' }}>Ready to start your day</p>
+            )}
+          </div>
+        </div>
+
+        {/* Times */}
+        {checkedIn && (
+          <div style={{ display: 'flex', gap: 26, alignItems: 'center' }}>
+            <Metric label="Check In" value={formatTime(record.checkInTime)} />
+            <Metric label="Check Out" value={checkedOut ? formatTime(record.checkOutTime) : 'running…'} muted={!checkedOut} />
+            <Metric label="Hours" value={record.hoursWorked ? `${record.hoursWorked}h` : '—'} muted={!checkedOut} />
+          </div>
+        )}
+
+        {/* Action */}
+        <div style={{ flexShrink: 0 }}>
+          {!checkedIn && (
+            <button onClick={onCheckIn} disabled={checkInPending} className="btn-primary">
+              <LogIn size={16} /> {checkInPending ? 'Checking in…' : 'Check In'}
+            </button>
+          )}
+          {checkedIn && !checkedOut && (
+            <button onClick={onCheckOut} disabled={checkOutPending} className="btn-primary">
+              <LogOut size={16} /> {checkOutPending ? 'Checking out…' : 'Check Out'}
+            </button>
+          )}
+          {checkedOut && (
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7, fontSize: 14, fontWeight: 600, color: '#16A34A' }}>
+              <CheckCircle size={18} /> Done for today
+            </span>
+          )}
+        </div>
+      </div>
+      {error && <p style={{ fontSize: 13, color: '#ef4444', margin: '12px 0 0' }}>Something went wrong. Please try again.</p>}
+    </div>
+  )
+}
+
+function Metric({ label, value, muted }) {
+  return (
+    <div>
+      <p style={{ fontSize: 11, fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px', margin: 0 }}>{label}</p>
+      <p style={{ fontSize: 17, fontWeight: 700, color: muted ? '#cbd5e1' : '#0f172a', margin: '3px 0 0' }}>{value}</p>
     </div>
   )
 }

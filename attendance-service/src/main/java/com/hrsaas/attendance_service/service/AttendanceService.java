@@ -5,6 +5,7 @@ import com.hrsaas.attendance_service.dto.AttendanceResponse;
 import com.hrsaas.attendance_service.dto.AttendanceUpdateRequest;
 import com.hrsaas.attendance_service.dto.CheckInRequest;
 import com.hrsaas.attendance_service.dto.CheckOutRequest;
+import com.hrsaas.attendance_service.dto.MyAttendanceStatus;
 import com.hrsaas.attendance_service.model.AttendanceRecord;
 import com.hrsaas.attendance_service.repository.AttendanceRepository;
 import lombok.RequiredArgsConstructor;
@@ -90,6 +91,47 @@ public class AttendanceService {
         return attendanceRepository
                 .findByCompanyIdAndEmployeeIdOrderByAttendanceDateDesc(companyId, employeeId)
                 .stream().map(r -> toResponse(r, null)).toList();
+    }
+
+    // ─── Self-service: logged-in user apni hi attendance manage kare ──────────
+    // employeeId client se NAHI aata — token se resolve hota hai (employee-service /me).
+
+    public MyAttendanceStatus getMyToday(Long companyId) {
+        MyAttendanceStatus status = new MyAttendanceStatus();
+        EmployeeClient.EmployeeInfo me = employeeClient.getMe();
+        if (me == null) {
+            status.setEnrolled(false);   // is email ka koi employee record nahi
+            return status;
+        }
+        status.setEnrolled(true);
+        status.setEmployeeName(me.getFullName());
+        attendanceRepository
+                .findByCompanyIdAndEmployeeIdAndAttendanceDate(companyId, me.getId(), LocalDate.now())
+                .ifPresent(r -> status.setRecord(toResponse(r, me.getFullName())));
+        return status;
+    }
+
+    public AttendanceResponse checkInSelf(Long companyId, String notes) {
+        EmployeeClient.EmployeeInfo me = resolveMeOrThrow();
+        CheckInRequest req = new CheckInRequest();
+        req.setEmployeeId(me.getId());
+        req.setNotes(notes);
+        return checkIn(companyId, req);      // saare guards (duplicate, LATE) reuse
+    }
+
+    public AttendanceResponse checkOutSelf(Long companyId) {
+        EmployeeClient.EmployeeInfo me = resolveMeOrThrow();
+        CheckOutRequest req = new CheckOutRequest();
+        req.setEmployeeId(me.getId());
+        return checkOut(companyId, req);      // hours + HALF_DAY logic reuse
+    }
+
+    private EmployeeClient.EmployeeInfo resolveMeOrThrow() {
+        EmployeeClient.EmployeeInfo me = employeeClient.getMe();
+        if (me == null) {
+            throw new RuntimeException("You're not in the employee directory yet");
+        }
+        return me;
     }
 
     private AttendanceResponse toResponse(AttendanceRecord r, String employeeName) {

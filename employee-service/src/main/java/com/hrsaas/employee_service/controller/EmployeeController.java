@@ -35,6 +35,17 @@ public class EmployeeController {
         return ResponseEntity.ok(employeeService.getAllEmployees(companyId));
     }
 
+    // "Main kaun hoon?" — token ke email se apna employee record. Self-attendance ke liye.
+    // Mila → 200 + employee; nahi mila → 404 (frontend "not enrolled" prompt dikhata hai).
+    @GetMapping("/me")
+    public ResponseEntity<EmployeeResponse> getMyProfile(
+            @RequestHeader("X-Company-Id") Long companyId,
+            @RequestHeader("X-User-Email") String email) {
+        return employeeService.getMyProfile(companyId, email)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<EmployeeResponse> getEmployeeById(
             @RequestHeader("X-Company-Id") Long companyId,

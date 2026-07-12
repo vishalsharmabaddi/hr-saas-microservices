@@ -7,6 +7,7 @@ import com.hrsaas.employee_service.repository.EmployeeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -69,6 +70,13 @@ public class EmployeeService {
                 .orElseThrow(() -> new RuntimeException("Employee not found: " + id));
         emp.setIsActive(true);
         employeeRepository.save(emp);
+    }
+
+    // Self-attendance: logged-in email ko employee record se map karo.
+    // Empty = is company me is email ka koi employee nahi (frontend "not enrolled" dikhayega).
+    public Optional<EmployeeResponse> getMyProfile(Long companyId, String email) {
+        return employeeRepository.findByEmailAndCompanyId(email, companyId)
+                .map(this::toResponse);
     }
 
     private EmployeeResponse toResponse(Employee e) {

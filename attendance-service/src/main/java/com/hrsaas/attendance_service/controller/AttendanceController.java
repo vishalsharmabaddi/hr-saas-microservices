@@ -4,6 +4,7 @@ import com.hrsaas.attendance_service.dto.AttendanceResponse;
 import com.hrsaas.attendance_service.dto.AttendanceUpdateRequest;
 import com.hrsaas.attendance_service.dto.CheckInRequest;
 import com.hrsaas.attendance_service.dto.CheckOutRequest;
+import com.hrsaas.attendance_service.dto.MyAttendanceStatus;
 import com.hrsaas.attendance_service.service.AttendanceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -31,6 +32,29 @@ public class AttendanceController {
             @RequestHeader("X-Company-Id") Long companyId,
             @RequestBody CheckOutRequest request) {
         return ResponseEntity.ok(attendanceService.checkOut(companyId, request));
+    }
+
+    // ─── Self-service ─────────────────────────────────────────────────────────
+    // employeeId body se NAHI aata — token ke email se resolve hota hai.
+
+    @GetMapping("/me/today")
+    public ResponseEntity<MyAttendanceStatus> myToday(
+            @RequestHeader("X-Company-Id") Long companyId) {
+        return ResponseEntity.ok(attendanceService.getMyToday(companyId));
+    }
+
+    @PostMapping("/me/checkin")
+    public ResponseEntity<AttendanceResponse> checkInSelf(
+            @RequestHeader("X-Company-Id") Long companyId,
+            @RequestBody(required = false) CheckInRequest request) {
+        String notes = request != null ? request.getNotes() : null;
+        return ResponseEntity.ok(attendanceService.checkInSelf(companyId, notes));
+    }
+
+    @PostMapping("/me/checkout")
+    public ResponseEntity<AttendanceResponse> checkOutSelf(
+            @RequestHeader("X-Company-Id") Long companyId) {
+        return ResponseEntity.ok(attendanceService.checkOutSelf(companyId));
     }
 
     @PutMapping("/{id}")
