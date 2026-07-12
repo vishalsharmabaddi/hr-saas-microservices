@@ -43,6 +43,11 @@ spring:
             predicates:
               - Path=/api/gamification/**
 
+          - id: payroll-service
+            uri: lb://payroll-service
+            predicates:
+              - Path=/api/payroll/**
+
 eureka:
   client:
     service-url:
