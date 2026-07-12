@@ -49,6 +49,12 @@ const faqs = [
 
 const GRAD = 'linear-gradient(135deg, #16A34A 0%, #4ADE80 48%, #FACC15 100%)'
 
+// Smooth-scroll to a section without putting "#id" in the URL
+function scrollToId(e, id) {
+  e.preventDefault()
+  document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+}
+
 // ─── Comparison cell ──────────────────────────────────────────────────────────
 function Cell({ val, isTaurus }) {
   if (val === true)  return <CheckCircle2 size={17} color={isTaurus ? '#16A34A' : '#94a3b8'} />
@@ -96,7 +102,7 @@ export default function LandingPage() {
 
           <div className="lp-nav-links" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
             {[['Features', '#features'], ['Pricing', '#pricing'], ['FAQ', '#faq']].map(([label, href]) => (
-              <a key={label} href={href} style={{ color: 'rgba(255,255,255,0.6)', fontSize: 14, textDecoration: 'none', fontWeight: 500, padding: '6px 12px', borderRadius: 6 }}
+              <a key={label} href={href} onClick={e => scrollToId(e, href.slice(1))} style={{ color: 'rgba(255,255,255,0.6)', fontSize: 14, textDecoration: 'none', fontWeight: 500, padding: '6px 12px', borderRadius: 6 }}
                 onMouseEnter={e => e.currentTarget.style.color = '#fff'} onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.6)'}>{label}</a>
             ))}
             <div style={{ width: 1, height: 18, background: 'rgba(255,255,255,0.12)', margin: '0 8px' }} />
@@ -111,7 +117,7 @@ export default function LandingPage() {
         {menuOpen && (
           <div className="lp-mobile-menu">
             {[['Features', '#features'], ['Pricing', '#pricing'], ['FAQ', '#faq']].map(([label, href]) => (
-              <a key={label} href={href} className="lp-mobile-link" onClick={() => setMenuOpen(false)}>{label}</a>
+              <a key={label} href={href} className="lp-mobile-link" onClick={e => { scrollToId(e, href.slice(1)); setMenuOpen(false) }}>{label}</a>
             ))}
             <button onClick={go} style={{ marginTop: 8, background: GRAD, color: '#06210F', border: 'none', borderRadius: 8, padding: '11px', fontSize: 14, fontWeight: 700, cursor: 'pointer' }}>Get started free</button>
           </div>
@@ -135,7 +141,7 @@ export default function LandingPage() {
             </p>
             <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
               <CtaButton onClick={go} size="lg">Get started free <ArrowRight size={17} /></CtaButton>
-              <a href="#features" style={{ display: 'inline-flex', alignItems: 'center', gap: 7, color: '#fff', textDecoration: 'none', fontSize: 15, fontWeight: 600, border: '1px solid rgba(255,255,255,0.18)', borderRadius: 10, padding: '13px 22px' }}>See features</a>
+              <a href="#features" onClick={e => scrollToId(e, 'features')} style={{ display: 'inline-flex', alignItems: 'center', gap: 7, color: '#fff', textDecoration: 'none', fontSize: 15, fontWeight: 600, border: '1px solid rgba(255,255,255,0.18)', borderRadius: 10, padding: '13px 22px' }}>See features</a>
             </div>
             <div style={{ display: 'flex', gap: 18, flexWrap: 'wrap', marginTop: 26, color: 'rgba(255,255,255,0.55)', fontSize: 13 }}>
               {['No credit card', 'Free up to 12 people', 'Setup in minutes'].map(t => (
@@ -288,7 +294,7 @@ export default function LandingPage() {
             </div>
             <div style={{ display: 'flex', gap: 22, fontSize: 14, flexWrap: 'wrap' }}>
               {[['Features', '#features'], ['Pricing', '#pricing'], ['FAQ', '#faq']].map(([l, h]) => (
-                <a key={l} href={h} style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none' }} onMouseEnter={e => e.currentTarget.style.color = '#fff'} onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.6)'}>{l}</a>
+                <a key={l} href={h} onClick={e => scrollToId(e, h.slice(1))} style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none' }} onMouseEnter={e => e.currentTarget.style.color = '#fff'} onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.6)'}>{l}</a>
               ))}
               <button onClick={go} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.6)', fontSize: 14, cursor: 'pointer', padding: 0 }}>Sign in</button>
             </div>
