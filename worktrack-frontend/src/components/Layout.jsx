@@ -5,6 +5,7 @@ import { LayoutDashboard, FolderKanban, Clock, Users, UserSquare2, CalendarCheck
 import api from '../api/axios'
 import { ROLE_NAV, ROLE_STYLE, isPlatformOwner } from '../auth/roles'
 import notificationSound from '../assets/notification.mp3'
+import useNotificationSocket from '../hooks/useNotificationSocket'
 import { startTour, maybeStartTourForNewUser } from '../tour/appTour'
 import GlobalSearch from './GlobalSearch'
 import taurusMark from '../assets/Taurus-Logo.png'
@@ -45,7 +46,7 @@ function NotificationDropdown({ onClose }) {
   const { data: notifications = [] } = useQuery({
     queryKey: ['notifications'],
     queryFn: () => api.get('/notifications').then(r => Array.isArray(r.data) ? r.data : []),
-    refetchInterval: 15000,
+    refetchInterval: 60000,   // fallback — real-time push socket se aata hai
   })
 
   const markReadMutation = useMutation({
@@ -180,10 +181,13 @@ export default function Layout() {
     }
   }
 
+  // Real-time push (primary). Polling neeche ab sirf 60s fallback hai.
+  useNotificationSocket(user.companyId)
+
   const { data: notifications = [] } = useQuery({
     queryKey: ['notifications'],
     queryFn: () => api.get('/notifications').then(r => Array.isArray(r.data) ? r.data : []),
-    refetchInterval: 15000,
+    refetchInterval: 60000,
   })
   const unread = notifications.filter(n => !n.isRead).length
 

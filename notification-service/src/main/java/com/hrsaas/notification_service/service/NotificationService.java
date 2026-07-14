@@ -5,6 +5,7 @@ import com.hrsaas.notification_service.model.Notification;
 import com.hrsaas.notification_service.repository.NotificationRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,6 +16,7 @@ import java.util.List;
 public class NotificationService {
 
     private final NotificationRepository notificationRepository;
+    private final SimpMessagingTemplate messagingTemplate;   // WebSocket push
 
     // recipientEmail = null → broadcast (poori company). Warna sirf usi banda ko.
     public Notification saveNotification(Long companyId, Long employeeId, String employeeName,
@@ -29,6 +31,21 @@ public class NotificationService {
         Notification saved = notificationRepository.save(n);
         log.info("Notification saved → id:{} type:{} to:{}", saved.getId(), type,
                 recipientEmail != null ? recipientEmail : "(broadcast)");
+
+        // Real-time push (best-effort — socket fail ho to bhi DB save/Kafka nahi tootega)
+        try {
+            NotificationResponse payload = toResponse(saved);
+            if (recipientEmail != null) {
+                // Sirf usi user ko: Spring /user/{email}/queue/notifications pe route karta hai
+                messagingTemplate.convertAndSendToUser(
+                        recipientEmail, "/queue/notifications", payload);
+            } else {
+                // Broadcast: poori company ke subscribers ko
+                messagingTemplate.convertAndSend("/topic/company." + companyId, payload);
+            }
+        } catch (Exception e) {
+            log.warn("WebSocket push failed (notification still saved): {}", e.getMessage());
+        }
         return saved;
     }
 

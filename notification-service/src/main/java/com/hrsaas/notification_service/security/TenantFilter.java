@@ -31,8 +31,9 @@ public class TenantFilter extends OncePerRequestFilter {
 
         String path = request.getRequestURI();
 
-        // Login (/api/auth) aur health checks pe token nahi chahiye — skip
-        if (path.startsWith("/api/auth") || path.startsWith("/actuator")) {
+        // Login (/api/auth), health checks, aur WebSocket handshake (/ws) pe token nahi chahiye — skip.
+        // /ws pe SockJS handshake me Bearer header nahi aata; auth STOMP CONNECT frame me hota hai.
+        if (path.startsWith("/api/auth") || path.startsWith("/actuator") || path.startsWith("/ws")) {
             chain.doFilter(request, response);
             return;
         }

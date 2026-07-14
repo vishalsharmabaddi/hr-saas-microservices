@@ -4,8 +4,18 @@ import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+  // sockjs-client 'global' ko reference karta hai — Vite me define karna zaroori
+  define: {
+    global: 'globalThis',
+  },
   server: {
     proxy: {
+      // WebSocket (STOMP/SockJS) → notification-service (8084). ws:true zaroori.
+      '/ws': {
+        target: 'http://localhost:8084',
+        changeOrigin: true,
+        ws: true,
+      },
       // employee-service (8081) — more specific, must come BEFORE /api
       '/api/employees': {
         target: 'http://localhost:8081',
