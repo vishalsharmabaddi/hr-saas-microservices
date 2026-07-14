@@ -4,7 +4,12 @@ import com.hrsaas.attendance_service.dto.AttendanceResponse;
 import com.hrsaas.attendance_service.dto.AttendanceUpdateRequest;
 import com.hrsaas.attendance_service.dto.CheckInRequest;
 import com.hrsaas.attendance_service.dto.CheckOutRequest;
+import com.hrsaas.attendance_service.dto.AttendancePolicyRequest;
 import com.hrsaas.attendance_service.dto.MyAttendanceStatus;
+import com.hrsaas.attendance_service.model.CompanyAttendancePolicy;
+import com.hrsaas.attendance_service.scheduler.AttendanceScheduler;
+import com.hrsaas.attendance_service.security.RoleGuard;
+import com.hrsaas.attendance_service.service.AttendancePolicyService;
 import com.hrsaas.attendance_service.service.AttendanceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/attendance")
@@ -19,6 +25,8 @@ import java.util.List;
 public class AttendanceController {
 
     private final AttendanceService attendanceService;
+    private final AttendancePolicyService policyService;
+    private final AttendanceScheduler attendanceScheduler;
 
     @PostMapping("/checkin")
     public ResponseEntity<AttendanceResponse> checkIn(
@@ -86,5 +94,32 @@ public class AttendanceController {
             @RequestHeader("X-Company-Id") Long companyId,
             @PathVariable Long employeeId) {
         return ResponseEntity.ok(attendanceService.getEmployeeHistory(companyId, employeeId));
+    }
+
+    // ─── Attendance policy (Admin) ──────────────────────────────────────────────
+
+    @GetMapping("/policy")
+    public ResponseEntity<CompanyAttendancePolicy> getPolicy(
+            @RequestHeader("X-Company-Id") Long companyId) {
+        return ResponseEntity.ok(policyService.getPolicy(companyId));
+    }
+
+    @PutMapping("/policy")
+    public ResponseEntity<CompanyAttendancePolicy> savePolicy(
+            @RequestHeader("X-Company-Id") Long companyId,
+            @RequestHeader(value = "X-User-Role", required = false) String role,
+            @RequestBody AttendancePolicyRequest request) {
+        RoleGuard.requireAdmin(role);
+        return ResponseEntity.ok(policyService.savePolicy(companyId, request));
+    }
+
+    // Manual trigger — 11 PM cron ka wait kiye bina absentees mark karo (Admin, testing/on-demand)
+    @PostMapping("/run-absent-check")
+    public ResponseEntity<Map<String, Object>> runAbsentCheck(
+            @RequestHeader("X-Company-Id") Long companyId,
+            @RequestHeader(value = "X-User-Role", required = false) String role) {
+        RoleGuard.requireAdmin(role);
+        int created = attendanceScheduler.runAbsentCheck(companyId, LocalDate.now());
+        return ResponseEntity.ok(Map.of("markedAbsent", created));
     }
 }

@@ -7,12 +7,14 @@ import com.hrsaas.attendance_service.dto.CheckInRequest;
 import com.hrsaas.attendance_service.dto.CheckOutRequest;
 import com.hrsaas.attendance_service.dto.MyAttendanceStatus;
 import com.hrsaas.attendance_service.model.AttendanceRecord;
+import com.hrsaas.attendance_service.model.CompanyAttendancePolicy;
 import com.hrsaas.attendance_service.repository.AttendanceRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
@@ -22,6 +24,7 @@ public class AttendanceService {
 
     private final AttendanceRepository attendanceRepository;
     private final EmployeeClient employeeClient;
+    private final AttendancePolicyService policyService;
 
     public AttendanceResponse checkIn(Long companyId, CheckInRequest request) {
         // Inter-service call: employee-service se verify karo
@@ -41,6 +44,13 @@ public class AttendanceService {
         record.setEmployeeId(request.getEmployeeId());
         record.setNotes(request.getNotes());
 
+        // Status company policy se: start + grace ke baad check-in = LATE
+        CompanyAttendancePolicy policy = policyService.getPolicy(companyId);
+        LocalDateTime now = LocalDateTime.now();
+        record.setCheckInTime(now);
+        LocalTime cutoff = policy.getWorkStartTime().plusMinutes(policy.getGraceMinutes());
+        record.setStatus(now.toLocalTime().isAfter(cutoff) ? "LATE" : "PRESENT");
+
         return toResponse(attendanceRepository.save(record), emp.getFullName());
     }
 
@@ -55,9 +65,10 @@ public class AttendanceService {
 
         record.setCheckOutTime(LocalDateTime.now());
 
-        // 4 ghante se kam kaam kiya = HALF_DAY
+        // Policy ke halfDayHours se kam kaam kiya = HALF_DAY
+        CompanyAttendancePolicy policy = policyService.getPolicy(companyId);
         long minutes = ChronoUnit.MINUTES.between(record.getCheckInTime(), record.getCheckOutTime());
-        if (minutes < 240) record.setStatus("HALF_DAY");
+        if (minutes < policy.getHalfDayHours() * 60L) record.setStatus("HALF_DAY");
 
         return toResponse(attendanceRepository.save(record), null);
     }

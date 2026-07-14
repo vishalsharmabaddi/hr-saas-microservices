@@ -2,10 +2,13 @@ package com.hrsaas.attendance_service.client;
 
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+
+import java.util.List;
 
 @Component
 public class EmployeeClient {
@@ -52,6 +55,21 @@ public class EmployeeClient {
             return spec.retrieve().body(EmployeeInfo.class);
         } catch (Exception e) {
             return null;
+        }
+    }
+
+    // Scheduled job ke liye: poori company ka roster. User request nahi hoti, isliye
+    // caller khud system token deta hai (JwtService.signSystemToken se).
+    public List<EmployeeInfo> listEmployees(Long companyId, String systemToken) {
+        try {
+            return restClient.get()
+                    .uri("/api/employees")
+                    .header("X-Company-Id", companyId.toString())
+                    .header("Authorization", "Bearer " + systemToken)
+                    .retrieve()
+                    .body(new ParameterizedTypeReference<List<EmployeeInfo>>() {});
+        } catch (Exception e) {
+            return List.of();
         }
     }
 

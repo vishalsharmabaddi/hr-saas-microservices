@@ -10,12 +10,14 @@ const statusStyle = {
   PRESENT:  { background: '#f0fdf4', color: '#16a34a' },
   LATE:     { background: '#fffbeb', color: '#d97706' },
   HALF_DAY: { background: '#EEF2F8', color: '#3155A4' },
+  ABSENT:   { background: '#fef2f2', color: '#dc2626' },
 }
 
 const statusLabel = {
   PRESENT:  'Present',
   LATE:     'Late',
   HALF_DAY: 'Half Day',
+  ABSENT:   'Absent',
 }
 
 function formatTime(dt) {

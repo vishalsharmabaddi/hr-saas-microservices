@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Building2, Save, Check, Layers, Users, ArrowRight } from 'lucide-react'
 import { ROLE_STYLE } from '../auth/roles'
 import api from '../api/axios'
+import AttendancePolicyCard from '../components/AttendancePolicyCard'
 
 export default function SettingsPage() {
   const queryClient = useQueryClient()
@@ -133,6 +134,9 @@ export default function SettingsPage() {
           </div>
         )}
       </div>
+
+      {/* Attendance Policy — work hours drive Late/Half-day/auto-absent */}
+      <AttendancePolicyCard />
 
       {/* Departments Overview (Chunk F2) */}
       <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, padding: '20px 22px', marginBottom: 16 }}>

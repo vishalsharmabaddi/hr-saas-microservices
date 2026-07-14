@@ -8,6 +8,7 @@ const statusStyle = {
   PRESENT:  { background: '#f0fdf4', color: '#16a34a', label: 'Present' },
   LATE:     { background: '#fffbeb', color: '#d97706', label: 'Late' },
   HALF_DAY: { background: '#EEF2F8', color: '#3155A4', label: 'Half Day' },
+  ABSENT:   { background: '#fef2f2', color: '#dc2626', label: 'Absent' },
 }
 
 const fmtTime = dt => dt ? new Date(dt).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) : '—'
@@ -47,9 +48,15 @@ export default function AttendanceHistory({ empMap = {} }) {
         </div>
 
         {isLoading ? (
-          <div style={{ padding: 48, textAlign: 'center', color: '#94a3b8', fontSize: 14 }}>Loading…</div>
+          <div style={{ padding: '48px', textAlign: 'center', color: '#94a3b8', fontSize: 14 }}>Loading...</div>
         ) : records.length === 0 ? (
-          <div style={{ padding: '48px 24px', textAlign: 'center', color: '#94a3b8', fontSize: 14 }}>No records in this range</div>
+          <div style={{ padding: '60px 24px', textAlign: 'center' }}>
+            <div style={{ background: '#f1f5f9', borderRadius: 12, padding: 16, display: 'inline-block', marginBottom: 14 }}>
+              <History size={24} color="#94a3b8" strokeWidth={1.5} />
+            </div>
+            <p style={{ fontSize: 15, fontWeight: 500, color: '#334155', margin: 0 }}>No records in this range</p>
+            <p style={{ fontSize: 14, color: '#94a3b8', marginTop: 6 }}>Pick a different date range above</p>
+          </div>
         ) : (
           records.map((r, i) => {
             const emp = empMap[r.employeeId]
@@ -57,10 +64,16 @@ export default function AttendanceHistory({ empMap = {} }) {
             return (
               <div key={r.id} style={{
                 display: 'grid', gridTemplateColumns: cols, minWidth: 640,
-                padding: '12px 20px', alignItems: 'center',
+                padding: '14px 20px', alignItems: 'center',
                 borderBottom: i < records.length - 1 ? '1px solid #f8fafc' : 'none',
               }}>
-                <span style={{ fontSize: 14, fontWeight: 500, color: '#0f172a' }}>{emp?.fullName ?? `Employee #${r.employeeId}`}</span>
+                {/* Employee — avatar + name (Leave list jaisा) */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <div style={{ width: 32, height: 32, borderRadius: '50%', flexShrink: 0, background: '#EAF7EE', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, color: '#16A34A' }}>
+                    {emp?.firstName?.[0]}{emp?.lastName?.[0]}
+                  </div>
+                  <p style={{ fontSize: 14, fontWeight: 600, color: '#0f172a', margin: 0 }}>{emp?.fullName ?? `Employee #${r.employeeId}`}</p>
+                </div>
                 <span style={{ fontSize: 13, color: '#475569' }}>{fmtDate(r.attendanceDate)}</span>
                 <span style={{ fontSize: 14, color: '#334155' }}>{fmtTime(r.checkInTime)}</span>
                 <span style={{ fontSize: 14, color: r.checkOutTime ? '#334155' : '#cbd5e1' }}>{fmtTime(r.checkOutTime)}</span>

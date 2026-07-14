@@ -32,17 +32,15 @@ public class AttendanceRecord {
     @Column(name = "check_out_time")
     private LocalDateTime checkOutTime;
 
-    // PRESENT, LATE, HALF_DAY
+    // PRESENT, LATE, HALF_DAY, ABSENT
     private String status = "PRESENT";
 
     private String notes;
 
+    // Status + checkInTime ab service me policy se set hote hain (LATE/HALF_DAY/ABSENT).
+    // Yahan sirf date default — ABSENT record me checkInTime null rehta hai (banda aaya hi nahi).
     @PrePersist
     public void prePersist() {
         if (attendanceDate == null) attendanceDate = LocalDate.now();
-        if (checkInTime == null) checkInTime = LocalDateTime.now();
-        // 10:00 AM ke baad aaya = LATE
-        if (checkInTime.getHour() >= 10) status = "LATE";
-        else status = "PRESENT";
     }
 }
