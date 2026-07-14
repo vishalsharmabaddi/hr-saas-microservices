@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
 import { FolderKanban, CheckSquare, Clock, CheckCircle, Plus, ArrowUpRight, Activity, Users, CalendarOff, CalendarCheck, Flame, Trophy } from 'lucide-react'
 import api from '../api/axios'
+import DashboardCharts from '../components/DashboardCharts'
 
 const statusConfig = {
   PLANNING:    { label: 'Planning',    color: 'var(--tg-green-600)', bg: '#EAF7EE' },
@@ -170,6 +171,19 @@ export default function DashboardPage() {
             {hrStats.map(s => <StatCard key={s.label} {...s} loading={empLoading || leaveLoading || attLoading} />)}
           </div>
         </>
+      )}
+
+      {/* Overview charts — Admin/Manager only (employees don't need team task/attendance donuts) */}
+      {user.role !== 'EMPLOYEE' && (
+        <DashboardCharts
+          openTasks={data?.openTasks ?? 0}
+          inProgressTasks={data?.inProgressTasks ?? 0}
+          completedTasks={data?.completedTasks ?? 0}
+          todayPresent={todayAttendance}
+          activeEmployees={activeEmployees}
+          isManager={true}
+          loading={dashLoading}
+        />
       )}
 
       {/* Bottom row */}
