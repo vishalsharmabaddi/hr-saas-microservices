@@ -5,11 +5,13 @@ import com.hrsaas.leave_service.dto.LeaveRequestDTO;
 import com.hrsaas.leave_service.dto.LeaveResponseDTO;
 import com.hrsaas.leave_service.service.LeaveService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import com.hrsaas.leave_service.security.RoleGuard;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -32,8 +34,10 @@ public class LeaveController {
     @GetMapping
     public ResponseEntity<List<LeaveResponseDTO>> getAllLeaves(
             @RequestHeader("X-Company-Id") Long companyId,
-            @RequestParam(required = false) String status) {
-        return ResponseEntity.ok(leaveService.getAllLeaves(companyId, status));
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
+        return ResponseEntity.ok(leaveService.getAllLeaves(companyId, status, from, to));
     }
 
     // Specific employee ki leaves

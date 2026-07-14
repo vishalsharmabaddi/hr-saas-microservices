@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Plus, Check, X, Clock, Calendar } from 'lucide-react'
 import api from '../api/axios'
 import { canManage } from '../auth/roles'
+import DateRangeFilter, { thisMonthRange } from '../components/DateRangeFilter'
 
 const LEAVE_TYPES = ['SICK', 'CASUAL', 'EARNED', 'UNPAID', 'EMERGENCY']
 const typeLabel   = { SICK: 'Sick Leave', CASUAL: 'Casual Leave', EARNED: 'Earned Leave', UNPAID: 'Unpaid Leave', EMERGENCY: 'Emergency Leave' }
@@ -39,10 +40,14 @@ export default function LeavePage() {
   })
   const empMap = Object.fromEntries(employees.map(e => [e.id, e]))
 
+  const [range, setRange] = useState(thisMonthRange())
   const statusParam = activeTab === 'All' ? undefined : activeTab
   const { data: leaves = [], isLoading } = useQuery({
-    queryKey: ['leaves', activeTab],
-    queryFn: () => api.get('/leaves', { params: statusParam ? { status: statusParam } : {} }).then(r => Array.isArray(r.data) ? r.data : []),
+    queryKey: ['leaves', activeTab, range.from, range.to],
+    queryFn: () => api.get('/leaves', { params: {
+      ...(statusParam ? { status: statusParam } : {}),
+      from: range.from, to: range.to,
+    } }).then(r => Array.isArray(r.data) ? r.data : []),
   })
 
   const applyMutation = useMutation({
@@ -181,6 +186,11 @@ export default function LeavePage() {
             {tab}
           </button>
         ))}
+      </div>
+
+      {/* Date range filter */}
+      <div style={{ marginBottom: 16 }}>
+        <DateRangeFilter from={range.from} to={range.to} onChange={setRange} />
       </div>
 
       {/* Leave List */}

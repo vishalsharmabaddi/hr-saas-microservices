@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Slf4j
@@ -56,10 +57,20 @@ public class LeaveService {
         return toResponse(leaveRepository.save(leave), null);
     }
 
-    public List<LeaveResponseDTO> getAllLeaves(Long companyId, String status) {
-        List<LeaveRequest> leaves = (status != null && !status.isBlank())
-                ? leaveRepository.findByCompanyIdAndStatusOrderByCreatedAtDesc(companyId, status)
-                : leaveRepository.findByCompanyIdOrderByCreatedAtDesc(companyId);
+    public List<LeaveResponseDTO> getAllLeaves(Long companyId, String status, LocalDate from, LocalDate to) {
+        boolean hasStatus = status != null && !status.isBlank();
+        boolean hasRange  = from != null && to != null;
+
+        List<LeaveRequest> leaves;
+        if (hasRange && hasStatus)
+            leaves = leaveRepository.findByCompanyIdAndStatusAndStartDateBetweenOrderByCreatedAtDesc(companyId, status, from, to);
+        else if (hasRange)
+            leaves = leaveRepository.findByCompanyIdAndStartDateBetweenOrderByCreatedAtDesc(companyId, from, to);
+        else if (hasStatus)
+            leaves = leaveRepository.findByCompanyIdAndStatusOrderByCreatedAtDesc(companyId, status);
+        else
+            leaves = leaveRepository.findByCompanyIdOrderByCreatedAtDesc(companyId);
+
         return leaves.stream().map(l -> toResponse(l, null)).toList();
     }
 

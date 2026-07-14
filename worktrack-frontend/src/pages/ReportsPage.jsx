@@ -4,6 +4,7 @@ import { FileText, Download, FileDown, Inbox } from 'lucide-react'
 import api from '../api/axios'
 import { downloadCSV, downloadPDF, loadImageAsset } from '../utils/exportReport'
 import logoUrl from '../assets/Taurus-Logo.png'
+import DateRangeFilter from '../components/DateRangeFilter'
 
 /* ── formatters ─────────────────────────────────────────────── */
 const fmtDate = d => d ? new Date(d).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '—'
@@ -79,7 +80,7 @@ export default function ReportsPage() {
     queryKey: ['report', type, from, to, status],
     queryFn: () => {
       if (type === 'attendance') return api.get('/attendance', { params: { from, to } }).then(r => arr(r))
-      if (type === 'leave')      return api.get('/leaves', { params: status ? { status } : {} }).then(r => arr(r))
+      if (type === 'leave')      return api.get('/leaves', { params: { ...(status ? { status } : {}), from, to } }).then(r => arr(r))
       return api.get('/employees').then(r => arr(r))
     },
   })
@@ -124,11 +125,8 @@ export default function ReportsPage() {
           </select>
         </Field>
 
-        {type === 'attendance' && (
-          <>
-            <Field label="From"><input type="date" value={from} onChange={e => setFrom(e.target.value)} style={inSt} /></Field>
-            <Field label="To"><input type="date" value={to} onChange={e => setTo(e.target.value)} style={inSt} /></Field>
-          </>
+        {type !== 'employees' && (
+          <DateRangeFilter from={from} to={to} onChange={({ from, to }) => { setFrom(from); setTo(to) }} />
         )}
 
         {type === 'leave' && (

@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Plus, Clock, CheckCircle, AlertCircle, LogOut, Pencil, X, LogIn, UserPlus } from 'lucide-react'
 import api from '../api/axios'
+import { canManage } from '../auth/roles'
+import AttendanceHistory from '../components/AttendanceHistory'
 
 const statusStyle = {
   PRESENT:  { background: '#f0fdf4', color: '#16a34a' },
@@ -385,6 +387,9 @@ export default function AttendancePage() {
           })
         )}
       </div>
+
+      {/* Attendance history — view any past date range (Admin/Manager) */}
+      {canManage(user.role) && <AttendanceHistory empMap={empMap} />}
     </div>
   )
 }
