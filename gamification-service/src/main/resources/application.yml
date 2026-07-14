@@ -9,7 +9,7 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/gamification_db
     username: postgres
-    password: 1230
+    password: ${DB_PASSWORD:1230}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
@@ -28,7 +28,7 @@ spring:
 
 app:
   jwt:
-    secret: worktrack-dev-secret-key-please-change-in-production-0123456789
+    secret: ${JWT_SECRET:worktrack-dev-secret-key-please-change-in-production-0123456789}
 
 eureka:
   client:

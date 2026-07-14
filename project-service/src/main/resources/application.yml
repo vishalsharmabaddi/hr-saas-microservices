@@ -6,7 +6,7 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/project_db
     username: postgres
-    password: 1230
+    password: ${DB_PASSWORD:1230}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
@@ -56,7 +56,7 @@ app:
   # M3: humara apna JWT isi secret se sign hoga. HS256 ke liye kam se kam 32 bytes.
   # (Dev key — production me environment variable se aana chahiye, code me nahi.)
   jwt:
-    secret: worktrack-dev-secret-key-please-change-in-production-0123456789
+    secret: ${JWT_SECRET:worktrack-dev-secret-key-please-change-in-production-0123456789}
     expiration-ms: 86400000   # 24 ghante
 
 # M2: Google login token verify karte waqt "audience" isi client-id se match hoga.

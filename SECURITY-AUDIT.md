@@ -26,6 +26,10 @@ matters, and the fix.
   2. Generate a strong random secret (≥ 32 random bytes) and **rotate** the current one.
   3. Consider **RS256** (private key signs in auth, services verify with public key) so a leaked
      verifier key can't mint tokens.
+- **Status (2026-07-14): partially addressed.** All 7 services now read `app.jwt.secret` from
+  `${JWT_SECRET:…}` (env override). Dev default retained for local convenience; **prod MUST set a
+  strong `JWT_SECRET` and rotate** so the committed dev value is never used. See `.env.example`.
+  Still open: rotation + removing the dev default from git for a public release (RS256 optional).
 
 ### H2. Database & broker passwords committed in plaintext
 - **Where:** `employee-service` (:9 `password: 1230`), `gamification-service` (:12 `1230`),
@@ -34,6 +38,9 @@ matters, and the fix.
   access gets DB access. `1230` is also trivially weak.
 - **Fix:** Externalize to env vars / secrets manager; use strong unique passwords; scrub from git
   history if the repo will ever be shared/public; never use `guest/guest` in prod.
+- **Status (2026-07-14): partially addressed.** The Postgres `password` in employee/gamification/
+  project now reads `${DB_PASSWORD:1230}` (env override). Still open: strong unique passwords per
+  service, externalizing RabbitMQ `guest/guest`, and any credentials in `config-repo`.
 
 ### H3. Secrets live in git history even if removed now
 - **Why:** Because H1/H2 were committed, deleting them from the current file is **not enough** — they

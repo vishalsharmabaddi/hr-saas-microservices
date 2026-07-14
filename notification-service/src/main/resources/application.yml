@@ -59,7 +59,7 @@ logging:
 app:
   # M4b: auth-service jis secret se token sign karti hai, wahi secret yahan verify ke liye
   jwt:
-    secret: worktrack-dev-secret-key-please-change-in-production-0123456789
+    secret: ${JWT_SECRET:worktrack-dev-secret-key-please-change-in-production-0123456789}
   # Phase 2: invite email me jo accept-link jaayega uska base (frontend URL)
   frontend-url: http://localhost:5173
   mail:
