@@ -1,0 +1,134 @@
+# Security Audit — Taurus Go
+
+**Date:** 2026-07-14
+**Scope:** Full repo (7 Spring Boot services + api-gateway + config-server + React frontend).
+**Verdict:** Great learning build, **not production-ready as-is.** The issues below (especially the
+HIGH ones) must be fixed before any real go-live. Each item has: what, where (file:line), why it
+matters, and the fix.
+
+> Severity: **HIGH** = can be exploited to fully compromise data/accounts. **MEDIUM** = meaningful
+> exposure or weakens defense. **LOW / NOTE** = hardening / good-practice.
+
+---
+
+## HIGH
+
+### H1. JWT signing secret is hardcoded, committed to git, weak, and shared by all services
+- **Where:** every `*/src/main/resources/application.yml` →
+  `app.jwt.secret: worktrack-dev-secret-key-please-change-in-production-0123456789`
+  (payroll:56, employee:47, leave:88, attendance:48, project:59, gamification:31, notification:62).
+- **Why it matters:** The token is HS256-signed with this secret. Anyone who can read the repo can
+  **forge a token for any company and any role (ADMIN)** and call every service. This is not
+  theoretical — during debugging we minted a valid ADMIN token from this secret and it was accepted.
+  One secret leak = the entire platform is compromised (multi-tenant isolation gone).
+- **Fix:**
+  1. Move the secret to an environment variable / secrets manager (`${JWT_SECRET}`), never commit it.
+  2. Generate a strong random secret (≥ 32 random bytes) and **rotate** the current one.
+  3. Consider **RS256** (private key signs in auth, services verify with public key) so a leaked
+     verifier key can't mint tokens.
+
+### H2. Database & broker passwords committed in plaintext
+- **Where:** `employee-service` (:9 `password: 1230`), `gamification-service` (:12 `1230`),
+  `project-service` (:9 `1230`); RabbitMQ `guest/guest` in most services; config-server (:15).
+- **Why:** Real Postgres/broker credentials are in version control. Anyone with repo (or git history)
+  access gets DB access. `1230` is also trivially weak.
+- **Fix:** Externalize to env vars / secrets manager; use strong unique passwords; scrub from git
+  history if the repo will ever be shared/public; never use `guest/guest` in prod.
+
+### H3. Secrets live in git history even if removed now
+- **Why:** Because H1/H2 were committed, deleting them from the current file is **not enough** — they
+  remain in history.
+- **Fix:** After externalizing, rotate every secret/password so the historical values are useless;
+  optionally rewrite history (`git filter-repo`) before making the repo public.
+
+---
+
+## MEDIUM
+
+### M1. Actuator endpoints exposed with full details
+- **Where:** every `application.yml` → `management.endpoints.web.exposure.include: health,info,metrics,prometheus`
+  and `management.endpoint.health.show-details: always`.
+- **Why:** Unauthenticated `/actuator/health` with `show-details: always` leaks internals (DB up/down,
+  disk, component status); `/metrics` + `/prometheus` leak operational data useful to an attacker.
+- **Fix:** In prod, restrict exposure (e.g. only `health`), set `show-details: when-authorized`, and
+  put actuator behind auth / an internal network.
+
+### M2. JWT stored in browser `localStorage`
+- **Where:** `worktrack-frontend/src/api/axios.js:19`, `LoginPage.jsx:27`, `Layout.jsx:174`,
+  `SelectCompanyPage.jsx:26`, `OnboardingPage.jsx:44`, `AcceptInvitePage.jsx:21`, `useNotificationSocket.js:14`.
+- **Why:** Any XSS on the site can read `localStorage` and exfiltrate the token (full account takeover).
+  `httpOnly` cookies are not readable by JS and are safer for the token.
+- **Fix:** Prefer an `httpOnly`, `Secure`, `SameSite` cookie for the token; keep a strict CSP; sanitize
+  any user-rendered HTML. If keeping localStorage, treat XSS prevention as critical and keep token TTL short.
+
+### M3. WebSocket handshake allows any origin
+- **Where:** `notification-service/.../config/WebSocketConfig.java:30` → `setAllowedOriginPatterns("*")`.
+- **Why:** Any website can open a STOMP handshake to the service. Auth still requires a valid JWT on
+  CONNECT (good), but `*` is too open for prod.
+- **Fix:** Restrict to known frontend origin(s) in production.
+
+### M4. TenantFilter turns every downstream error into 401 (logout)
+- **Where:** `*/security/TenantFilter.java` — `chain.doFilter(...)` is inside the `try`, and the
+  `catch (Exception)` returns `401 Invalid token`.
+- **Why:** Any controller/DB exception (a 500) is reported as 401 → the frontend clears the session and
+  logs the user out (we hit exactly this with a leave-query bug). It also masks real errors and can aid
+  an attacker in probing (everything looks like "auth failed").
+- **Fix:** Only wrap the **token parse/verify** in try/catch. Call `chain.doFilter` **outside** the
+  catch so downstream exceptions surface as their real status.
+
+### M5. Platform Console uses mock data; real version needs strict owner-gating
+- **Where:** `worktrack-frontend/src/platform/platformData.js` (localStorage `SEED`), used by
+  `pages/PlatformAdminPage.jsx`.
+- **Why:** Today it is fake (no data exposure). But when wired to a real cross-tenant endpoint (list ALL
+  companies, MRR, seats), that endpoint reads **across tenants** and must be locked to the platform
+  owner only — a normal company ADMIN must never reach it.
+- **Fix:** When building the real version, add an owner-only backend endpoint (verify a platform-owner
+  claim, not just ADMIN) and never trust a client role for cross-tenant reads.
+
+---
+
+## LOW / NOTES
+
+### L1. Client sends `X-Company-Id` header (mitigated)
+- `frontend/src/api/axios.js` sets `X-Company-Id` from localStorage. **Mitigation is in place:** every
+  service's `TenantFilter` + `CompanyHeaderRequest` overrides these headers from the **verified token**,
+  so the client value is ignored. Keep it that way — the safety depends on *every* service having the
+  filter (all 7 currently do). Any new service must include it.
+
+### L2. No auth rate-limiting (brute force / abuse)
+- resilience4j rate-limiters exist for some inter-service calls but not for login/auth. Add rate limiting
+  on auth endpoints (and ideally a WAF/gateway throttle) before prod.
+
+### L3. Gateway validates JWT, but dev bypasses the gateway
+- `api-gateway/SecurityConfig.java` enforces `anyRequest().authenticated()` + JWT. In dev the frontend
+  hits services **directly via Vite proxy**, bypassing the gateway. Services are still protected by their
+  own TenantFilter, but ensure prod traffic is forced through the gateway (or a mesh) and services aren't
+  publicly reachable.
+
+### L4. HS256 shared secret couples all services
+- All services verify with the same symmetric secret, so any one service leaking it compromises all.
+  Asymmetric keys (RS256) reduce blast radius. Ties into H1.
+
+### L5. System/service-account token (attendance scheduler)
+- `attendance-service/.../JwtService.signSystemToken()` mints a short-lived (2 min) ADMIN token for the
+  nightly job. Acceptable, but it inherits the shared-secret risk (H1/H4). Keep the TTL short (done) and
+  scope it minimally.
+
+### L6. No TLS/HTTPS configured
+- Everything runs on plain `http` in dev. In prod, terminate TLS everywhere (tokens and data must not
+  travel in cleartext).
+
+### L7. Verify auth password handling
+- Auth appears to use Google OAuth (by design). Confirm there is **no** plaintext-password login path
+  anywhere; if any local password is stored, it must be BCrypt-hashed.
+
+---
+
+## Priority order before go-live
+1. **H1 + H2 + H3** — externalize & rotate all secrets/passwords (blocking).
+2. **M4** — fix the TenantFilter error masking (correctness + probing).
+3. **M1** — lock down actuator.
+4. **M2 / M3 / L2 / L6** — token storage, CORS, rate limiting, TLS.
+5. **M5** — design the platform-owner gate before building the real Platform Console.
+
+*This audit is a snapshot; re-run after fixes and whenever a new service or public endpoint is added.*
