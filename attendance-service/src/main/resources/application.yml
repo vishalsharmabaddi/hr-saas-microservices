@@ -49,4 +49,4 @@ app:
   employee-service-url: http://localhost:8081
   # M4b: auth-service jis secret se token sign karti hai, wahi secret yahan verify ke liye
   jwt:
-    secret: ${JWT_SECRET:worktrack-dev-secret-key-please-change-in-production-0123456789}
+    secret: ${JWT_SECRET}

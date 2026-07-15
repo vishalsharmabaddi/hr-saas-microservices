@@ -28,7 +28,7 @@ spring:
 
 app:
   jwt:
-    secret: ${JWT_SECRET:worktrack-dev-secret-key-please-change-in-production-0123456789}
+    secret: ${JWT_SECRET}
 
 eureka:
   client:

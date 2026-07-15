@@ -63,10 +63,11 @@ management:
 
 app:
   welcome-message: Welcome to Project Service!
-  # M3: humara apna JWT isi secret se sign hoga. HS256 ke liye kam se kam 32 bytes.
-  # (Dev key — production me environment variable se aana chahiye, code me nahi.)
+  # Our own JWT is signed with this secret (HS256 needs at least 32 bytes).
+  # H3: no default on purpose -- if JWT_SECRET is unset the service must fail to start
+  # rather than silently fall back to the old value that was committed to git.
   jwt:
-    secret: ${JWT_SECRET:worktrack-dev-secret-key-please-change-in-production-0123456789}
+    secret: ${JWT_SECRET}
     expiration-ms: 86400000   # 24 ghante
   # Platform Console (cross-tenant) sirf in owner emails ko dikhega. Comma-separated. Prod me env se.
   platform:

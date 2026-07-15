@@ -26,10 +26,19 @@ matters, and the fix.
   2. Generate a strong random secret (≥ 32 random bytes) and **rotate** the current one.
   3. Consider **RS256** (private key signs in auth, services verify with public key) so a leaked
      verifier key can't mint tokens.
-- **Status (2026-07-14): partially addressed.** All 7 services now read `app.jwt.secret` from
-  `${JWT_SECRET:…}` (env override). Dev default retained for local convenience; **prod MUST set a
-  strong `JWT_SECRET` and rotate** so the committed dev value is never used. See `.env.example`.
-  Still open: rotation + removing the dev default from git for a public release (RS256 optional).
+- **Status (2026-07-15): ROTATED — the committed value is now dead.**
+  - The committed default was not just a fallback: `JWT_SECRET` was **unset**, so every service was
+    actually running on the value in git. Anyone with repo read could mint an ADMIN token for any
+    company — we did exactly that repeatedly while testing M5/M6.
+  - New secret generated with `openssl rand -base64 48` (48 random bytes), stored in `.env`
+    (gitignored) and exported as a Windows User-level env var.
+  - **The default is gone**: every service now reads `secret: ${JWT_SECRET}` with no fallback, so an
+    unset variable makes the service fail to start instead of silently using the old secret.
+  - Verified: a token signed with the OLD secret is now rejected (401) by a restarted service.
+  - Side effect (expected): rotation invalidated every issued token, logging all users out once.
+- **Still open:** HS256 means every service holds the signing key, so any one service being
+  compromised can mint tokens (see L4). RS256 — auth signs with a private key, services verify with a
+  public one — remains the stronger design.
 
 ### H2. Database & broker passwords committed in plaintext
 - **Where:** `employee-service` (:9 `password: 1230`), `gamification-service` (:12 `1230`),
@@ -44,9 +53,26 @@ matters, and the fix.
 
 ### H3. Secrets live in git history even if removed now
 - **Why:** Because H1/H2 were committed, deleting them from the current file is **not enough** — they
-  remain in history.
-- **Fix:** After externalizing, rotate every secret/password so the historical values are useless;
-  optionally rewrite history (`git filter-repo`) before making the repo public.
+  remain in history. A leaked secret cannot be un-leaked; it can only be made **worthless**, and only
+  rotation does that. History rewriting is housekeeping, not the fix — anyone who already cloned keeps
+  the old objects either way.
+- **Repo exposure (checked 2026-07-15):** `origin` is `github.com/vishalsharmabaddi/-hr-saas-microservices`
+  and the GitHub API returns **404 unauthenticated**, i.e. the repo is **private**. So the historical
+  secrets were exposed to repo collaborators, not the public — which is why rotation was enough and a
+  history rewrite is not urgent. The old secret appears in **5 commits**.
+- **Status (2026-07-15): JWT_SECRET rotated** (see H1). The old value is now useless.
+- **Still open — rotate these too, same reasoning:**
+  1. `DB_PASSWORD` — still `1230`. Needs `ALTER USER postgres PASSWORD ...` in Postgres itself, then
+     `.env`, then the `${DB_PASSWORD:1230}` defaults removed. Note `docker-compose.yml` separately
+     sets `POSTGRES_PASSWORD: postgres`.
+  2. RabbitMQ `guest/guest` in most services + `docker-compose.yml`.
+  3. **`ENCRYPT_KEY`** in config-server — defaults to a committed value
+     (`my-super-secret-encryption-key-hrsaas-2024`), and the `{cipher}` DB passwords in
+     `config-server/.../config-repo/*.yml` are encrypted with it. Anyone with the repo can decrypt
+     them, so those ciphertexts are **not** protection today. Rotating the key means re-encrypting
+     every `{cipher}` value.
+- **Before making this repo public:** rotate items 1-3 first, then optionally `git filter-repo` to
+  scrub history. Rotation must come first — scrubbing a still-live secret protects nothing.
 
 ---
 
