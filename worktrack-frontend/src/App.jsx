@@ -66,8 +66,8 @@ function PlatformGate() {
   return isPlatformOwner(user.email) ? <Outlet /> : <Navigate to="/dashboard" replace />
 }
 
-// Sirf dev me: ErrorBoundary sach me kaam karta hai ya nahi, ye check karne ka tareeka.
-// Production build me Vite `import.meta.env.DEV` ko false karke ye route hata deta hai.
+// Development only — lets us prove the ErrorBoundary actually catches a render crash.
+// Vite strips this route from production builds via `import.meta.env.DEV`.
 function CrashTest() {
   throw new Error('Intentional test crash — ErrorBoundary should catch this')
 }
@@ -75,7 +75,7 @@ function CrashTest() {
 function App() {
   return (
     <BrowserRouter>
-      {/* Kisi bhi page ka render crash yahan pakda jaayega — blank white page ki jagah error UI */}
+      {/* Catches render crashes from any page — shows an error page instead of a blank screen */}
       <ErrorBoundary>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
@@ -132,7 +132,7 @@ function App() {
 
         {import.meta.env.DEV && <Route path="/__crash" element={<CrashTest />} />}
 
-        {/* Sabse aakhir me — jo bhi upar match nahi hua, wo 404 */}
+        {/* Must stay last — anything that matched nothing above falls through to 404 */}
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
       </ErrorBoundary>

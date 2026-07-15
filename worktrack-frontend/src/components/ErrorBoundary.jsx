@@ -1,18 +1,16 @@
 import { Component } from 'react'
 import { AlertTriangle } from 'lucide-react'
 
-// React me Error Boundary sirf CLASS component ho sakta hai — iske liye koi hook nahi hai.
-// Neeche ke kisi bhi component ka render-time crash yahan pakda jaata hai. Ye na ho to
-// React puri app ko unmount kar deta hai aur user ko blank white page dikhta hai.
+// Error boundaries must be class components — React has no hook equivalent.
+// Without one, a render-time crash anywhere below unmounts the entire React
+// tree and the user is left staring at a blank white page.
 export default class ErrorBoundary extends Component {
   state = { error: null }
 
-  // Crash hote hi state badal do → agle render me fallback UI dikhega.
   static getDerivedStateFromError(error) {
     return { error }
   }
 
-  // Sirf logging ke liye. Aage jaake yahan se error tracking service (Sentry) call hogi.
   componentDidCatch(error, info) {
     console.error('App crashed:', error, info?.componentStack)
   }
@@ -23,34 +21,37 @@ export default class ErrorBoundary extends Component {
 
     return (
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', padding: 24 }}>
-        <div style={{ textAlign: 'center', maxWidth: 440 }}>
-          <div style={{ width: 56, height: 56, borderRadius: 14, background: '#fef2f2', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
-            <AlertTriangle size={26} color="#dc2626" strokeWidth={1.5} />
+        <div style={{ textAlign: 'center', maxWidth: 560 }}>
+          <div style={{ width: 72, height: 72, borderRadius: 18, background: '#fef2f2', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px' }}>
+            <AlertTriangle size={34} color="#dc2626" strokeWidth={1.5} />
           </div>
-          <h2 style={{ fontSize: 18, fontWeight: 600, color: '#0f172a', marginBottom: 8 }}>Something went wrong</h2>
-          <p style={{ fontSize: 14, color: '#64748b', lineHeight: 1.6, marginBottom: 24 }}>
+
+          <h1 className="tg-display" style={{ fontSize: 30, fontWeight: 700, color: 'var(--tg-text)', marginBottom: 12, letterSpacing: '-0.02em' }}>
+            Something went wrong
+          </h1>
+          <p style={{ fontSize: 16, color: 'var(--tg-muted)', lineHeight: 1.65, marginBottom: 28 }}>
             An unexpected error occurred and this page could not be displayed. Your data is safe.
             Try reloading — if it keeps happening, contact support.
           </p>
 
-          {/* Technical details sirf dev me. Production me stack trace dikhana app ke
-              internals leak karta hai — attacker ko free map mil jaata hai. */}
+          {/* Technical details in development only. Exposing stack traces in production
+              hands an attacker a free map of the app's internals. */}
           {import.meta.env.DEV && (
-            <pre style={{ textAlign: 'left', fontSize: 12, color: '#991b1b', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 8, padding: 12, marginBottom: 24, overflowX: 'auto', whiteSpace: 'pre-wrap' }}>
+            <pre style={{ textAlign: 'left', fontSize: 12.5, lineHeight: 1.6, color: '#991b1b', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 10, padding: 14, marginBottom: 28, maxHeight: 200, overflow: 'auto', whiteSpace: 'pre-wrap' }}>
               {String(error?.stack || error)}
             </pre>
           )}
 
-          <div style={{ display: 'flex', gap: 10, justifyContent: 'center' }}>
+          <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
             <button
               onClick={() => window.location.reload()}
-              style={{ padding: '9px 20px', borderRadius: 8, border: 'none', background: '#16A34A', color: '#fff', fontSize: 14, fontWeight: 500, cursor: 'pointer' }}
+              style={{ padding: '12px 26px', borderRadius: 10, border: 'none', background: 'var(--tg-green-600)', color: '#fff', fontSize: 15, fontWeight: 600, cursor: 'pointer' }}
             >
               Reload Page
             </button>
             <button
               onClick={() => { window.location.href = '/dashboard' }}
-              style={{ padding: '9px 20px', borderRadius: 8, border: '1px solid #e2e8f0', background: '#fff', color: '#334155', fontSize: 14, fontWeight: 500, cursor: 'pointer' }}
+              style={{ padding: '12px 26px', borderRadius: 10, border: '1px solid var(--tg-border)', background: 'var(--tg-card)', color: 'var(--tg-text)', fontSize: 15, fontWeight: 600, cursor: 'pointer' }}
             >
               Back to Dashboard
             </button>

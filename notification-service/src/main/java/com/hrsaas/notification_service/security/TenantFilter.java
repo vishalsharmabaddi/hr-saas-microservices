@@ -61,13 +61,13 @@ public class TenantFilter extends OncePerRequestFilter {
 
             wrapped = new CompanyHeaderRequest(request, overrides);
         } catch (Exception e) {
-            // Sirf token parse ka error yahan aata hai -> 401 sach me sahi hai.
+            // Only a token-parsing failure lands here, so 401 is genuinely correct.
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid token");
             return;
         }
 
-        // M4: Token valid. Aage app ka asli kaam -- ise try ke BAHAR rakha hai, warna
-        // controller/DB ka koi bhi crash "Invalid token" 401 ban ke logout kara deta tha.
+        // M4: token is valid. The real work runs OUTSIDE the try above -- when it was inside,
+        // any controller/DB failure became a 401 "Invalid token" and forced a logout.
         chain.doFilter(wrapped, response);
     }
 }
