@@ -84,13 +84,18 @@ matters, and the fix.
   catch so downstream exceptions surface as their real status.
 
 ### M5. Platform Console uses mock data; real version needs strict owner-gating
-- **Where:** `worktrack-frontend/src/platform/platformData.js` (localStorage `SEED`), used by
+- **Status (2026-07-15): ADDRESSED.** The Console now reads a real cross-tenant endpoint
+  (`/api/platform/*` in project-service), gated by `PlatformGuard` — the verified `X-User-Email`
+  (from the token, not the client) must be in `app.platform.owner-emails`. A normal company ADMIN
+  gets **403**. Verified: owner 200, non-owner ADMIN 403 on list/status/plan; invalid plan 400.
+- **Where (was):** `worktrack-frontend/src/platform/platformData.js` (localStorage `SEED`), used by
   `pages/PlatformAdminPage.jsx`.
-- **Why:** Today it is fake (no data exposure). But when wired to a real cross-tenant endpoint (list ALL
-  companies, MRR, seats), that endpoint reads **across tenants** and must be locked to the platform
-  owner only — a normal company ADMIN must never reach it.
-- **Fix:** When building the real version, add an owner-only backend endpoint (verify a platform-owner
-  claim, not just ADMIN) and never trust a client role for cross-tenant reads.
+- **Why:** A cross-tenant endpoint (list ALL companies, MRR, seats) reads **across tenants** and must
+  be locked to the platform owner only — a normal company ADMIN must never reach it.
+- **Fix applied:** owner-only backend endpoint verifying the platform-owner email from config; the
+  client role is never trusted for cross-tenant reads.
+- **Remaining:** owner list lives in config (`PLATFORM_OWNER_EMAILS`) — fine for now, but a real
+  platform-owner claim/table is better once there is more than one owner.
 
 ---
 
@@ -136,6 +141,6 @@ matters, and the fix.
 2. **M4** — fix the TenantFilter error masking (correctness + probing).
 3. **M1** — lock down actuator.
 4. **M2 / M3 / L2 / L6** — token storage, CORS, rate limiting, TLS.
-5. **M5** — design the platform-owner gate before building the real Platform Console.
+5. ~~**M5** — design the platform-owner gate before building the real Platform Console.~~ **Done (2026-07-15).**
 
 *This audit is a snapshot; re-run after fixes and whenever a new service or public endpoint is added.*
