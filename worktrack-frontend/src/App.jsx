@@ -25,7 +25,9 @@ import PlatformAdminPage from './pages/PlatformAdminPage'
 import AccessDeniedPage from './pages/AccessDeniedPage'
 import { isPlatformOwner } from './auth/roles'
 import LandingPage from './pages/LandingPage'
+import NotFoundPage from './pages/NotFoundPage'
 import Layout from './components/Layout'
+import ErrorBoundary from './components/ErrorBoundary'
 
 // Redirect to /login if not logged in
 function PrivateRoute() {
@@ -64,9 +66,17 @@ function PlatformGate() {
   return isPlatformOwner(user.email) ? <Outlet /> : <Navigate to="/dashboard" replace />
 }
 
+// Sirf dev me: ErrorBoundary sach me kaam karta hai ya nahi, ye check karne ka tareeka.
+// Production build me Vite `import.meta.env.DEV` ko false karke ye route hata deta hai.
+function CrashTest() {
+  throw new Error('Intentional test crash — ErrorBoundary should catch this')
+}
+
 function App() {
   return (
     <BrowserRouter>
+      {/* Kisi bhi page ka render crash yahan pakda jaayega — blank white page ki jagah error UI */}
+      <ErrorBoundary>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         {/* Invite accept — public (login se pehle bhi khule) */}
@@ -119,7 +129,13 @@ function App() {
         </Route>
 
         <Route path="/" element={<LandingPage />} />
+
+        {import.meta.env.DEV && <Route path="/__crash" element={<CrashTest />} />}
+
+        {/* Sabse aakhir me — jo bhi upar match nahi hua, wo 404 */}
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
+      </ErrorBoundary>
     </BrowserRouter>
   )
 }
