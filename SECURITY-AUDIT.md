@@ -103,6 +103,27 @@ matters, and the fix.
 - **Remaining:** owner list lives in config (`PLATFORM_OWNER_EMAILS`) — fine for now, but a real
   platform-owner claim/table is better once there is more than one owner.
 
+### M6. `/api/companies` had no tenant scoping — cross-tenant READ *and WRITE* (was HIGH)
+- **Status (2026-07-15): FIXED** in `CompanyController` + `CompanyService.getMyCompany`.
+- **Where:** `project-service/.../controller/CompanyController.java`, `service/CompanyService.java`.
+- **Why:** `getAllCompanies()` was a bare `findAll()`, and `getCompanyById/updateCompany` took the
+  `{id}` straight from the URL with no ownership check. Classic IDOR / Broken Object Level
+  Authorization (OWASP API Top 10 #1): authentication was enforced, authorisation was not.
+- **Proven live** (2026-07-15) with a self-signed token for an **EMPLOYEE of company 999** against a
+  running project-service:
+  - `GET /api/companies` → **200**, returned every tenant.
+  - `GET /api/companies/1` → **200**, another tenant's record.
+  - `PUT /api/companies/1` → **200** — a low-privilege user of another tenant could rename/re-domain
+    someone else's company. This was a cross-tenant **write**, not just a leak.
+- **Root cause worth remembering:** `Company` has no `companyId` column — its own `id` IS the tenant
+  id — so the habitual `findByCompanyId(...)` scoping used everywhere else never got applied here.
+  Any table where the tenant id is the primary key deserves this same second look.
+- **Fix:** `GET /companies` returns only the caller's own company (still a list, so the frontend's
+  `companies[0]` contract is unchanged); `GET/PUT /companies/{id}` 403 unless `{id}` equals the
+  token's companyId; `PUT`/`POST` additionally require ADMIN. `updateCompany` still copies only
+  name/domain/logoUrl, so a tenant admin cannot flip `isActive` or self-upgrade `plan` — those stay
+  Platform Console only.
+
 ---
 
 ## LOW / NOTES
@@ -145,8 +166,9 @@ matters, and the fix.
 ## Priority order before go-live
 1. **H1 + H2 + H3** — externalize & rotate all secrets/passwords (blocking).
 2. ~~**M4** — fix the TenantFilter error masking (correctness + probing).~~ **Done (2026-07-15).**
-3. **M1** — lock down actuator.
-4. **M2 / M3 / L2 / L6** — token storage, CORS, rate limiting, TLS.
-5. ~~**M5** — design the platform-owner gate before building the real Platform Console.~~ **Done (2026-07-15).**
+3. ~~**M6** — scope `/api/companies` to the caller's tenant (cross-tenant read *and write*).~~ **Done (2026-07-15).**
+4. **M1** — lock down actuator.
+5. **M2 / M3 / L2 / L6** — token storage, CORS, rate limiting, TLS.
+6. ~~**M5** — design the platform-owner gate before building the real Platform Console.~~ **Done (2026-07-15).**
 
 *This audit is a snapshot; re-run after fixes and whenever a new service or public endpoint is added.*

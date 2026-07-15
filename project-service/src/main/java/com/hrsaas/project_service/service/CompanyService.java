@@ -17,8 +17,14 @@ public class CompanyService {
         return companyRepository.save(company);
     }
 
-    public List<Company> getAllCompanies() {
-        return companyRepository.findAll();
+    // A tenant may only ever see its own company. Company has no companyId column --
+    // its own id IS the tenant id -- which is why the usual findByCompanyId scoping
+    // was never applied here and this endpoint leaked every tenant (see SECURITY-AUDIT M6).
+    // The cross-tenant view lives behind the owner-gated /api/platform endpoints.
+    public List<Company> getMyCompany(Long companyId) {
+        return companyRepository.findById(companyId)
+            .map(List::of)
+            .orElseGet(List::of);
     }
 
     public Company getCompanyById(Long id) {
