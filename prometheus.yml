@@ -1,23 +1,26 @@
 global:
   scrape_interval: 15s
 
+# M1: actuator moved to its own internal management port (app port + 1000), so the
+# public app ports (8081-8087) no longer serve /actuator at all. Scrape the
+# management ports instead.
 scrape_configs:
   - job_name: 'employee-service'
     metrics_path: '/actuator/prometheus'
     static_configs:
-      - targets: ['host.docker.internal:8081']
+      - targets: ['host.docker.internal:9081']
 
   - job_name: 'attendance-service'
     metrics_path: '/actuator/prometheus'
     static_configs:
-      - targets: ['host.docker.internal:8082']
+      - targets: ['host.docker.internal:9082']
 
   - job_name: 'leave-service'
     metrics_path: '/actuator/prometheus'
     static_configs:
-      - targets: ['host.docker.internal:8083']
+      - targets: ['host.docker.internal:9083']
 
   - job_name: 'notification-service'
     metrics_path: '/actuator/prometheus'
     static_configs:
-      - targets: ['host.docker.internal:8084']
+      - targets: ['host.docker.internal:9084']

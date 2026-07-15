@@ -13,16 +13,20 @@ server:
   port: 8082
 
 management:
+  # M1: actuator runs on its own internal port -- the public app port serves no
+  # actuator at all. Keep this port off the public network / gateway in production.
+  server:
+    port: 9082
   endpoints:
     web:
       exposure:
         include: health,info,metrics,prometheus
   endpoint:
     health:
-      show-details: always
+      show-details: never
   info:
     env:
-      enabled: true
+      enabled: false
   metrics:
     tags:
       application: ${spring.application.name}

@@ -32,10 +32,20 @@ eureka:
     prefer-ip-address: true
 
 management:
+  # M1: actuator runs on its own internal port -- the public app port serves no
+  # actuator at all. Keep this port off the public network / gateway in production.
+  server:
+    port: 9081
   endpoints:
     web:
       exposure:
         include: health,info,refresh,busrefresh,prometheus
+  endpoint:
+    health:
+      show-details: never
+  info:
+    env:
+      enabled: false
   tracing:
     sampling:
       probability: 1.0

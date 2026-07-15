@@ -21,7 +21,17 @@ encrypt:
    key: ${ENCRYPT_KEY:my-super-secret-encryption-key-hrsaas-2024}
 
 management:
+  # M1: actuator runs on its own internal port. busrefresh broadcasts a config reload
+  # to every service over the bus, so it must never be reachable from the public network.
+  server:
+    port: 9888
   endpoints:
     web:
       exposure:
         include: health,info,busrefresh
+  endpoint:
+    health:
+      show-details: never
+  info:
+    env:
+      enabled: false

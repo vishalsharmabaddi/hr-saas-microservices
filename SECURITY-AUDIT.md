@@ -53,12 +53,39 @@ matters, and the fix.
 ## MEDIUM
 
 ### M1. Actuator endpoints exposed with full details
-- **Where:** every `application.yml` → `management.endpoints.web.exposure.include: health,info,metrics,prometheus`
-  and `management.endpoint.health.show-details: always`.
-- **Why:** Unauthenticated `/actuator/health` with `show-details: always` leaks internals (DB up/down,
-  disk, component status); `/metrics` + `/prometheus` leak operational data useful to an attacker.
-- **Fix:** In prod, restrict exposure (e.g. only `health`), set `show-details: when-authorized`, and
-  put actuator behind auth / an internal network.
+- **Status (2026-07-15): FIXED.** Actuator now runs on a separate internal management port
+  (`management.server.port` = app port + 1000) in all 7 services + config-server. The public app port
+  serves **no** actuator at all. Also `show-details: never` (was `always`) and `info.env.enabled: false`
+  (was `true`) everywhere.
+- **Where (was):** every `application.yml` → `management.endpoints.web.exposure.include` on the app port,
+  with `show-details: always`.
+- **Why:** Everything below was reachable **unauthenticated** (TenantFilter deliberately skips
+  `/actuator`). Proven live against project-service before the fix:
+  - `POST /actuator/refresh` → **200** — anyone could trigger a config reload. On config-server,
+    `busrefresh` broadcasts that to *every* service over the bus (a free DoS lever).
+  - `GET /actuator/prometheus` → **344 lines** of metrics (Hikari pool size, JVM, URIs being hit).
+  - `show-details: always` + `info.env.enabled: true` on attendance/leave/notification/payroll would
+    have exposed component internals and config properties.
+- **Verified after restart:** `:8085/actuator/{health,info,prometheus,refresh}` → **404** (incl. POST);
+  `:9085/actuator/health` → **200** `{"status":"UP"}` with no details. App API still 200, M6 still 403,
+  Eureka registration still UP, metrics still scrapeable on 9085.
+- **Port map:** 8081→9081, 8082→9082, 8083→9083, 8084→9084, 8085→9085, 8086→9086, 8087→9087,
+  config-server 8888→9888. `prometheus.yml` targets updated to match.
+- **Deployment requirement:** these 90xx ports must stay off the public network (firewall / not routed
+  by the gateway). The fix only relocates actuator — it does not authenticate it.
+- **Known caveat:** `prometheus.yml` scrapes `host.docker.internal:90xx`, which assumes the services run
+  on the host (the current workflow). If the app services are ever run from `docker-compose.yml`, the
+  90xx ports are not published, so the targets would need to become container names (`employee-service:9081`).
+
+### M7. Eureka registry and dashboard are public and unauthenticated
+- **Where:** `eureka-server` on :8761 — `GET /eureka/apps` and the web dashboard.
+- **Why:** Returns the full service registry — every service's name, hostname, IP, port and status.
+  That is an internal network map handed to an unauthenticated caller, and it is *not* actuator, so
+  the M1 management-port fix does not cover it. Verified live: `GET /eureka/apps` → 200 with
+  instanceId/hostName/ipAddr for project-service.
+- **Fix:** Put Eureka behind basic auth (`spring.security.user.*` + `eureka.client.service-url.defaultZone`
+  with credentials) and/or bind it to an internal network only. Same applies to the RabbitMQ, Kafka,
+  Zipkin, Prometheus and Grafana consoles from `docker-compose.yml`.
 
 ### M2. JWT stored in browser `localStorage`
 - **Where:** `worktrack-frontend/src/api/axios.js:19`, `LoginPage.jsx:27`, `Layout.jsx:174`,
@@ -167,8 +194,9 @@ matters, and the fix.
 1. **H1 + H2 + H3** — externalize & rotate all secrets/passwords (blocking).
 2. ~~**M4** — fix the TenantFilter error masking (correctness + probing).~~ **Done (2026-07-15).**
 3. ~~**M6** — scope `/api/companies` to the caller's tenant (cross-tenant read *and write*).~~ **Done (2026-07-15).**
-4. **M1** — lock down actuator.
-5. **M2 / M3 / L2 / L6** — token storage, CORS, rate limiting, TLS.
-6. ~~**M5** — design the platform-owner gate before building the real Platform Console.~~ **Done (2026-07-15).**
+4. ~~**M1** — lock down actuator.~~ **Done (2026-07-15)** — moved to internal management ports.
+5. **M7** — put Eureka (and the RabbitMQ/Kafka/Zipkin/Grafana consoles) behind auth / internal-only.
+6. **M2 / M3 / L2 / L6** — token storage, CORS, rate limiting, TLS.
+7. ~~**M5** — design the platform-owner gate before building the real Platform Console.~~ **Done (2026-07-15).**
 
 *This audit is a snapshot; re-run after fixes and whenever a new service or public endpoint is added.*
