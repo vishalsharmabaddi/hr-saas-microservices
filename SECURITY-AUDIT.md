@@ -75,8 +75,14 @@ matters, and the fix.
 - **Fix:** Restrict to known frontend origin(s) in production.
 
 ### M4. TenantFilter turns every downstream error into 401 (logout)
-- **Where:** `*/security/TenantFilter.java` — `chain.doFilter(...)` is inside the `try`, and the
-  `catch (Exception)` returns `401 Invalid token`.
+- **Status (2026-07-15): FIXED** in all 7 services. `chain.doFilter(...)` now runs **outside** the
+  try/catch; only token parsing is inside it. Invalid token still 401; a real app failure surfaces as
+  its real 500. project-service compiles clean.
+- **Follow-on:** this fix means real errors now actually reach the user, so the frontend gained an
+  ErrorBoundary + 404 page (previously a crash = blank white page, and backend failures were hidden
+  behind the 401→logout path). 2 Playwright tests cover it.
+- **Where (was):** `*/security/TenantFilter.java` — `chain.doFilter(...)` was inside the `try`, and the
+  `catch (Exception)` returned `401 Invalid token`.
 - **Why:** Any controller/DB exception (a 500) is reported as 401 → the frontend clears the session and
   logs the user out (we hit exactly this with a leave-query bug). It also masks real errors and can aid
   an attacker in probing (everything looks like "auth failed").
@@ -138,7 +144,7 @@ matters, and the fix.
 
 ## Priority order before go-live
 1. **H1 + H2 + H3** — externalize & rotate all secrets/passwords (blocking).
-2. **M4** — fix the TenantFilter error masking (correctness + probing).
+2. ~~**M4** — fix the TenantFilter error masking (correctness + probing).~~ **Done (2026-07-15).**
 3. **M1** — lock down actuator.
 4. **M2 / M3 / L2 / L6** — token storage, CORS, rate limiting, TLS.
 5. ~~**M5** — design the platform-owner gate before building the real Platform Console.~~ **Done (2026-07-15).**
