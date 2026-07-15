@@ -18,4 +18,7 @@ public interface MembershipRepository extends JpaRepository<Membership, Long> {
 
     // Ek company ke saare members (team list ke liye)
     List<Membership> findByCompanyId(Long companyId);
+
+    // Platform Console: har company me kitne app users (seats)
+    long countByCompanyId(Long companyId);
 }

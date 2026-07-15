@@ -26,6 +26,9 @@ public class Company {
     private String logoUrl;
     private Boolean isActive = true;
 
+    // Billing plan — Platform Console se badalta hai. FREE / PRO / BUSINESS.
+    private String plan = "FREE";
+
     @Column(updatable = false)
     private LocalDateTime createdAt;
 

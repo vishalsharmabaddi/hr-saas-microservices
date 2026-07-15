@@ -1,21 +1,40 @@
 import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { ShieldCheck, ArrowLeft, Building2, Users, IndianRupee, CreditCard, Ban, CheckCircle2, Search, X } from 'lucide-react'
-import { getPlatformCompanies, savePlatformCompanies, computePlatformStats, PLANS } from '../platform/platformData'
+import { computePlatformStats, PLANS } from '../platform/platformData'
+import api from '../api/axios'
 import taurusMark from '../assets/Taurus-Logo.png'
 
 // Platform Console — sirf app owner (Platform Owner) ke liye. Company sidebar se ALAG area.
 export default function PlatformAdminPage() {
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
   const user = JSON.parse(localStorage.getItem('wt_user') || '{}')
 
-  // useState — kyunki suspend/activate/plan-change pe list badlegi aur re-render chahiye
-  const [companies, setCompanies] = useState(() => getPlatformCompanies())
   const [query, setQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')      // all | active | suspended
   const [selectedId, setSelectedId] = useState(null)           // detail drawer ke liye
 
+  // Real data — owner-gated backend. isActive→status, userCount→seats map karo taaki JSX + stats same rahein.
+  const { data: raw = [] } = useQuery({
+    queryKey: ['platform-companies'],
+    queryFn: () => api.get('/platform/companies').then(r => Array.isArray(r.data) ? r.data : []),
+  })
+  const companies = useMemo(
+    () => raw.map(c => ({ ...c, status: c.isActive ? 'active' : 'suspended', seats: c.userCount })),
+    [raw]
+  )
   const stats = useMemo(() => computePlatformStats(companies), [companies])
+
+  const statusMut = useMutation({
+    mutationFn: ({ id, active }) => api.put(`/platform/companies/${id}/status`, { active }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['platform-companies'] }),
+  })
+  const planMut = useMutation({
+    mutationFn: ({ id, plan }) => api.put(`/platform/companies/${id}/plan`, { plan }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['platform-companies'] }),
+  })
 
   // Filter sirf DIKHANE ke liye list chhaanta hai — data (companies) nahi badalta
   const q = query.trim().toLowerCase()
@@ -27,24 +46,14 @@ export default function PlatformAdminPage() {
 
   const selected = companies.find(c => c.id === selectedId) || null
 
-  // Status toggle → state update + localStorage save (refresh-proof)
-  function toggleStatus(id) {
-    setCompanies(list => {
-      const next = list.map(c =>
-        c.id === id ? { ...c, status: c.status === 'active' ? 'suspended' : 'active' } : c
-      )
-      savePlatformCompanies(next)
-      return next
-    })
+  // Status toggle → backend PUT (suspended ko active karo aur vice-versa)
+  function toggleStatus(company) {
+    statusMut.mutate({ id: company.id, active: company.status === 'suspended' })
   }
 
-  // Plan change (detail drawer se)
+  // Plan change (detail drawer se) → backend PUT
   function changePlan(id, plan) {
-    setCompanies(list => {
-      const next = list.map(c => c.id === id ? { ...c, plan } : c)
-      savePlatformCompanies(next)
-      return next
-    })
+    planMut.mutate({ id, plan })
   }
 
   const cards = [
@@ -231,7 +240,7 @@ export default function PlatformAdminPage() {
                       </td>
                       <td style={{ padding: '12px 22px', textAlign: 'right' }}>
                         {/* stopPropagation — warna row click bhi trigger hoke drawer khul jaata */}
-                        <button onClick={e => { e.stopPropagation(); toggleStatus(c.id) }} style={{
+                        <button onClick={e => { e.stopPropagation(); toggleStatus(c) }} style={{
                           display: 'inline-flex', alignItems: 'center', gap: 6, cursor: 'pointer',
                           fontSize: 13.5, fontWeight: 600, padding: '6px 12px', borderRadius: 8,
                           border: `1px solid ${suspended ? '#bbf7d0' : '#fecaca'}`,
@@ -300,7 +309,7 @@ export default function PlatformAdminPage() {
             </div>
 
             {/* Suspend / Activate action */}
-            <button onClick={() => toggleStatus(selected.id)} style={{
+            <button onClick={() => toggleStatus(selected)} style={{
               marginTop: 20, width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
               cursor: 'pointer', fontSize: 15, fontWeight: 600, padding: '11px', borderRadius: 10,
               border: `1px solid ${selected.status === 'suspended' ? '#bbf7d0' : '#fecaca'}`,
