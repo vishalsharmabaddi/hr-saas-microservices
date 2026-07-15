@@ -44,6 +44,7 @@ public class TenantFilter extends OncePerRequestFilter {
             return;
         }
 
+        HttpServletRequest wrapped;
         try {
             Claims claims = jwtService.parse(authHeader.substring(7));   // "Bearer " hatao
             Object companyId = claims.get("companyId");
@@ -58,10 +59,15 @@ public class TenantFilter extends OncePerRequestFilter {
             if (role != null) overrides.put("x-user-role", String.valueOf(role));
             if (claims.getSubject() != null) overrides.put("x-user-email", claims.getSubject());
 
-            HttpServletRequest wrapped = new CompanyHeaderRequest(request, overrides);
-            chain.doFilter(wrapped, response);
+            wrapped = new CompanyHeaderRequest(request, overrides);
         } catch (Exception e) {
+            // Sirf token parse ka error yahan aata hai -> 401 sach me sahi hai.
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid token");
+            return;
         }
+
+        // M4: Token valid. Aage app ka asli kaam -- ise try ke BAHAR rakha hai, warna
+        // controller/DB ka koi bhi crash "Invalid token" 401 ban ke logout kara deta tha.
+        chain.doFilter(wrapped, response);
     }
 }
