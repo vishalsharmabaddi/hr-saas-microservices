@@ -61,6 +61,9 @@ app:
     secret: ${JWT_SECRET}
   # Phase 2: invite email me jo accept-link jaayega uska base (frontend URL)
   frontend-url: http://localhost:5173
+  # M3: allowed browser origins for the WebSocket handshake (comma-separated in prod)
+  cors:
+    allowed-origins: http://localhost:5173
   mail:
     from: WorkTrack <no-reply@worktrack.local>
 

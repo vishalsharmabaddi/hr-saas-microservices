@@ -134,7 +134,12 @@ matters, and the fix.
   any user-rendered HTML. If keeping localStorage, treat XSS prevention as critical and keep token TTL short.
 
 ### M3. WebSocket handshake allows any origin
-- **Where:** `notification-service/.../config/WebSocketConfig.java:30` → `setAllowedOriginPatterns("*")`.
+- **Status (2026-07-21): FIXED.** `/ws` now reads `app.cors.allowed-origins` (comma-separated,
+  default `http://localhost:5173`) and uses `setAllowedOrigins(...)` for exact matching instead of
+  `setAllowedOriginPatterns("*")`. Prod supplies the real domain(s) via config/env.
+  - **Verified** against a running service: good origin (`localhost:5173`) → **200**;
+    `evil.com` → **403** (was allowed under `*`); no-origin/non-browser → **200**.
+- **Where (was):** `notification-service/.../config/WebSocketConfig.java:30` → `setAllowedOriginPatterns("*")`.
 - **Why:** Any website can open a STOMP handshake to the service. Auth still requires a valid JWT on
   CONNECT (good), but `*` is too open for prod.
 - **Fix:** Restrict to known frontend origin(s) in production.

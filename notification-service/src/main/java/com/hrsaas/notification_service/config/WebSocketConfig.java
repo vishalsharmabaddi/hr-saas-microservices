@@ -20,6 +20,11 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     private final AuthChannelInterceptor authChannelInterceptor;
 
+    // Allowed browser origins for the WebSocket handshake.
+    // Comma-separated; defaults to the local dev frontend. Set in prod via config/env.
+    @org.springframework.beans.factory.annotation.Value("${app.cors.allowed-origins:http://localhost:5173}")
+    private String allowedOrigins;
+
     public WebSocketConfig(AuthChannelInterceptor authChannelInterceptor) {
         this.authChannelInterceptor = authChannelInterceptor;
     }
@@ -27,7 +32,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/ws")
-                .setAllowedOriginPatterns("*")   // dev: frontend vite proxy se aata hai
+                .setAllowedOrigins(allowedOrigins.split(","))   // known origins only, not "*"
                 .withSockJS();
     }
 
