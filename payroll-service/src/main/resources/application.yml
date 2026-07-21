@@ -3,11 +3,6 @@ spring:
     name: payroll-service
   config:
     import: optional:configserver:http://localhost:8888
-  rabbitmq:
-    host: localhost
-    port: 5672
-    username: guest
-    password: guest
   kafka:
     # Host se connect: Kafka ka HOST listener 29092 hai (9092 andar 'kafka:9092' advertise karta hai)
     bootstrap-servers: localhost:29092
@@ -49,7 +44,7 @@ info:
 eureka:
   client:
     service-url:
-      defaultZone: http://localhost:8761/eureka/
+      defaultZone: http://${EUREKA_USER}:${EUREKA_PASSWORD}@localhost:8761/eureka/
 
 app:
   employee-service-url: http://localhost:8081

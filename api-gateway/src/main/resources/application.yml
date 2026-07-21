@@ -4,51 +4,51 @@ server:
 spring:
   application:
     name: api-gateway
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          issuer-uri: http://localhost:8080/realms/hr-saas
   cloud:
     gateway:
-      mvc:
-        routes:
-          - id: employee-service
-            uri: lb://employee-service
-            predicates:
-              - Path=/api/employees/**
+      server:
+        webmvc:
+          routes:
+            - id: employee-service
+              uri: lb://employee-service
+              predicates:
+                - Path=/api/employees/**
 
-          - id: attendance-service
-            uri: lb://attendance-service
-            predicates:
-              - Path=/api/attendance/**
+            - id: attendance-service
+              uri: lb://attendance-service
+              predicates:
+                - Path=/api/attendance/**
 
-          - id: leave-service
-            uri: lb://leave-service
-            predicates:
-              - Path=/api/leaves/**
+            - id: leave-service
+              uri: lb://leave-service
+              predicates:
+                - Path=/api/leaves/**
 
-          - id: notification-service
-            uri: lb://notification-service
-            predicates:
-              - Path=/api/notify/**
+            - id: notification-service
+              uri: lb://notification-service
+              predicates:
+                - Path=/api/notifications/**
 
-          - id: project-service
-            uri: lb://project-service
-            predicates:
-              - Path=/api/projects/**, /api/tasks/**, /api/timelogs/**, /api/companies/**, /api/dashboard/**
+            - id: project-service
+              uri: lb://project-service
+              predicates:
+                - Path=/api/auth/**, /api/projects/**, /api/tasks/**, /api/timelogs/**, /api/companies/**, /api/dashboard/**, /api/platform/**, /api/team/**
 
-          - id: gamification-service
-            uri: lb://gamification-service
-            predicates:
-              - Path=/api/gamification/**
+            - id: gamification-service
+              uri: lb://gamification-service
+              predicates:
+                - Path=/api/gamification/**
 
-          - id: payroll-service
-            uri: lb://payroll-service
-            predicates:
-              - Path=/api/payroll/**
+            - id: payroll-service
+              uri: lb://payroll-service
+              predicates:
+                - Path=/api/payroll/**
 
 eureka:
   client:
     service-url:
-      defaultZone: http://localhost:8761/eureka/
+      defaultZone: http://${EUREKA_USER}:${EUREKA_PASSWORD}@localhost:8761/eureka/
+
+app:
+  jwt:
+    secret: ${JWT_SECRET}

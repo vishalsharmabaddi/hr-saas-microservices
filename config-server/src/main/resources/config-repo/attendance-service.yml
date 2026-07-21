@@ -3,7 +3,7 @@ spring:
     url: jdbc:postgresql://localhost:5432/attendancedb
     driver-class-name: org.postgresql.Driver
     username: postgres
-    password: '{cipher}d1c4c2cbb7526b201b0a014e57a3290ba1ad0f48ae703ca60421c58817727b32'
+    password: ${DB_PASSWORD}
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:

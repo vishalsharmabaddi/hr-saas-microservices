@@ -62,15 +62,19 @@ matters, and the fix.
   history rewrite is not urgent. The old secret appears in **5 commits**.
 - **Status (2026-07-15): JWT_SECRET rotated** (see H1). The old value is now useless.
 - **Still open — rotate these too, same reasoning:**
-  1. `DB_PASSWORD` — still `1230`. Needs `ALTER USER postgres PASSWORD ...` in Postgres itself, then
-     `.env`, then the `${DB_PASSWORD:1230}` defaults removed. Note `docker-compose.yml` separately
-     sets `POSTGRES_PASSWORD: postgres`.
-  2. RabbitMQ `guest/guest` in most services + `docker-compose.yml`.
-  3. **`ENCRYPT_KEY`** in config-server — defaults to a committed value
-     (`my-super-secret-encryption-key-hrsaas-2024`), and the `{cipher}` DB passwords in
-     `config-server/.../config-repo/*.yml` are encrypted with it. Anyone with the repo can decrypt
-     them, so those ciphertexts are **not** protection today. Rotating the key means re-encrypting
-     every `{cipher}` value.
+  1. `DB_PASSWORD` — still `1230`. **Deferred by choice (2026-07-21):** this is the developer's local
+     Postgres password, so rotating it means an `ALTER USER postgres PASSWORD ...` on the machine
+     itself; left as-is for now. When rotated: change it in Postgres, update `.env`, then remove the
+     `${DB_PASSWORD:1230}` fallback. `docker-compose.yml` now reads `POSTGRES_PASSWORD: ${DB_PASSWORD}`
+     (committed `postgres` default removed).
+  2. ~~RabbitMQ `guest/guest`~~ — **N/A (2026-07-21):** RabbitMQ/Spring Cloud Bus removed entirely
+     (`spring-cloud-starter-bus-amqp` dropped from all poms, `rabbitmq` service removed from
+     `docker-compose.yml`). Messaging is **Kafka**; no `guest/guest` credentials remain in the repo.
+  3. ~~**`ENCRYPT_KEY`** committed default~~ — **FIXED (2026-07-21):** config-server now reads
+     `encrypt.key: ${ENCRYPT_KEY}` with no committed default, and **all `{cipher}` values were removed**
+     from `config-repo/*.yml` (replaced with `password: ${DB_PASSWORD}`, resolved by each service from
+     its own env). With no ciphertext left to decrypt, the fake protection is gone. The `encrypt:`
+     block is now effectively dead weight and can be dropped in a follow-up.
 - **Before making this repo public:** rotate items 1-3 first, then optionally `git filter-repo` to
   scrub history. Rotation must come first — scrubbing a still-live secret protects nothing.
 
@@ -104,7 +108,15 @@ matters, and the fix.
   90xx ports are not published, so the targets would need to become container names (`employee-service:9081`).
 
 ### M7. Eureka registry and dashboard are public and unauthenticated
-- **Where:** `eureka-server` on :8761 — `GET /eureka/apps` and the web dashboard.
+- **Status (2026-07-21): FIXED.** Eureka is now behind HTTP Basic auth. Added
+  `spring-boot-starter-security` + a `SecurityConfig` requiring auth on every endpoint (CSRF disabled
+  on the machine-to-machine `/eureka/**` API so client registration POSTs still work). Credentials come
+  from `${EUREKA_USER}` / `${EUREKA_PASSWORD}` (no committed default — an unset var fails startup).
+  Every client's `defaultZone` now embeds the credentials
+  (`http://${EUREKA_USER}:${EUREKA_PASSWORD}@localhost:8761/eureka/`).
+  - **Verified:** anonymous `GET /` → **401** (was 200, the leak); correct creds → **200**;
+    wrong password → **401**.
+- **Where (was):** `eureka-server` on :8761 — `GET /eureka/apps` and the web dashboard.
 - **Why:** Returns the full service registry — every service's name, hostname, IP, port and status.
   That is an internal network map handed to an unauthenticated caller, and it is *not* actuator, so
   the M1 management-port fix does not cover it. Verified live: `GET /eureka/apps` → 200 with
@@ -221,7 +233,9 @@ matters, and the fix.
 2. ~~**M4** — fix the TenantFilter error masking (correctness + probing).~~ **Done (2026-07-15).**
 3. ~~**M6** — scope `/api/companies` to the caller's tenant (cross-tenant read *and write*).~~ **Done (2026-07-15).**
 4. ~~**M1** — lock down actuator.~~ **Done (2026-07-15)** — moved to internal management ports.
-5. **M7** — put Eureka (and the RabbitMQ/Kafka/Zipkin/Grafana consoles) behind auth / internal-only.
+5. ~~**M7** — put Eureka behind auth / internal-only.~~ **Done (2026-07-21)** — HTTP Basic auth on the
+   registry + dashboard. (The Kafka/Zipkin/Grafana consoles from `docker-compose.yml` should still be
+   bound internal-only in prod.)
 6. **M2 / M3 / L2 / L6** — token storage, CORS, rate limiting, TLS.
 7. ~~**M5** — design the platform-owner gate before building the real Platform Console.~~ **Done (2026-07-15).**
 

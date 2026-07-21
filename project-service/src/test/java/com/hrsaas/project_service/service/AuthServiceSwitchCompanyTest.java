@@ -20,6 +20,8 @@ import static org.mockito.Mockito.*;
 // switch-company ki core logic — bina Google/DB ke (repos mock, real JwtService).
 class AuthServiceSwitchCompanyTest {
 
+    private static final String TEST_JWT_SECRET = "test-only-jwt-secret-at-least-32-bytes-long";
+
     private MembershipRepository membershipRepo;
     private CompanyRepository companyRepo;
     private JwtService jwt;
@@ -30,7 +32,7 @@ class AuthServiceSwitchCompanyTest {
         membershipRepo = mock(MembershipRepository.class);
         companyRepo = mock(CompanyRepository.class);
         InviteRepository inviteRepo = mock(InviteRepository.class);
-        jwt = new JwtService("worktrack-dev-secret-key-please-change-in-production-0123456789", 86400000L);
+        jwt = new JwtService(TEST_JWT_SECRET, 86400000L);
         authService = new AuthService(membershipRepo, companyRepo, inviteRepo, jwt, "test-client-id");
     }
 

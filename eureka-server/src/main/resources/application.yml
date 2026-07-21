@@ -4,6 +4,12 @@ server:
 spring:
   application:
     name: eureka-server
+  # M7: Basic-auth credentials for the registry/dashboard. Env-backed, no default --
+  # if either is unset the server fails to start rather than running open (see H1/H3).
+  security:
+    user:
+      name: ${EUREKA_USER}
+      password: ${EUREKA_PASSWORD}
 
 eureka:
   instance:

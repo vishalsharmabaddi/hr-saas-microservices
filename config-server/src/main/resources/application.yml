@@ -8,27 +8,21 @@ spring:
       server:
         native:
           search-locations: classpath:/config-repo
-  rabbitmq:
-    host: localhost
-    port: 5672
-    username: guest
-    password: guest
 
 server:
   port: 8888
 
 encrypt:
-   key: ${ENCRYPT_KEY:my-super-secret-encryption-key-hrsaas-2024}
+   key: ${ENCRYPT_KEY}
 
 management:
-  # M1: actuator runs on its own internal port. busrefresh broadcasts a config reload
-  # to every service over the bus, so it must never be reachable from the public network.
+  # M1: actuator runs on its own internal port -- keep it off the public network.
   server:
     port: 9888
   endpoints:
     web:
       exposure:
-        include: health,info,busrefresh
+        include: health,info
   endpoint:
     health:
       show-details: never

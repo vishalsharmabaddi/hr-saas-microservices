@@ -3,11 +3,6 @@ spring:
     name: attendance-service
   config:
     import: optional:configserver:http://localhost:8888
-  rabbitmq:
-    host: localhost
-    port: 5672
-    username: guest
-    password: guest
 
 server:
   port: 8082
@@ -43,7 +38,7 @@ info:
 eureka:
   client:
     service-url:
-      defaultZone: http://localhost:8761/eureka/
+      defaultZone: http://${EUREKA_USER}:${EUREKA_PASSWORD}@localhost:8761/eureka/
 
 app:
   employee-service-url: http://localhost:8081
