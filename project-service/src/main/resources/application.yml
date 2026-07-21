@@ -67,6 +67,11 @@ app:
   # Platform Console (cross-tenant) sirf in owner emails ko dikhega. Comma-separated. Prod me env se.
   platform:
     owner-emails: ${PLATFORM_OWNER_EMAILS:vishalsharmabaddi@gmail.com}
+  # L2: per-IP rate limit for /api/auth/** (brute-force / abuse). capacity requests per window-seconds.
+  rate-limit:
+    auth:
+      capacity: 10
+      window-seconds: 60
 
 # M2: Google login token verify karte waqt "audience" isi client-id se match hoga.
 # (Ye public value hai — frontend .env wale VITE_GOOGLE_CLIENT_ID jaisi.)

@@ -205,8 +205,17 @@ matters, and the fix.
   filter (all 7 currently do). Any new service must include it.
 
 ### L2. No auth rate-limiting (brute force / abuse)
-- resilience4j rate-limiters exist for some inter-service calls but not for login/auth. Add rate limiting
-  on auth endpoints (and ideally a WAF/gateway throttle) before prod.
+- **Status (2026-07-21): FIXED.** `project-service` gained `AuthRateLimitFilter` — a **per-IP**
+  Bucket4j limiter on `/api/auth/**` (default **10 requests / 60s** per IP, tunable via
+  `app.rate-limit.auth.*`). Over the limit → **429** + `Retry-After`. Per-IP means an abusive IP is
+  throttled while legitimate users are unaffected; greedy refill returns a token every ~6s so a real
+  user is not locked out for long. Client IP = first `X-Forwarded-For` entry (behind a proxy) else
+  `getRemoteAddr()`.
+  - **Verified** against a running service: requests 1-10 → 401 (passed through), 11-12 → **429**;
+    the 429 carries `Retry-After: 60`.
+  - **Note:** buckets are in-memory, correct for a single instance. If project-service is scaled out,
+    move them to a shared store (e.g. Redis) so the limit holds across instances.
+- **Was:** resilience4j rate-limiters exist for some inter-service calls but not for login/auth.
 
 ### L3. Gateway validates JWT, but dev bypasses the gateway
 - `api-gateway/SecurityConfig.java` enforces `anyRequest().authenticated()` + JWT. In dev the frontend

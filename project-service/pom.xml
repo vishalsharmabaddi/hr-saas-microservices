@@ -124,6 +124,13 @@
 			<version>0.12.6</version>
 			<scope>runtime</scope>
 		</dependency>
+
+		<!-- L2: per-IP rate limiting for the /api/auth endpoints (brute-force / abuse) -->
+		<dependency>
+			<groupId>com.bucket4j</groupId>
+			<artifactId>bucket4j-core</artifactId>
+			<version>8.7.0</version>
+		</dependency>
 	</dependencies>
 	<dependencyManagement>
 		<dependencies>
