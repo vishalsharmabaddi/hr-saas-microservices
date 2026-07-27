@@ -22,3 +22,6 @@ DEMO-SCRIPT.md
 # Claude teaching context files
 CLAUDE.md
 SECURITY-AUDIT.md
+
+# Markdown files (docs/plans/specs - not for repo)
+*.md
