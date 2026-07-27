@@ -31,6 +31,11 @@ public class ProjectMember {
     @Column(nullable = false)
     private Long employeeId;
 
+    // Denormalized display fields — captured at add time so any viewer sees the
+    // real name without needing employees-read permission or a cross-service call.
+    private String email;
+    private String name;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ProjectRole role;

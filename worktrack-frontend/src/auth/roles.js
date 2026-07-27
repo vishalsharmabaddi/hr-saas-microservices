@@ -44,9 +44,9 @@ export function removeAppMember(email) {
 
 // Kaunse nav items kaunse role ko dikhenge
 export const ROLE_NAV = {
-  ADMIN:    ['/dashboard', '/projects', '/timelogs', '/attendance', '/leaves', '/employees', '/members', '/engagement', '/analytics', '/reports'],
-  MANAGER:  ['/dashboard', '/projects', '/timelogs', '/attendance', '/leaves', '/members', '/engagement', '/analytics', '/reports'],
-  EMPLOYEE: ['/dashboard', '/projects', '/timelogs', '/attendance', '/leaves'],
+  ADMIN:    ['/dashboard', '/projects', '/my-tasks', '/timelogs', '/attendance', '/leaves', '/employees', '/members', '/engagement', '/analytics', '/reports'],
+  MANAGER:  ['/dashboard', '/projects', '/my-tasks', '/timelogs', '/attendance', '/leaves', '/members', '/engagement', '/analytics', '/reports'],
+  EMPLOYEE: ['/dashboard', '/projects', '/my-tasks', '/timelogs', '/attendance', '/leaves'],
 }
 
 // Role badge color

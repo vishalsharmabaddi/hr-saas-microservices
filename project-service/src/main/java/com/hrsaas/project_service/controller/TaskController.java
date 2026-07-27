@@ -1,5 +1,7 @@
 package com.hrsaas.project_service.controller;
 
+import com.hrsaas.project_service.dto.AssigneeStats;
+import com.hrsaas.project_service.dto.AssignRequest;
 import com.hrsaas.project_service.dto.StatusUpdateRequest;
 import com.hrsaas.project_service.dto.TaskRequest;
 import com.hrsaas.project_service.dto.TaskResponse;
@@ -36,6 +38,24 @@ public class TaskController {
         return ResponseEntity.ok(taskService.getTasksByTaskList(companyId, taskListId));
     }
 
+    // Per-assignee workload analytics for a project. Manager-only.
+    @GetMapping("/analytics/assignees/{projectId}")
+    public ResponseEntity<List<AssigneeStats>> getAssigneeStats(
+            @RequestHeader("X-Company-Id") Long companyId,
+            @RequestHeader(value = "X-User-Role", required = false) String role,
+            @PathVariable Long projectId) {
+        RoleGuard.requireManager(role);
+        return ResponseEntity.ok(taskService.getAssigneeStats(companyId, projectId));
+    }
+
+    // Cross-project "My Tasks" — tasks assigned to the caller (identity = token email).
+    @GetMapping("/assigned/me")
+    public ResponseEntity<List<TaskResponse>> getMyAssignedTasks(
+            @RequestHeader("X-Company-Id") Long companyId,
+            @RequestHeader(value = "X-User-Email", required = false) String email) {
+        return ResponseEntity.ok(taskService.getMyAssignedTasks(companyId, email));
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<TaskResponse> getTaskById(
             @RequestHeader("X-Company-Id") Long companyId,
@@ -51,6 +71,16 @@ public class TaskController {
             @PathVariable Long id,
             @RequestBody TaskRequest request) {
         return ResponseEntity.ok(taskService.updateTask(companyId, id, request, role, email));
+    }
+
+    // Replace the task's assignees. Manager-only (enforced in the service).
+    @PutMapping("/{id}/assignees")
+    public ResponseEntity<TaskResponse> assignTask(
+            @RequestHeader("X-Company-Id") Long companyId,
+            @RequestHeader(value = "X-User-Role", required = false) String role,
+            @PathVariable Long id,
+            @RequestBody AssignRequest request) {
+        return ResponseEntity.ok(taskService.assignTask(companyId, id, request.getAssignees(), role));
     }
 
     // Status-only change — collaborative, sabke liye khula (koi RoleGuard nahi)

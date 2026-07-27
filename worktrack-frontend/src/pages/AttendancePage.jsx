@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { Plus, Clock, CheckCircle, AlertCircle, LogOut, Pencil, X, LogIn, UserPlus } from 'lucide-react'
+import { Plus, Clock, CheckCircle, AlertCircle, LogOut, Pencil, Trash2, X, LogIn, UserPlus } from 'lucide-react'
 import api from '../api/axios'
-import { canManage } from '../auth/roles'
+import { canManage, canAdmin } from '../auth/roles'
 import AttendanceHistory from '../components/AttendanceHistory'
 
 const statusStyle = {
@@ -99,6 +99,13 @@ export default function AttendancePage() {
       queryClient.invalidateQueries({ queryKey: ['attendance-today'] })
       setEditingRecord(null)
     },
+  })
+
+  // Admin-only delete. Also refresh the self-service card so my own "Check In" button
+  // reappears if I deleted my own record.
+  const deleteMutation = useMutation({
+    mutationFn: (id) => api.delete(`/attendance/${id}`),
+    onSuccess: refreshAll,
   })
 
   function startEdit(r) {
@@ -376,13 +383,30 @@ export default function AttendancePage() {
                       Check Out
                     </button>
                   )}
-                  <button
-                    onClick={() => startEdit(r)}
-                    style={{ background: 'none', border: '1px solid #e2e8f0', borderRadius: 6, padding: '5px 7px', cursor: 'pointer', color: '#94a3b8', display: 'flex', alignItems: 'center' }}
-                    title="Edit record"
-                  >
-                    <Pencil size={12} />
-                  </button>
+                  {/* Edit + delete are admin-only (backend enforces it too via RoleGuard). */}
+                  {canAdmin(user.role) && (
+                    <>
+                      <button
+                        onClick={() => startEdit(r)}
+                        style={{ background: 'none', border: '1px solid #e2e8f0', borderRadius: 6, padding: '5px 7px', cursor: 'pointer', color: '#94a3b8', display: 'flex', alignItems: 'center' }}
+                        title="Edit record"
+                      >
+                        <Pencil size={12} />
+                      </button>
+                      <button
+                        onClick={() => {
+                          if (window.confirm(`Delete ${emp?.fullName ?? 'this employee'}'s attendance record for today?`)) {
+                            deleteMutation.mutate(r.id)
+                          }
+                        }}
+                        disabled={deleteMutation.isPending}
+                        style={{ background: 'none', border: '1px solid #fecaca', borderRadius: 6, padding: '5px 7px', cursor: 'pointer', color: '#dc2626', display: 'flex', alignItems: 'center' }}
+                        title="Delete record"
+                      >
+                        <Trash2 size={12} />
+                      </button>
+                    </>
+                  )}
                 </div>
               </div>
             )

@@ -65,12 +65,28 @@ public class AttendanceController {
         return ResponseEntity.ok(attendanceService.checkOutSelf(companyId));
     }
 
+    // Editing a record is an admin-only action -- previously any authenticated user in the
+    // company could tamper with attendance. Role comes from the verified token (X-User-Role).
     @PutMapping("/{id}")
     public ResponseEntity<AttendanceResponse> updateRecord(
             @RequestHeader("X-Company-Id") Long companyId,
+            @RequestHeader(value = "X-User-Role", required = false) String role,
             @PathVariable Long id,
             @RequestBody AttendanceUpdateRequest request) {
+        RoleGuard.requireAdmin(role);
         return ResponseEntity.ok(attendanceService.updateRecord(companyId, id, request));
+    }
+
+    // Deleting a record is also admin-only (destructive). Company-scoped in the service so one
+    // tenant can never delete another tenant's record.
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteRecord(
+            @RequestHeader("X-Company-Id") Long companyId,
+            @RequestHeader(value = "X-User-Role", required = false) String role,
+            @PathVariable Long id) {
+        RoleGuard.requireAdmin(role);
+        attendanceService.deleteRecord(companyId, id);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/today")

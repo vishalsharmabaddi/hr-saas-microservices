@@ -7,6 +7,7 @@ const typeStyle = {
   LEAVE_REJECTED:    { background: '#fef2f2', color: '#dc2626', label: 'Leave Rejected' },
   PAYSLIP_GENERATED: { background: '#EAF7EE', color: '#15803d', label: 'Payslip Ready' },
   MANAGER_NUDGE:     { background: '#fefce8', color: '#a16207', label: 'Appreciation' },
+  TASK_ASSIGNED:     { background: '#f0fdf4', color: '#15803d', label: 'Task Assigned' },
 }
 
 function timeAgo(dt) {

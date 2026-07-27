@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { Outlet, NavLink, useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { LayoutDashboard, FolderKanban, Clock, Users, UserSquare2, CalendarCheck, CalendarOff, Bell, Settings, Menu, X, Check, CheckCheck, TrendingUp, LogOut, ChevronUp, ChevronDown, ChevronLeft, Sparkles, BarChart3, Compass, HelpCircle, ShieldCheck, FileText, Wallet, Receipt } from 'lucide-react'
+import { LayoutDashboard, FolderKanban, Clock, Users, UserSquare2, CalendarCheck, CalendarOff, Bell, Settings, Menu, X, Check, CheckCheck, TrendingUp, LogOut, ChevronUp, ChevronDown, ChevronLeft, Sparkles, BarChart3, Compass, HelpCircle, ShieldCheck, FileText, Wallet, Receipt, ListChecks } from 'lucide-react'
 import api from '../api/axios'
 import { ROLE_NAV, ROLE_STYLE, isPlatformOwner } from '../auth/roles'
 import notificationSound from '../assets/notification.mp3'
@@ -13,6 +13,7 @@ import taurusMark from '../assets/Taurus-Logo.png'
 const navItems = [
   { to: '/dashboard',  icon: LayoutDashboard, label: 'Dashboard' },
   { to: '/projects',   icon: FolderKanban,    label: 'Projects' },
+  { to: '/my-tasks',   icon: ListChecks,      label: 'My Tasks' },
   { to: '/timelogs',   icon: Clock,           label: 'Time Logs' },
   { to: '/attendance', icon: CalendarCheck,   label: 'Attendance' },
   { to: '/leaves',     icon: CalendarOff,     label: 'Leaves' },
@@ -37,6 +38,7 @@ const typeStyle = {
   LEAVE_REJECTED:    { color: '#dc2626', label: 'Leave Rejected' },
   MANAGER_NUDGE:     { color: '#7c3aed', label: 'Manager Appreciation' },
   PAYSLIP_GENERATED: { color: '#15803d', label: 'Payslip Ready' },
+  TASK_ASSIGNED:     { color: '#15803d', label: 'Task Assigned' },
 }
 
 function NotificationDropdown({ onClose }) {
@@ -66,6 +68,7 @@ function NotificationDropdown({ onClose }) {
   const openNotif = (n) => {
     if (!n.isRead) markReadMutation.mutate(n.id)
     const dest = n.type === 'PAYSLIP_GENERATED' ? '/my-payslips'
+      : n.type === 'TASK_ASSIGNED' ? '/my-tasks'
       : (n.type || '').startsWith('LEAVE') ? '/leaves' : null
     onClose()
     if (dest) navigate(dest)
@@ -227,6 +230,7 @@ export default function Layout() {
     if (n && !n.isRead) api.put(`/notifications/${n.id}/read`).then(() => queryClient.invalidateQueries({ queryKey: ['notifications'] }))
     setToast(null)
     const dest = n?.type === 'PAYSLIP_GENERATED' ? '/my-payslips'
+      : n?.type === 'TASK_ASSIGNED' ? '/my-tasks'
       : (n?.type || '').startsWith('LEAVE') ? '/leaves' : null
     if (dest) navigate(dest)
   }

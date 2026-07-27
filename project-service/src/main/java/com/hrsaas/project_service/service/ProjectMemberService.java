@@ -17,7 +17,8 @@ public class ProjectMemberService {
     private final ProjectMemberRepository projectMemberRepository;
     private final ProjectRepository projectRepository;
 
-    public ProjectMember addMember(Long companyId, Long projectId, Long employeeId, ProjectRole role) {
+    public ProjectMember addMember(Long companyId, Long projectId, Long employeeId,
+                                   String email, String name, ProjectRole role) {
         Project project = projectRepository.findById(projectId)
             .filter(p -> p.getCompanyId().equals(companyId))
             .orElseThrow(() -> new ResourceNotFoundException("Project not found: " + projectId));
@@ -26,6 +27,8 @@ public class ProjectMemberService {
         member.setCompanyId(companyId);
         member.setProject(project);
         member.setEmployeeId(employeeId);
+        member.setEmail(email);
+        member.setName(name);
         member.setRole(role);
         return projectMemberRepository.save(member);
     }

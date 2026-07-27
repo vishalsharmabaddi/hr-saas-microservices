@@ -1,4 +1,4 @@
-package com.hrsaas.project_service.producer;
+package com.hrsaas.employee_service.producer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -11,25 +11,22 @@ import java.util.Map;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class TaskEventProducer {
+public class EmployeeEventProducer {
 
     private final KafkaTemplate<String, String> kafkaTemplate;
     private final ObjectMapper objectMapper;
 
-    private static final String TOPIC = "task-assigned";
+    private static final String TOPIC = "employee-updated";
 
-    // Published once per newly assigned member. notification-service consumes this
-    // (Phase 2) and pushes a WebSocket notification to the assignee.
-    public void sendTaskAssignedEvent(Long companyId, Long taskId, String taskTitle,
-                                      Long employeeId, String email, String name) {
+    // Published when an employee's name/email changes. project-service consumes this
+    // to keep denormalized member/assignee names in sync (no cross-service reads).
+    public void sendEmployeeUpdated(Long companyId, Long employeeId, String email, String fullName) {
         try {
             Map<String, Object> payload = new LinkedHashMap<>();
             payload.put("companyId", companyId);
-            payload.put("taskId", taskId);
-            payload.put("taskTitle", taskTitle);
             payload.put("employeeId", employeeId);
             payload.put("email", email);
-            payload.put("name", name);
+            payload.put("fullName", fullName);
             kafkaTemplate.send(TOPIC, objectMapper.writeValueAsString(payload));
         } catch (Exception e) {
             // Kafka unavailable in local dev — log and continue

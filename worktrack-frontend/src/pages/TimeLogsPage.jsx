@@ -38,7 +38,7 @@ function formatDate(dateStr) {
 }
 
 // ─── Log Time Modal ───────────────────────────────────────────────────────────
-function LogTimeModal({ onClose }) {
+function LogTimeModal({ onClose, onLogged }) {
   const [projectId, setProjectId] = useState('')
   const [taskId, setTaskId] = useState('')
   const [form, setForm] = useState({ logDate: TODAY, hoursLogged: '', notes: '' })
@@ -67,6 +67,8 @@ function LogTimeModal({ onClose }) {
     mutationFn: (data) => api.post('/timelogs', data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['timelogs'] })
+      queryClient.invalidateQueries({ queryKey: ['gamification'] })
+      onLogged?.(form.logDate)   // parent shows the XP toast
       onClose()
     },
   })
@@ -197,7 +199,25 @@ function LogTimeModal({ onClose }) {
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export default function TimeLogsPage() {
   const [showModal, setShowModal] = useState(false)
+  const [xpToast, setXpToast] = useState({ show: false, xp: 0, streak: 0, level: '' })
   const [weekOffset, setWeekOffset] = useState(0)
+
+  // After a log saves: same rule as backend (today/future +10, past +5),
+  // then pull the real streak/level. Toast fires regardless of the fetch.
+  const showXpToast = (logDate) => {
+    const today = new Date().toISOString().slice(0, 10)
+    const gained = logDate >= today ? 10 : 5
+    setTimeout(async () => {
+      let streak = 0, level = ''
+      try {
+        const res = await api.get('/gamification/summary')
+        streak = res.data.currentStreak ?? 0
+        level = res.data.level ?? ''
+      } catch (_) { /* still show the optimistic toast */ }
+      setXpToast({ show: true, xp: gained, streak, level })
+      setTimeout(() => setXpToast(t => ({ ...t, show: false })), 3500)
+    }, 600)
+  }
   const [customFrom, setCustomFrom] = useState('')
   const [customTo, setCustomTo] = useState('')
   const [showDatePicker, setShowDatePicker] = useState(false)
@@ -264,7 +284,33 @@ export default function TimeLogsPage() {
   return (
     <div style={{ width: '100%' }}>
 
-      {showModal && <LogTimeModal onClose={() => setShowModal(false)} />}
+      {showModal && <LogTimeModal onClose={() => setShowModal(false)} onLogged={showXpToast} />}
+
+      {/* XP earned toast */}
+      {xpToast.show && (
+        <div style={{
+          position: 'fixed', bottom: 28, right: 28, zIndex: 9999,
+          background: '#0f172a', borderRadius: 14,
+          padding: '14px 20px', display: 'flex', alignItems: 'center', gap: 14,
+          boxShadow: '0 8px 32px rgba(0,0,0,0.28)', border: '1px solid rgba(255,255,255,0.08)',
+          animation: 'xpSlideUp 0.3s ease',
+        }}>
+          <div style={{
+            width: 44, height: 44, borderRadius: 10, flexShrink: 0,
+            background: 'linear-gradient(135deg, #16A34A, #FACC15)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: 14, fontWeight: 700, color: '#fff',
+          }}>+{xpToast.xp}</div>
+          <div>
+            <div style={{ fontSize: 14, fontWeight: 700, color: '#fff', marginBottom: 2 }}>
+              XP Earned!
+            </div>
+            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)' }}>
+              Streak: {xpToast.streak} day{xpToast.streak !== 1 ? 's' : ''}{xpToast.level ? ` · ${xpToast.level}` : ''}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 20 }}>

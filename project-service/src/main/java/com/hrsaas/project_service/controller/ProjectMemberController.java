@@ -23,12 +23,16 @@ public class ProjectMemberController {
     @PostMapping
     public ResponseEntity<ProjectMember> addMember(
             @RequestHeader("X-Company-Id") Long companyId,
+            @RequestHeader(value = "X-User-Role", required = false) String role,
             @PathVariable Long projectId,
             @RequestBody Map<String, String> body) {
+        RoleGuard.requireManager(role);
         Long employeeId = Long.valueOf(body.get("employeeId"));
-        ProjectRole role = ProjectRole.valueOf(body.get("role"));
+        String email = body.get("email");
+        String name = body.get("name");
+        ProjectRole memberRole = ProjectRole.valueOf(body.get("role"));
         return ResponseEntity.status(HttpStatus.CREATED)
-            .body(projectMemberService.addMember(companyId, projectId, employeeId, role));
+            .body(projectMemberService.addMember(companyId, projectId, employeeId, email, name, memberRole));
     }
 
     @GetMapping

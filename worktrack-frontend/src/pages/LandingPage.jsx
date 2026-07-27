@@ -18,7 +18,6 @@ const features = [
 ]
 
 const comparison = [
-  { feature: 'Price (25 people)',   legacy: '$75/mo',    sheets: '$120/mo', tg: '$29/mo',  good: true  },
   { feature: 'EOD Reports',         legacy: false,       sheets: false,     tg: true,      good: true  },
   { feature: 'AI Summaries',        legacy: false,       sheets: false,     tg: true,      good: true  },
   { feature: 'Time Logs',           legacy: 'Paid',      sheets: false,     tg: 'Free',    good: true  },
@@ -27,17 +26,6 @@ const comparison = [
   { feature: 'Task Management',     legacy: true,        sheets: false,     tg: true,      good: false },
   { feature: 'Gamification',        legacy: false,       sheets: false,     tg: true,      good: true  },
   { feature: 'Setup Time',          legacy: 'Hours',     sheets: 'Hours',   tg: 'Minutes', good: true  },
-]
-
-const plans = [
-  { name: 'Free',    price: '$0',     period: 'forever',   limit: 'Up to 12 people',   cta: 'Get started free', highlight: false,
-    features: ['All core features', 'Leave management', 'Attendance tracking', 'Projects & tasks', 'Time logs'] },
-  { name: 'Starter', price: '$29',    period: 'per month', limit: 'Up to 25 people',   cta: 'Start free trial', highlight: true,
-    features: ['Everything in Free', 'AI EOD summaries', 'CSV export', 'Priority support'] },
-  { name: 'Growth',  price: '$99',    period: 'per month', limit: 'Up to 150 people',  cta: 'Start free trial', highlight: false,
-    features: ['Everything in Starter', 'Custom reports', 'Workload analytics', 'Milestones & issues', 'API access'] },
-  { name: 'Scale',   price: 'Custom', period: '',          limit: 'Unlimited people',  cta: 'Contact sales',    highlight: false,
-    features: ['Everything in Growth', 'Dedicated instance', 'SSO / SAML', 'SLA guarantee', 'Onboarding support'] },
 ]
 
 const faqs = [
@@ -101,7 +89,7 @@ export default function LandingPage() {
           </div>
 
           <div className="lp-nav-links" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            {[['Features', '#features'], ['Pricing', '#pricing'], ['FAQ', '#faq']].map(([label, href]) => (
+            {[['Features', '#features'], ['FAQ', '#faq']].map(([label, href]) => (
               <a key={label} href={href} onClick={e => scrollToId(e, href.slice(1))} style={{ color: 'rgba(255,255,255,0.6)', fontSize: 14, textDecoration: 'none', fontWeight: 500, padding: '6px 12px', borderRadius: 6 }}
                 onMouseEnter={e => e.currentTarget.style.color = '#fff'} onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.6)'}>{label}</a>
             ))}
@@ -116,7 +104,7 @@ export default function LandingPage() {
         </div>
         {menuOpen && (
           <div className="lp-mobile-menu">
-            {[['Features', '#features'], ['Pricing', '#pricing'], ['FAQ', '#faq']].map(([label, href]) => (
+            {[['Features', '#features'], ['FAQ', '#faq']].map(([label, href]) => (
               <a key={label} href={href} className="lp-mobile-link" onClick={e => { scrollToId(e, href.slice(1)); setMenuOpen(false) }}>{label}</a>
             ))}
             <button onClick={go} style={{ marginTop: 8, background: GRAD, color: '#06210F', border: 'none', borderRadius: 8, padding: '11px', fontSize: 14, fontWeight: 700, cursor: 'pointer' }}>Get started free</button>
@@ -213,47 +201,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── Pricing ── */}
-      <section id="pricing" className="lp-section-pad" style={{ maxWidth: 1140, margin: '0 auto', padding: '84px 40px' }}>
-        <div style={{ textAlign: 'center', maxWidth: 620, margin: '0 auto 48px' }}>
-          <p style={{ fontSize: 13, fontWeight: 700, color: '#16A34A', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: 10 }}>Simple pricing</p>
-          <h2 className="tg-display" style={{ fontSize: 36, fontWeight: 700, letterSpacing: '-0.8px', margin: 0 }}>Start free. Upgrade when you grow.</h2>
-          <p style={{ fontSize: 16, color: '#5B6B60', marginTop: 14 }}>No per-seat games. Flat, honest plans.</p>
-        </div>
-        <div className="lp-pricing-grid">
-          {plans.map(p => (
-            <div key={p.name} style={{
-              position: 'relative', background: '#fff', borderRadius: 16, padding: '26px 24px',
-              border: p.highlight ? '2px solid transparent' : '1px solid #E6E9E3',
-              backgroundImage: p.highlight ? `linear-gradient(#fff,#fff), ${GRAD}` : 'none',
-              backgroundOrigin: 'border-box', backgroundClip: p.highlight ? 'padding-box, border-box' : 'border-box',
-              boxShadow: p.highlight ? '0 20px 50px rgba(34,197,94,0.16)' : 'none',
-            }}>
-              {p.highlight && <div style={{ position: 'absolute', top: -12, left: '50%', transform: 'translateX(-50%)', background: GRAD, color: '#06210F', fontSize: 11, fontWeight: 700, padding: '3px 12px', borderRadius: 99, letterSpacing: '0.5px' }}>MOST POPULAR</div>}
-              <h3 className="tg-display" style={{ fontSize: 18, fontWeight: 700, margin: 0 }}>{p.name}</h3>
-              <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, marginTop: 12 }}>
-                <span className="tg-display" style={{ fontSize: 34, fontWeight: 700, letterSpacing: '-1px' }}>{p.price}</span>
-                {p.period && <span style={{ fontSize: 13, color: '#94a3b8' }}>/ {p.period}</span>}
-              </div>
-              <p style={{ fontSize: 13, color: '#5B6B60', marginTop: 6 }}>{p.limit}</p>
-              <button onClick={go} style={{
-                width: '100%', margin: '18px 0', padding: '11px', borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: 'pointer',
-                border: p.highlight ? 'none' : '1px solid #C9EAD4',
-                background: p.highlight ? GRAD : '#fff', color: p.highlight ? '#06210F' : '#15803D',
-                boxShadow: p.highlight ? '0 8px 22px rgba(34,197,94,0.35)' : 'none',
-              }}>{p.cta}</button>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                {p.features.map(f => (
-                  <div key={f} style={{ display: 'flex', alignItems: 'center', gap: 9, fontSize: 13.5, color: '#334155' }}>
-                    <Check size={15} color="#16A34A" strokeWidth={2.5} /> {f}
-                  </div>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
       {/* ── FAQ ── */}
       <section id="faq" className="lp-section-pad" style={{ background: '#fff', borderTop: '1px solid #E6E9E3' }}>
         <div style={{ maxWidth: 720, margin: '0 auto', padding: '84px 40px' }}>
@@ -293,7 +240,7 @@ export default function LandingPage() {
               </div>
             </div>
             <div style={{ display: 'flex', gap: 22, fontSize: 14, flexWrap: 'wrap' }}>
-              {[['Features', '#features'], ['Pricing', '#pricing'], ['FAQ', '#faq']].map(([l, h]) => (
+              {[['Features', '#features'], ['FAQ', '#faq']].map(([l, h]) => (
                 <a key={l} href={h} onClick={e => scrollToId(e, h.slice(1))} style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none' }} onMouseEnter={e => e.currentTarget.style.color = '#fff'} onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.6)'}>{l}</a>
               ))}
               <button onClick={go} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.6)', fontSize: 14, cursor: 'pointer', padding: 0 }}>Sign in</button>

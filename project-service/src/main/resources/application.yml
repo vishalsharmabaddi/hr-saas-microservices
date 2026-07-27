@@ -26,6 +26,11 @@ spring:
         max.block.ms: 2000
         request.timeout.ms: 1000
         delivery.timeout.ms: 3000
+    consumer:
+      group-id: project-service-group
+      auto-offset-reset: latest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
 
 server:
   port: 8085

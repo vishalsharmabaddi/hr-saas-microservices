@@ -3,6 +3,7 @@ package com.hrsaas.employee_service.service;
 import com.hrsaas.employee_service.dto.EmployeeRequest;
 import com.hrsaas.employee_service.dto.EmployeeResponse;
 import com.hrsaas.employee_service.model.Employee;
+import com.hrsaas.employee_service.producer.EmployeeEventProducer;
 import com.hrsaas.employee_service.repository.EmployeeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -14,6 +15,7 @@ import java.util.Optional;
 public class EmployeeService {
 
     private final EmployeeRepository employeeRepository;
+    private final EmployeeEventProducer employeeEventProducer;
 
     public EmployeeResponse createEmployee(Long companyId, EmployeeRequest request) {
         Employee emp = new Employee();
@@ -53,7 +55,11 @@ public class EmployeeService {
         emp.setDesignation(request.getDesignation());
         if (request.getEmploymentType() != null) emp.setEmploymentType(request.getEmploymentType());
         if (request.getJoiningDate() != null) emp.setJoiningDate(request.getJoiningDate());
-        return toResponse(employeeRepository.save(emp));
+        Employee saved = employeeRepository.save(emp);
+        // Keep denormalized names in project-service (members + task assignees) in sync.
+        employeeEventProducer.sendEmployeeUpdated(companyId, saved.getId(), saved.getEmail(),
+            saved.getFirstName() + " " + saved.getLastName());
+        return toResponse(saved);
     }
 
     public void deactivateEmployee(Long companyId, Long id) {

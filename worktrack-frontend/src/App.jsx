@@ -5,6 +5,7 @@ import LoginPage from './pages/LoginPage'
 import DashboardPage from './pages/DashboardPage'
 import ProjectsPage from './pages/ProjectsPage'
 import ProjectDetailPage from './pages/ProjectDetailPage'
+import MyTasksPage from './pages/MyTasksPage'
 import TimeLogsPage from './pages/TimeLogsPage'
 import MembersPage from './pages/MembersPage'
 import EmployeesPage from './pages/EmployeesPage'
@@ -101,6 +102,7 @@ function App() {
             <Route path="/dashboard"        element={<DashboardPage />} />
             <Route path="/projects"         element={<ProjectsPage />} />
             <Route path="/projects/:id"     element={<ProjectDetailPage />} />
+            <Route path="/my-tasks"         element={<MyTasksPage />} />
             <Route path="/timelogs"         element={<TimeLogsPage />} />
             <Route path="/attendance"       element={<AttendancePage />} />
             <Route path="/leaves"           element={<LeavePage />} />

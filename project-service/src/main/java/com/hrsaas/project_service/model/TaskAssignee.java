@@ -28,6 +28,11 @@ public class TaskAssignee {
     @Column(nullable = false)
     private Long employeeId;
 
+    // Denormalized display fields — captured at assign time so any viewer sees the
+    // real name without needing employees-read permission or a cross-service call.
+    private String email;
+    private String name;
+
     @Column(updatable = false)
     private LocalDateTime assignedAt;
 

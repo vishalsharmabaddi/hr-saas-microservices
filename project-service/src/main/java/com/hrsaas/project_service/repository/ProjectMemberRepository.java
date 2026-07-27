@@ -8,4 +8,6 @@ import java.util.Optional;
 public interface ProjectMemberRepository extends JpaRepository<ProjectMember, Long> {
     List<ProjectMember> findByProjectIdAndCompanyId(Long projectId, Long companyId);
     Optional<ProjectMember> findByProjectIdAndEmployeeId(Long projectId, Long employeeId);
+    // All memberships of one employee, company-scoped — for name auto-sync.
+    List<ProjectMember> findByCompanyIdAndEmployeeId(Long companyId, Long employeeId);
 }

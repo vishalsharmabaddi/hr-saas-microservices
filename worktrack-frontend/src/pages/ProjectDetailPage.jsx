@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { ArrowLeft, Plus, Calendar, Users, CheckSquare, Circle, CheckCircle2, Pencil, Trash2, X, Timer } from 'lucide-react'
+import { ArrowLeft, Plus, Calendar, Users, CheckSquare, Circle, CheckCircle2, Pencil, Trash2, X, Timer, UserPlus, User, ListChecks } from 'lucide-react'
 import { canManage } from '../auth/roles'
 import api from '../api/axios'
 
@@ -34,7 +34,12 @@ export default function ProjectDetailPage() {
   const currentEmail = (JSON.parse(localStorage.getItem('wt_user') || '{}').email || '').toLowerCase()
   const [loggingTaskId, setLoggingTaskId] = useState(null)
   const [logForm, setLogForm] = useState({ logDate: new Date().toISOString().slice(0, 10), hoursLogged: '', notes: '' })
+  const [assigningTaskId, setAssigningTaskId] = useState(null)   // which task's assignee picker is open
+  const [assignSel, setAssignSel] = useState([])                 // selected employeeIds in the picker
+  const [myTasksOnly, setMyTasksOnly] = useState(false)          // per-project "My Tasks" filter
   const [xpToast, setXpToast] = useState({ show: false, xp: 0, streak: 0, level: '' })
+  const [showAddMember, setShowAddMember] = useState(false)
+  const [selectedEmployeeId, setSelectedEmployeeId] = useState('')
 
   // Fetch project
   const { data: project, isLoading: projectLoading } = useQuery({
@@ -59,8 +64,38 @@ export default function ProjectDetailPage() {
   // Fetch members
   const { data: members = [] } = useQuery({
     queryKey: ['members', id],
-    queryFn: () => api.get(`/projects/${id}/members`).then(r => r.data),
-    enabled: activeTab === 'members',
+    queryFn: () => api.get(`/projects/${id}/members`).then(r => Array.isArray(r.data) ? r.data : []),
+    // Also needed on the tasks tab so a manager can pick assignees.
+    enabled: activeTab === 'members' || (activeTab === 'tasks' && canManageProject),
+  })
+
+  // Company employees for the Add Member dropdown (only when managing the members tab).
+  const { data: companyEmployees = [] } = useQuery({
+    queryKey: ['employees'],
+    queryFn: () => api.get('/employees').then(r => Array.isArray(r.data) ? r.data : []),
+    enabled: activeTab === 'members' && canManageProject,
+  })
+
+  // Per-assignee workload — how many tasks each member holds and how many are done.
+  const { data: assigneeStats = [] } = useQuery({
+    queryKey: ['assignee-stats', id],
+    queryFn: () => api.get(`/tasks/analytics/assignees/${id}`).then(r => Array.isArray(r.data) ? r.data : []),
+    enabled: activeTab === 'members' && canManageProject,
+  })
+  const statsByEmployee = Object.fromEntries(assigneeStats.map(s => [s.employeeId, s]))
+
+  const addMember = useMutation({
+    mutationFn: (emp) => api.post(`/projects/${id}/members`, {
+      employeeId: emp.id,
+      email: emp.email,
+      name: emp.fullName,
+      role: 'TEAM_MEMBER',
+    }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['members', id] })
+      setShowAddMember(false)
+      setSelectedEmployeeId('')
+    },
   })
 
   // Add task mutation — auto-creates "Backlog" list if none exists
@@ -110,6 +145,21 @@ export default function ProjectDetailPage() {
     },
   })
 
+  // Replace a task's assignees. Body carries denormalized name/email from the member list.
+  const assignTask = useMutation({
+    mutationFn: ({ taskId, employeeIds }) => api.put(`/tasks/${taskId}/assignees`, {
+      assignees: employeeIds.map(eid => {
+        const m = members.find(mm => mm.employeeId === eid)
+        return { employeeId: eid, email: m?.email || null, name: m?.name || null }
+      }),
+    }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tasks'] })
+      setAssigningTaskId(null)
+      setAssignSel([])
+    },
+  })
+
   const logTime = useMutation({
     mutationFn: (taskId) => api.post('/timelogs', {
       taskId,
@@ -120,16 +170,23 @@ export default function ProjectDetailPage() {
     }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['dashboard'] })
+      queryClient.invalidateQueries({ queryKey: ['gamification'] })
+      // Same rule as the backend: today/future = on-time (+10), past date = late (+5)
+      const today = new Date().toISOString().slice(0, 10)
+      const gained = logForm.logDate >= today ? 10 : 5
       setLoggingTaskId(null)
       setLogForm({ logDate: new Date().toISOString().slice(0, 10), hoursLogged: '', notes: '' })
-      // Wait 600ms for Kafka → gamification to process, then fetch XP
+      // Wait for Kafka → gamification to process, then pull the real streak/level.
+      // The toast fires regardless — a slow or failed summary fetch must not hide it.
       setTimeout(async () => {
+        let streak = 0, level = ''
         try {
           const res = await api.get('/gamification/summary')
-          const { currentStreak, level } = res.data
-          setXpToast({ show: true, xp: 10, streak: currentStreak, level })
-          setTimeout(() => setXpToast(t => ({ ...t, show: false })), 3500)
-        } catch (_) {}
+          streak = res.data.currentStreak ?? 0
+          level = res.data.level ?? ''
+        } catch (_) { /* still show the optimistic toast */ }
+        setXpToast({ show: true, xp: gained, streak, level })
+        setTimeout(() => setXpToast(t => ({ ...t, show: false })), 3500)
       }, 600)
     },
   })
@@ -174,6 +231,19 @@ export default function ProjectDetailPage() {
     })
     setShowAddTask(false)
   }
+
+  // Open the assignee picker for a task, pre-selecting its current assignees.
+  const startAssign = (task) => {
+    setAssigningTaskId(task.id)
+    setAssignSel((task.assignees || []).map(a => a.employeeId))
+    setLoggingTaskId(null)
+    setEditingTaskId(null)
+  }
+
+  // "My Tasks" filter — tasks where I'm one of the assignees.
+  const visibleTasks = myTasksOnly
+    ? tasks.filter(t => (t.assignees || []).some(a => (a.email || '').toLowerCase() === currentEmail))
+    : tasks
 
   if (projectLoading) {
     return <div style={{ padding: 32, color: '#94a3b8', fontSize: 15 }}>Loading…</div>
@@ -304,6 +374,23 @@ export default function ProjectDetailPage() {
       {/* TASKS TAB */}
       {activeTab === 'tasks' && (
         <div>
+          {/* My Tasks filter — show only tasks assigned to me */}
+          {tasks.length > 0 && (
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 8 }}>
+              <button
+                onClick={() => setMyTasksOnly(v => !v)}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 500,
+                  padding: '5px 12px', borderRadius: 999, cursor: 'pointer',
+                  border: myTasksOnly ? '1px solid #16A34A' : '1px solid #e2e8f0',
+                  background: myTasksOnly ? '#f0fdf4' : '#fff',
+                  color: myTasksOnly ? '#15803D' : '#64748b',
+                }}
+              >
+                <User size={13} /> My Tasks
+              </button>
+            </div>
+          )}
           {/* Add Task button — only when editable */}
           <div style={{ marginBottom: 12 }}>
             {!showAddTask && !isEditable ? null : !showAddTask ? (
@@ -395,18 +482,22 @@ export default function ProjectDetailPage() {
           </div>
 
           {/* Task list */}
-          {tasks.length === 0 ? (
+          {visibleTasks.length === 0 ? (
             <div style={{
               background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12,
               padding: '48px 24px', textAlign: 'center',
             }}>
               <CheckSquare size={28} color="#cbd5e1" strokeWidth={1.2} style={{ marginBottom: 10 }} />
-              <p style={{ fontSize: 15, fontWeight: 500, color: '#334155', margin: 0 }}>No tasks yet</p>
-              <p style={{ fontSize: 14, color: '#94a3b8', marginTop: 6 }}>Click "Add Task" to create your first task</p>
+              <p style={{ fontSize: 15, fontWeight: 500, color: '#334155', margin: 0 }}>
+                {myTasksOnly ? 'No tasks assigned to you' : 'No tasks yet'}
+              </p>
+              <p style={{ fontSize: 14, color: '#94a3b8', marginTop: 6 }}>
+                {myTasksOnly ? 'Turn off "My Tasks" to see all tasks' : 'Click "Add Task" to create your first task'}
+              </p>
             </div>
           ) : (
             <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, overflow: 'hidden' }}>
-              {tasks.map((task, i) => {
+              {visibleTasks.map((task, i) => {
                 const p = priorityColors[task.priority] || priorityColors.MEDIUM
                 const isDone = task.status === 'COMPLETED'
                 const isEditing = editingTaskId === task.id
@@ -415,7 +506,7 @@ export default function ProjectDetailPage() {
                 if (isEditing) {
                   return (
                     <div key={task.id} style={{
-                      padding: '14px 18px', borderBottom: i < tasks.length - 1 ? '1px solid #f1f5f9' : 'none',
+                      padding: '14px 18px', borderBottom: i < visibleTasks.length - 1 ? '1px solid #f1f5f9' : 'none',
                       background: '#fafafe',
                     }}>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -479,7 +570,7 @@ export default function ProjectDetailPage() {
                 const isLogging = loggingTaskId === task.id
 
                 return (
-                  <div key={task.id} style={{ borderBottom: i < tasks.length - 1 ? '1px solid #f1f5f9' : 'none' }}>
+                  <div key={task.id} style={{ borderBottom: i < visibleTasks.length - 1 ? '1px solid #f1f5f9' : 'none' }}>
                   <div
                     style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 18px' }}
                     onMouseEnter={e => e.currentTarget.querySelector('.task-actions').style.opacity = '1'}
@@ -514,6 +605,37 @@ export default function ProjectDetailPage() {
                       )}
                     </div>
 
+                    {/* Assignee avatar chips */}
+                    {(task.assignees || []).length > 0 && (
+                      <div style={{ display: 'flex', flexShrink: 0 }}>
+                        {task.assignees.slice(0, 3).map((a, ai) => (
+                          <span
+                            key={a.employeeId}
+                            title={a.name || a.email || `Employee #${a.employeeId}`}
+                            style={{
+                              width: 26, height: 26, borderRadius: '50%',
+                              background: '#DCFCE7', color: '#15803D',
+                              fontSize: 12, fontWeight: 600,
+                              display: 'flex', alignItems: 'center', justifyContent: 'center',
+                              border: '2px solid #fff', marginLeft: ai === 0 ? 0 : -8,
+                            }}
+                          >
+                            {(a.name?.charAt(0) || a.email?.charAt(0) || '?').toUpperCase()}
+                          </span>
+                        ))}
+                        {task.assignees.length > 3 && (
+                          <span style={{
+                            width: 26, height: 26, borderRadius: '50%',
+                            background: '#f1f5f9', color: '#64748b', fontSize: 11, fontWeight: 600,
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            border: '2px solid #fff', marginLeft: -8,
+                          }}>
+                            +{task.assignees.length - 3}
+                          </span>
+                        )}
+                      </div>
+                    )}
+
                     {/* Priority badge */}
                     <span style={{
                       fontSize: 12, fontWeight: 500, padding: '2px 8px',
@@ -542,6 +664,15 @@ export default function ProjectDetailPage() {
                       >
                         <Timer size={14} />
                       </button>
+                      {isEditable && canManageProject && (
+                        <button
+                          onClick={() => startAssign(task)}
+                          style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#16A34A', padding: 4, display: 'flex' }}
+                          title="Assign members"
+                        >
+                          <UserPlus size={14} />
+                        </button>
+                      )}
                       {isEditable && (canManageProject || isTaskOwner) && (
                         <button
                           onClick={() => startEdit(task)}
@@ -618,6 +749,64 @@ export default function ProjectDetailPage() {
                       </div>
                     </div>
                   )}
+
+                  {/* Inline assignee picker — manager picks project members */}
+                  {assigningTaskId === task.id && (
+                    <div style={{
+                      background: '#f0fdf4', borderTop: '1px dashed #bbf7d0',
+                      padding: '12px 18px',
+                    }}>
+                      <label style={labelStyle}>Assign to members</label>
+                      {members.length === 0 ? (
+                        <p style={{ fontSize: 13, color: '#94a3b8', margin: '6px 0 10px' }}>
+                          No members yet — add members in the Members tab first.
+                        </p>
+                      ) : (
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, margin: '8px 0 12px' }}>
+                          {members.map(m => {
+                            const checked = assignSel.includes(m.employeeId)
+                            return (
+                              <button
+                                key={m.employeeId}
+                                onClick={() => setAssignSel(sel =>
+                                  checked ? sel.filter(x => x !== m.employeeId) : [...sel, m.employeeId])}
+                                style={{
+                                  display: 'flex', alignItems: 'center', gap: 6, fontSize: 13,
+                                  padding: '5px 12px', borderRadius: 999, cursor: 'pointer',
+                                  border: checked ? '1px solid #16A34A' : '1px solid #e2e8f0',
+                                  background: checked ? '#DCFCE7' : '#fff',
+                                  color: checked ? '#15803D' : '#334155', fontWeight: 500,
+                                }}
+                              >
+                                {checked ? <CheckCircle2 size={13} /> : <Circle size={13} color="#cbd5e1" />}
+                                {m.name || `Employee #${m.employeeId}`}
+                              </button>
+                            )
+                          })}
+                        </div>
+                      )}
+                      <div style={{ display: 'flex', gap: 6 }}>
+                        <button
+                          disabled={assignTask.isPending}
+                          onClick={() => assignTask.mutate({ taskId: task.id, employeeIds: assignSel })}
+                          style={{
+                            padding: '8px 16px', borderRadius: 8, border: 'none',
+                            background: '#16A34A', color: '#fff', fontSize: 14,
+                            fontWeight: 500, cursor: 'pointer',
+                          }}
+                        >
+                          {assignTask.isPending ? 'Saving…' : 'Save'}
+                        </button>
+                        <button onClick={() => { setAssigningTaskId(null); setAssignSel([]) }} style={{
+                          padding: '8px 10px', borderRadius: 8,
+                          border: '1px solid #e2e8f0', background: '#fff',
+                          fontSize: 14, color: '#64748b', cursor: 'pointer',
+                        }}>
+                          <X size={14} />
+                        </button>
+                      </div>
+                    </div>
+                  )}
                   </div>
                 )
               })}
@@ -629,6 +818,57 @@ export default function ProjectDetailPage() {
       {/* MEMBERS TAB */}
       {activeTab === 'members' && (
         <div>
+          {canManageProject && (
+            <div style={{ marginBottom: 16 }}>
+              {!showAddMember ? (
+                <button
+                  onClick={() => setShowAddMember(true)}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 6,
+                    background: '#16A34A', color: '#fff', border: 'none',
+                    borderRadius: 8, padding: '8px 14px', fontSize: 14,
+                    fontWeight: 500, cursor: 'pointer',
+                  }}
+                >
+                  <UserPlus size={14} /> Add Member
+                </button>
+              ) : (
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+                  <select
+                    value={selectedEmployeeId}
+                    onChange={e => setSelectedEmployeeId(e.target.value)}
+                    style={{ padding: '9px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 14, background: '#fff', minWidth: 220 }}
+                  >
+                    <option value="">Select employee...</option>
+                    {companyEmployees
+                      .filter(e => !members.some(m => m.employeeId === e.id))
+                      .map(e => <option key={e.id} value={e.id}>{e.fullName} — {e.designation || e.email}</option>)}
+                  </select>
+                  <button
+                    disabled={!selectedEmployeeId || addMember.isPending}
+                    onClick={() => {
+                      const emp = companyEmployees.find(e => String(e.id) === String(selectedEmployeeId))
+                      if (emp) addMember.mutate(emp)
+                    }}
+                    style={{
+                      padding: '9px 16px', borderRadius: 8, border: 'none',
+                      background: selectedEmployeeId ? '#16A34A' : '#e2e8f0',
+                      color: selectedEmployeeId ? '#fff' : '#94a3b8', fontSize: 14,
+                      fontWeight: 500, cursor: selectedEmployeeId ? 'pointer' : 'not-allowed',
+                    }}
+                  >
+                    {addMember.isPending ? 'Adding…' : 'Add'}
+                  </button>
+                  <button
+                    onClick={() => { setShowAddMember(false); setSelectedEmployeeId('') }}
+                    style={{ padding: '9px 12px', borderRadius: 8, border: '1px solid #e2e8f0', background: '#fff', fontSize: 14, color: '#64748b', cursor: 'pointer' }}
+                  >
+                    <X size={14} />
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
           {members.length === 0 ? (
             <div style={{
               background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12,
@@ -655,16 +895,31 @@ export default function ProjectDetailPage() {
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     fontSize: 13, fontWeight: 600, color: '#16A34A', flexShrink: 0,
                   }}>
-                    {m.employeeId?.toString().charAt(0)}
+                    {(m.name?.charAt(0) || m.employeeId?.toString().charAt(0) || '?').toUpperCase()}
                   </div>
                   <div style={{ flex: 1 }}>
                     <p style={{ fontSize: 14, fontWeight: 500, color: '#0f172a', margin: 0 }}>
-                      Employee #{m.employeeId}
+                      {m.name || `Employee #${m.employeeId}`}
                     </p>
                     <p style={{ fontSize: 12, color: '#94a3b8', margin: '2px 0 0' }}>
                       Joined {new Date(m.joinedAt).toLocaleDateString()}
                     </p>
                   </div>
+                  {(() => {
+                    const s = statsByEmployee[m.employeeId]
+                    if (!s || s.totalTasks === 0) return null
+                    const done = s.completedTasks === s.totalTasks
+                    return (
+                      <span style={{
+                        display: 'flex', alignItems: 'center', gap: 5, fontSize: 12, fontWeight: 500,
+                        padding: '2px 9px', borderRadius: 999, flexShrink: 0,
+                        background: done ? '#DCFCE7' : '#f1f5f9',
+                        color: done ? '#15803D' : '#475569',
+                      }}>
+                        <ListChecks size={12} /> {s.completedTasks}/{s.totalTasks} done
+                      </span>
+                    )
+                  })()}
                   <span style={{
                     fontSize: 12, fontWeight: 500, padding: '2px 8px', borderRadius: 6,
                     background: '#f1f5f9', color: '#475569',
@@ -674,7 +929,7 @@ export default function ProjectDetailPage() {
                   {isEditable && canManageProject && (
                     <div className="member-actions" style={{ opacity: 0, transition: 'opacity 0.15s', flexShrink: 0 }}>
                       <button
-                        onClick={() => { if (window.confirm(`Remove Employee #${m.employeeId} from this project?`)) removeMember.mutate(m.id) }}
+                        onClick={() => { if (window.confirm(`Remove ${m.name || `Employee #${m.employeeId}`} from this project?`)) removeMember.mutate(m.id) }}
                         style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#fca5a5', padding: 4, display: 'flex' }}
                         title="Remove from project"
                       >
@@ -700,7 +955,7 @@ export default function ProjectDetailPage() {
         }}>
           <div style={{
             width: 44, height: 44, borderRadius: 10, flexShrink: 0,
-            background: 'linear-gradient(135deg, #16A34A, #7c3aed)',
+            background: 'linear-gradient(135deg, #16A34A, #FACC15)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             fontSize: 14, fontWeight: 700, color: '#fff',
           }}>+{xpToast.xp}</div>

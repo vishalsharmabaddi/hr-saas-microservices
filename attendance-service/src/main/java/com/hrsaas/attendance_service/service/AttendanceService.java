@@ -92,6 +92,15 @@ public class AttendanceService {
         return toResponse(attendanceRepository.save(record), null);
     }
 
+    // Company-scoped delete: the same findById + companyId filter as updateRecord, so a caller
+    // can only delete a record that belongs to their own tenant.
+    public void deleteRecord(Long companyId, Long id) {
+        AttendanceRecord record = attendanceRepository.findById(id)
+                .filter(r -> r.getCompanyId().equals(companyId))
+                .orElseThrow(() -> new RuntimeException("Record not found: " + id));
+        attendanceRepository.delete(record);
+    }
+
     public List<AttendanceResponse> getRange(Long companyId, LocalDate from, LocalDate to) {
         return attendanceRepository
                 .findByCompanyIdAndAttendanceDateBetweenOrderByAttendanceDateAsc(companyId, from, to)
