@@ -6,6 +6,8 @@ import com.hrsaas.project_service.enums.TaskStatus;
 import com.hrsaas.project_service.model.Task;
 import com.hrsaas.project_service.model.TaskList;
 import com.hrsaas.project_service.producer.TaskEventProducer;
+import com.hrsaas.project_service.repository.ProjectMemberRepository;
+import com.hrsaas.project_service.repository.TaskAssigneeRepository;
 import com.hrsaas.project_service.repository.TaskListRepository;
 import com.hrsaas.project_service.repository.TaskRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,8 +30,10 @@ class TaskServiceOwnershipTest {
     void setup() {
         taskRepo = mock(TaskRepository.class);
         TaskListRepository taskListRepo = mock(TaskListRepository.class);
+        TaskAssigneeRepository taskAssigneeRepo = mock(TaskAssigneeRepository.class);
+        ProjectMemberRepository projectMemberRepo = mock(ProjectMemberRepository.class);
         TaskEventProducer producer = mock(TaskEventProducer.class);
-        taskService = new TaskService(taskRepo, taskListRepo, producer);
+        taskService = new TaskService(taskRepo, taskListRepo, taskAssigneeRepo, projectMemberRepo, producer);
     }
 
     // company 1 ka task, banaya "owner@acme.com" ne
