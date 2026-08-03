@@ -1,7 +1,9 @@
 import axios from 'axios'
 
+// Local dev: khaali chhodo, Vite proxy '/api' ko localhost:8085 pe forward karta hai.
+// Production build: VITE_API_BASE_URL set karo (Render project-service URL).
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: `${import.meta.env.VITE_API_BASE_URL || ''}/api`,
   headers: {
     'X-Company-Id': '1',   // fallback (login se pehle / dev email login)
     'Content-Type': 'application/json',

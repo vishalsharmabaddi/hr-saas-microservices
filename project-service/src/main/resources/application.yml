@@ -77,6 +77,9 @@ app:
     auth:
       capacity: 10
       window-seconds: 60
+  # Netlify/Vercel wala frontend domain aur local dev, dono comma-separated. Prod me env se.
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173}
 
 # M2: Google login token verify karte waqt "audience" isi client-id se match hoga.
 # (Ye public value hai — frontend .env wale VITE_GOOGLE_CLIENT_ID jaisi.)
