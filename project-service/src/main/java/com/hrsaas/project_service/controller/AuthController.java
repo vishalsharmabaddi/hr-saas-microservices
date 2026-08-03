@@ -17,6 +17,12 @@ public class AuthController {
 
     private final AuthService authService;
 
+    // Cron-job keep-alive ping ke liye — halka, no-auth, DB touch nahi karta
+    @GetMapping("/ping")
+    public ResponseEntity<String> ping() {
+        return ResponseEntity.ok("pong");
+    }
+
     // Frontend login pe yahan token bhejega → verified identity + memberships wapas
     @PostMapping("/google")
     public ResponseEntity<AuthResponse> google(@RequestBody GoogleAuthRequest request) {
