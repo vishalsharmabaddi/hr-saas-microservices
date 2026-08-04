@@ -25,3 +25,4 @@ SECURITY-AUDIT.md
 
 # Markdown files (docs/plans/specs - not for repo)
 *.md
+!README.md
