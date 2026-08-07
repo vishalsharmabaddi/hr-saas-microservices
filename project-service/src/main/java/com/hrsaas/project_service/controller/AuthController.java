@@ -18,9 +18,13 @@ public class AuthController {
     private final AuthService authService;
 
     // Cron-job keep-alive ping ke liye — halka, no-auth, DB touch nahi karta
+    // no-transform: Cloudflare/Render edge isko chunk/compress na kare, warna
+    // cron-job.org jaise monitors chunked (unknown-size) response ko "too large" maan ke abort kar dete hain
     @GetMapping("/ping")
     public ResponseEntity<String> ping() {
-        return ResponseEntity.ok("pong");
+        return ResponseEntity.ok()
+                .header("Cache-Control", "no-transform")
+                .body("pong");
     }
 
     // Frontend login pe yahan token bhejega → verified identity + memberships wapas
